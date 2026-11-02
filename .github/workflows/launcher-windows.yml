@@ -1,0 +1,42 @@
+name: launcher-windows
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: packages/launcher/go.sum
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: packages/launcher/frontend/package.json
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.17.0
+
+      - name: Install frontend dependencies
+        working-directory: packages/launcher/frontend
+        run: npm install --no-audit --no-fund
+
+      - name: Build Windows launcher
+        working-directory: packages/launcher
+        run: wails build -clean -platform windows/amd64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VaKaoHub-windows-amd64
+          path: packages/launcher/build/bin/*.exe
+          if-no-files-found: error

@@ -1,0 +1,14 @@
+-- VaKao Hub 生产库初始化示例
+-- 请替换密码后执行；应用账号只授予本库权限。
+
+CREATE DATABASE IF NOT EXISTS `vakao_hub`
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'vakao_hub'@'127.0.0.1'
+  IDENTIFIED BY 'replace-with-a-strong-db-password';
+
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES
+  ON `vakao_hub`.* TO 'vakao_hub'@'127.0.0.1';
+
+FLUSH PRIVILEGES;

@@ -1,0 +1,19 @@
+[Unit]
+Description=VaKao Hub distribution server
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=www
+Group=www
+WorkingDirectory=/www/wwwroot/vakao-hub/packages/server
+EnvironmentFile=/www/wwwroot/vakao-hub/packages/server/.env
+ExecStart=/usr/bin/node dist/main.js
+Restart=always
+RestartSec=3
+LimitNOFILE=65535
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

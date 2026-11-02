@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VaKao Hub · 软件下载</title>
+    <meta name="description" content="VaKao 软件中心：下载、安装与更新 VaKao 系软件。" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <span class="mark" aria-hidden="true">
+          <i class="blue"></i><i class="orange"></i><i class="purple"></i><i class="yellow"></i>
+        </span>
+        <div>
+          <h1>VaKao Hub</h1>
+          <p>软件中心 · 下载</p>
+        </div>
+      </div>
+      <nav>
+        <a href="https://github.com/Rouarn/VakaoHub" target="_blank" rel="noreferrer">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h2>把 VaKao 的软件放在一个地方</h2>
+        <p>选择平台查看最新版本。下载后可用 VaKao Hub 启动器统一安装与更新。</p>
+      </section>
+
+      <div class="toolbar">
+        <div class="tabs" id="platforms"></div>
+        <label class="arch">
+          架构
+          <select id="arch">
+            <option value="universal">通用 / 不确定</option>
+            <option value="arm64">arm64（Apple Silicon）</option>
+            <option value="x64">x64（Intel / AMD）</option>
+          </select>
+        </label>
+        <button id="refresh" class="ghost">刷新</button>
+      </div>
+
+      <div id="status" class="status" hidden></div>
+      <p id="platform-note" class="note" hidden>
+        macOS 版本尚未公证，首次打开若被系统拦截，请在 Finder 中右键点击应用选择「打开」。
+      </p>
+
+      <section id="apps" class="grid"></section>
+    </main>
+
+    <footer>
+      <span>VaKao Hub · 统一软件分发</span>
+      <span id="api-label"></span>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

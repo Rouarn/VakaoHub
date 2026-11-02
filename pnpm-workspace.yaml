@@ -1,0 +1,8 @@
+packages:
+  - 'packages/*'
+
+# pnpm 12：允许安装期构建脚本的依赖（esbuild 是 Vite 的必需依赖）
+allowBuilds:
+  esbuild: true
+  # 遥测包，明确拒绝执行
+  '@scarf/scarf': false

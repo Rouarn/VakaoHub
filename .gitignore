@@ -1,0 +1,18 @@
+node_modules/
+dist/
+storage/
+logs/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+.vite/
+*.tsbuildinfo
+coverage/
+
+# Wails 构建产物
+packages/launcher/build/bin/
+!packages/launcher/frontend/dist/
+packages/launcher/frontend/dist/*
+!packages/launcher/frontend/dist/.gitkeep

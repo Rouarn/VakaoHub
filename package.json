@@ -1,0 +1,19 @@
+{
+  "name": "vakao-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=22.18.0",
+    "pnpm": ">=10.15.0"
+  },
+  "scripts": {
+    "dev": "pnpm build:shared && pnpm --parallel --filter @vakao/hub-server --filter @vakao/hub-admin dev",
+    "dev:server": "pnpm build:shared && pnpm --filter @vakao/hub-server dev",
+    "dev:admin": "pnpm build:shared && pnpm --filter @vakao/hub-admin dev",
+    "build:shared": "pnpm --filter @vakao/hub-shared build",
+    "build": "pnpm build:shared && pnpm --filter @vakao/hub-server build && pnpm --filter @vakao/hub-admin build",
+    "website": "python3 -m http.server 5200 --directory packages/website"
+  }
+}
