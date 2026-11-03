@@ -1,23 +1,28 @@
 <template>
   <div class="page">
-    <div class="page-head">
-      <div class="toolbar">
-        <div>
-          <p class="hud">CATALOG / RELEASES</p>
-          <h2 class="page-title">版本与产物</h2>
-        </div>
-        <n-select
-          v-model:value="appId"
-          :options="appOptions"
-          placeholder="选择应用"
-          style="width: 220px"
-        />
+    <div class="page-head releases-head">
+      <div class="head-copy">
+        <p class="hud">CATALOG / RELEASES</p>
+        <h2 class="page-title">版本与产物</h2>
+        <p class="page-sub">按应用管理版本、产物与发布状态。</p>
       </div>
-      <div class="toolbar">
-        <n-button :disabled="!appId" @click="confirmRollback">回滚上一版</n-button>
-        <n-button type="primary" :disabled="!appId" @click="openCreate">
-          新建版本
-        </n-button>
+
+      <div class="head-actions">
+        <label class="app-picker">
+          <span class="hud">APPLICATION</span>
+          <n-select
+            v-model:value="appId"
+            :options="appOptions"
+            placeholder="选择应用"
+            style="width: 240px"
+          />
+        </label>
+        <div class="action-group">
+          <n-button :disabled="!appId" @click="confirmRollback">回滚上一版</n-button>
+          <n-button type="primary" :disabled="!appId" @click="openCreate">
+            新建版本
+          </n-button>
+        </div>
       </div>
     </div>
 
@@ -710,5 +715,55 @@ onMounted(async () => {
   font-size: 8px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.releases-head {
+  align-items: flex-end;
+}
+
+.head-copy {
+  min-width: 0;
+}
+
+.page-sub {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.head-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.app-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.action-group {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .releases-head {
+    align-items: flex-start;
+  }
+
+  .head-actions {
+    width: 100%;
+  }
+
+  .app-picker {
+    flex: 1;
+  }
+
+  .app-picker :deep(.n-select) {
+    width: 100% !important;
+  }
 }
 </style>
