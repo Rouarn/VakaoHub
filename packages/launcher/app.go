@@ -341,6 +341,30 @@ func (a *App) Launch(appKey string) error {
 	return install.Launch(item.InstallPath)
 }
 
+// Reveal 在系统文件管理器中选中应用。
+func (a *App) Reveal(appKey string) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	path := ""
+	if appKey == "vakaohub" {
+		if current, _, ok := install.CurrentBundle(); ok {
+			path = current
+		}
+	}
+	if path == "" {
+		item, ok := a.store.Get(appKey)
+		if !ok {
+			return fmt.Errorf("尚未安装该应用")
+		}
+		path = item.InstallPath
+	}
+	if _, err := os.Stat(path); err != nil {
+		return fmt.Errorf("安装目录不存在：%s", path)
+	}
+	return install.Reveal(path)
+}
+
 func (a *App) OpenURL(url string) {
 	if a.ctx != nil {
 		wruntime.BrowserOpenURL(a.ctx, url)

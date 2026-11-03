@@ -654,8 +654,8 @@ button {
   right: 13px;
   bottom: 53px;
   z-index: 4;
-  min-width: 132px;
-  padding: 4px;
+  min-width: 184px;
+  padding: 5px;
   border: 1px solid var(--line);
   border-radius: 4px;
   background: var(--paper);
@@ -681,6 +681,22 @@ button {
 
 .card-menu button.danger {
   color: #9a453a;
+}
+
+.card-menu button:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.card-menu button:disabled:hover {
+  background: transparent;
+  color: var(--muted);
+}
+
+.menu-divider {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--line-soft);
 }
 
 /* ---------- list mode ---------- */
@@ -748,6 +764,7 @@ button {
   margin: auto;
   overflow: hidden;
   border: 1px solid rgba(23, 21, 18, 0.16);
+  border-right: 0;
   border-radius: 14px;
   background: var(--paper);
   box-shadow: 0 28px 80px rgba(14, 13, 11, 0.28);
@@ -903,6 +920,7 @@ button {
   top: 42px;
   right: 0;
   bottom: auto;
+  width: 196px;
 }
 
 .detail-links {
@@ -1187,8 +1205,8 @@ button {
 .content::-webkit-scrollbar,
 .drawer::-webkit-scrollbar,
 .detail-scroll::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
 }
 
 .content::-webkit-scrollbar-track,
@@ -1215,15 +1233,22 @@ button {
 }
 
 .detail-scroll::-webkit-scrollbar-thumb {
-  border: 2px solid transparent;
-  border-radius: 8px;
+  border: 0;
+  border-radius: 0;
   background: var(--theme-scroll);
-  background-clip: content-box;
 }
 
 .detail-scroll::-webkit-scrollbar-thumb:hover {
   background: var(--theme);
-  background-clip: content-box;
+}
+
+.detail-scroll::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+}
+
+.detail-scroll::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 @keyframes overlay-in {

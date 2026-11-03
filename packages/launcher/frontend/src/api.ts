@@ -57,6 +57,7 @@ interface WailsApp {
   Install(appKey: string, artifactID: number): Promise<Installed>;
   Launch(appKey: string): Promise<void>;
   Uninstall(appKey: string): Promise<void>;
+  Reveal(appKey: string): Promise<void>;
   OpenURL(url: string): void;
 }
 

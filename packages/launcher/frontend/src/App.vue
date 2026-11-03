@@ -159,14 +159,18 @@
 
           <div v-if="menuKey === app.appKey" class="card-menu" @click.stop>
             <button @click="openDetail(app)">查看详情</button>
+            <button v-if="app.installed && !app.running" @click="launch(app)">打开</button>
+            <button v-if="app.installed" @click="reveal(app)">在访达中显示</button>
+            <button v-if="app.installed && !app.running" @click="install(app)">重新安装</button>
             <button v-if="app.homepage" @click="openUrl(app.homepage)">打开主页</button>
             <button v-if="app.repoUrl" @click="openUrl(app.repoUrl)">查看源码</button>
+            <div v-if="app.installed && !app.running" class="menu-divider"></div>
             <button
               v-if="app.installed && !app.running"
               class="danger"
               @click="uninstall(app)"
             >
-              卸载
+              卸载…
             </button>
           </div>
         </article>
@@ -211,16 +215,22 @@
             <template v-else-if="selected.hasUpdate">更新至 {{ selected.latestVersion }}</template>
             <template v-else>打开</template>
           </button>
-          <button class="more detail-more" @click="toggleMenu(selected)">⋯</button>
+          <button class="more detail-more" @click.stop="toggleMenu(selected)">⋯</button>
           <div v-if="menuKey === selected.appKey" class="card-menu detail-menu" @click.stop>
+            <button v-if="selected.running" disabled>当前运行</button>
+            <button v-if="selected.installed && !selected.running" @click="launch(selected)">打开</button>
+            <button v-if="selected.installed" @click="reveal(selected)">在访达中显示</button>
+            <button v-if="selected.installed && !selected.running" @click="install(selected)">重新安装</button>
+            <button @click="scrollToChangelog">更新说明</button>
             <button v-if="selected.homepage" @click="openUrl(selected.homepage)">打开主页</button>
             <button v-if="selected.repoUrl" @click="openUrl(selected.repoUrl)">查看源码</button>
+            <div v-if="selected.installed && !selected.running" class="menu-divider"></div>
             <button
               v-if="selected.installed && !selected.running"
               class="danger"
               @click="uninstall(selected)"
             >
-              卸载
+              卸载…
             </button>
           </div>
         </div>
@@ -538,6 +548,7 @@ async function load(): Promise<void> {
 
 async function install(app: AppView): Promise<void> {
   if (app.running) return;
+  menuKey.value = '';
   busyKeys.value = { ...busyKeys.value, [app.appKey]: true };
   error.value = '';
   try {
@@ -573,6 +584,7 @@ async function primaryAction(app: AppView): Promise<void> {
 
 async function uninstall(app: AppView): Promise<void> {
   if (app.running) return;
+  menuKey.value = '';
   if (!window.confirm(`确定卸载 ${app.name}？安装目录会被删除。`)) return;
   error.value = '';
   try {
@@ -587,6 +599,7 @@ async function uninstall(app: AppView): Promise<void> {
 }
 
 async function launch(app: AppView): Promise<void> {
+  menuKey.value = '';
   error.value = '';
   try {
     await api().Launch(app.appKey);
@@ -673,7 +686,24 @@ async function saveSettings(): Promise<void> {
   }
 }
 
+function reveal(app: AppView): Promise<void> {
+  menuKey.value = '';
+  error.value = '';
+  return api().Reveal(app.appKey).catch((cause: unknown) => {
+    error.value = (cause as Error).message;
+  });
+}
+
+function scrollToChangelog(): void {
+  menuKey.value = '';
+  void nextTick(() => {
+    const target = document.querySelector('.changelog');
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
 function openUrl(url: string): void {
+  menuKey.value = '';
   api().OpenURL(url);
 }
 
