@@ -78,6 +78,7 @@ type AppView struct {
 	ArtifactFormat       string   `json:"artifactFormat"`
 	ArtifactSize         int64    `json:"artifactSize"`
 	ArtifactSHA256       string   `json:"artifactSha256"`
+	MinOs                string   `json:"minOs"`
 	Installed            bool     `json:"installed"`
 	InstalledVersion     string   `json:"installedVersion"`
 	InstalledVersionCode int      `json:"installedVersionCode"`
@@ -88,9 +89,10 @@ type AppView struct {
 }
 
 type CatalogView struct {
-	Platform string    `json:"platform"`
-	Arch     string    `json:"arch"`
-	Apps     []AppView `json:"apps"`
+	Platform  string    `json:"platform"`
+	Arch      string    `json:"arch"`
+	OSVersion string    `json:"osVersion"`
+	Apps      []AppView `json:"apps"`
 }
 
 func (a *App) GetSettings() Settings {
@@ -126,7 +128,12 @@ func (a *App) catalogLocked() (CatalogView, error) {
 		return CatalogView{}, err
 	}
 
-	view := CatalogView{Platform: platform, Arch: arch, Apps: make([]AppView, 0, len(response.Apps))}
+	view := CatalogView{
+		Platform:  platform,
+		Arch:      arch,
+		OSVersion: hostOSVersion(),
+		Apps:      make([]AppView, 0, len(response.Apps)),
+	}
 	for _, app := range response.Apps {
 		if app.Latest == nil || len(app.Latest.Artifacts) == 0 {
 			continue
@@ -156,6 +163,7 @@ func (a *App) catalogLocked() (CatalogView, error) {
 			ArtifactFormat:    artifact.Format,
 			ArtifactSize:      artifact.Size,
 			ArtifactSHA256:    artifact.SHA256,
+			MinOs:             artifact.MinOs,
 		}
 
 		detected := install.FindApps(app.Name)
@@ -255,6 +263,11 @@ func (a *App) Install(appKey string, artifactID int) (store.Installed, error) {
 	}
 	if appKey == "vakaohub" {
 		return store.Installed{}, fmt.Errorf("启动器不能通过自身安装；请下载新版本手动替换")
+	}
+	if artifact.Platform == "darwin" && artifact.MinOs != "" {
+		if current := hostOSVersion(); current != "" && isNewerVersion(artifact.MinOs, current) {
+			return store.Installed{}, fmt.Errorf("该版本需要 macOS %s 或更高版本，当前系统为 %s", artifact.MinOs, current)
+		}
 	}
 
 	a.emit(appKey, "preparing", -1, "准备下载")

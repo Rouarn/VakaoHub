@@ -29,6 +29,7 @@ export interface AppView {
   artifactFormat: string;
   artifactSize: number;
   artifactSha256: string;
+  minOs: string;
   installed: boolean;
   installedVersion: string;
   installedVersionCode: number;
@@ -41,6 +42,7 @@ export interface AppView {
 export interface CatalogView {
   platform: string;
   arch: string;
+  osVersion: string;
   apps: AppView[];
 }
 

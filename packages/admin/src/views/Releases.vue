@@ -130,8 +130,11 @@
             <n-form-item label="格式">
               <n-select v-model:value="uploadForm.format" :options="formatOptions" />
             </n-form-item>
-            <n-form-item label="最低系统">
-              <n-input v-model:value="uploadForm.minOs" placeholder="可选，如 12.0" />
+            <n-form-item :label="minOsLabel">
+              <div class="min-os-field">
+                <n-input v-model:value="uploadForm.minOs" :placeholder="minOsPlaceholder" />
+                <span class="min-os-hint">指用户运行设备的操作系统版本，不是软件版本。</span>
+              </div>
             </n-form-item>
             <n-form-item label="文件">
               <div
@@ -235,6 +238,26 @@ const drawerRelease = ref<ReleaseRow | null>(null);
 const uploading = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const dragging = ref(false);
+const minOsLabel = computed(() => {
+  const labels: Record<string, string> = {
+    darwin: '最低 macOS 版本',
+    win32: '最低 Windows 版本',
+    android: '最低 Android 版本',
+    linux: '最低 Linux 版本',
+  };
+  return labels[uploadForm.platform] ?? '最低系统版本';
+});
+
+const minOsPlaceholder = computed(() => {
+  const placeholders: Record<string, string> = {
+    darwin: '如 12.0（macOS Monterey）',
+    win32: '如 10（Windows 10）',
+    android: '如 8.0（Android 8）',
+    linux: '如 20.04（Ubuntu）',
+  };
+  return placeholders[uploadForm.platform] ?? '运行设备最低系统版本';
+});
+
 const uploadForm = reactive({
   platform: 'android',
   arch: 'universal',
@@ -765,5 +788,18 @@ onMounted(async () => {
   .app-picker :deep(.n-select) {
     width: 100% !important;
   }
+}
+
+.min-os-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.min-os-hint {
+  color: var(--faint);
+  font-size: 10px;
+  line-height: 1.4;
 }
 </style>

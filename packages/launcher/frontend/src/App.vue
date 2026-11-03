@@ -144,7 +144,7 @@
           <div class="card-bottom">
             <button
               class="action"
-              :disabled="busy(app.appKey) || updatingAll"
+              :disabled="busy(app.appKey) || updatingAll || !supportsOs(app)"
               @click.stop="primaryAction(app)"
             >
               <template v-if="app.running">当前运行</template>
@@ -217,7 +217,7 @@
         </div>
 
         <div class="detail-actions">
-          <button class="action" :disabled="busy(selected.appKey)" @click="primaryAction(selected)">
+          <button class="action" :disabled="busy(selected.appKey) || !supportsOs(selected)" @click="primaryAction(selected)">
             <template v-if="selected.running">当前运行</template>
             <template v-else-if="!selected.installed">安装</template>
             <template v-else-if="selected.hasUpdate">更新至 {{ selected.latestVersion }}</template>
@@ -257,6 +257,10 @@
           </div>
 
           <div class="detail-body">
+      <p v-if="!supportsOs(selected)" class="notice detail-notice">
+        该版本需要 macOS {{ selected.minOs }} 或更高版本，当前系统为 {{ hostOsVersion || '未知' }}。
+      </p>
+
       <div class="detail-grid">
         <div class="gallery">
           <div v-if="selectedMeta.screenshots.length" class="screen-main">
@@ -318,7 +322,10 @@
         </div>
         <div>
           <span class="hud">平台</span>
-          <strong>{{ platformLabel }} · {{ selected.artifactFormat.toUpperCase() }}</strong>
+          <strong>
+            {{ platformLabel }} · {{ selected.artifactFormat.toUpperCase() }}
+            <span v-if="selected.minOs" class="min-os">≥ {{ selected.minOs }}</span>
+          </strong>
         </div>
       </div>
 
@@ -438,6 +445,7 @@ const DETAIL_META: Record<string, DetailMeta> = {
 const apps = ref<AppView[]>([]);
 const platform = ref('');
 const arch = ref('');
+const hostOsVersion = ref('');
 const settings = ref<Settings>({ baseUrl: 'https://dist.woyuxiaji.cn/api/v1' });
 const loading = ref(false);
 const saving = ref(false);
@@ -564,6 +572,7 @@ async function load(): Promise<void> {
     apps.value = catalog.apps ?? [];
     platform.value = catalog.platform;
     arch.value = catalog.arch;
+    hostOsVersion.value = catalog.osVersion ?? '';
     serviceOnline.value = true;
   } catch (cause) {
     error.value = (cause as Error).message;
@@ -575,6 +584,10 @@ async function load(): Promise<void> {
 
 async function install(app: AppView): Promise<void> {
   if (app.running) return;
+  if (!supportsOs(app)) {
+    error.value = `该版本需要 macOS ${app.minOs} 或更高版本，当前系统为 ${hostOsVersion.value}`;
+    return;
+  }
   menuKey.value = '';
   busyKeys.value = { ...busyKeys.value, [app.appKey]: true };
   error.value = '';
@@ -600,7 +613,28 @@ async function updateAll(): Promise<void> {
   updatingAll.value = false;
 }
 
+function compareVersion(left: string, right: string): number {
+  const a = left.split('.').map((part) => parseInt(part, 10) || 0);
+  const b = right.split('.').map((part) => parseInt(part, 10) || 0);
+  const length = Math.max(a.length, b.length);
+  for (let index = 0; index < length; index += 1) {
+    const x = a[index] ?? 0;
+    const y = b[index] ?? 0;
+    if (x !== y) return x > y ? 1 : -1;
+  }
+  return 0;
+}
+
+function supportsOs(app: AppView): boolean {
+  if (!app.minOs || !hostOsVersion.value) return true;
+  return compareVersion(hostOsVersion.value, app.minOs) >= 0;
+}
+
 async function primaryAction(app: AppView): Promise<void> {
+  if (!supportsOs(app)) {
+    error.value = `该版本需要 macOS ${app.minOs} 或更高版本，当前系统为 ${hostOsVersion.value}`;
+    return;
+  }
   if (app.running) return;
   if (!app.installed || app.hasUpdate) {
     await install(app);

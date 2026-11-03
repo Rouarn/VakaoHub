@@ -1013,6 +1013,18 @@ button {
   color: #8a5a37;
 }
 
+.detail-notice {
+  margin: 12px 0 0;
+}
+
+.min-os {
+  margin-left: 6px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+}
+
 .detail-grid {
   display: grid;
   grid-template-columns: 1.35fr 0.9fr;

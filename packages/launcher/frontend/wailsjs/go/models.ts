@@ -20,6 +20,7 @@ export namespace main {
 	    artifactFormat: string;
 	    artifactSize: number;
 	    artifactSha256: string;
+	    minOs: string;
 	    installed: boolean;
 	    installedVersion: string;
 	    installedVersionCode: number;
@@ -53,6 +54,7 @@ export namespace main {
 	        this.artifactFormat = source["artifactFormat"];
 	        this.artifactSize = source["artifactSize"];
 	        this.artifactSha256 = source["artifactSha256"];
+	        this.minOs = source["minOs"];
 	        this.installed = source["installed"];
 	        this.installedVersion = source["installedVersion"];
 	        this.installedVersionCode = source["installedVersionCode"];
@@ -65,6 +67,7 @@ export namespace main {
 	export class CatalogView {
 	    platform: string;
 	    arch: string;
+	    osVersion: string;
 	    apps: AppView[];
 	
 	    static createFrom(source: any = {}) {
@@ -75,6 +78,7 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.platform = source["platform"];
 	        this.arch = source["arch"];
+	        this.osVersion = source["osVersion"];
 	        this.apps = this.convertValues(source["apps"], AppView);
 	    }
 	
