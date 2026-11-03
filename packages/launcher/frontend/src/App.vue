@@ -379,29 +379,115 @@
       </section>
     </div>
 
-    <div v-if="settingsVisible" class="overlay" @click.self="settingsVisible = false">
-      <aside class="drawer">
-        <div class="drawer-head">
-          <p class="hud">SETTINGS</p>
-          <button class="icon-btn" @click="settingsVisible = false">×</button>
+    <div v-if="settingsVisible" class="settings-overlay" @click.self="settingsVisible = false">
+      <section class="settings-window" role="dialog" aria-modal="true" aria-label="设置">
+        <header class="settings-head">
+          <img :src="starUrl" class="settings-icon" alt="" />
+          <div class="settings-title">
+            <h2>设置</h2>
+            <p class="hud">VAKAO HUB · LAUNCHER {{ launcherVersion }}</p>
+          </div>
+          <button class="icon-btn settings-close" title="关闭" @click="settingsVisible = false">×</button>
+        </header>
+
+        <div class="settings-body">
+          <div class="settings-col">
+            <section class="settings-card">
+              <p class="hud">外观</p>
+              <div class="segmented">
+                <button :class="{ active: themeMode === 'system' }" @click="setThemeMode('system')">
+                  跟随系统
+                </button>
+                <button :class="{ active: themeMode === 'dark' }" @click="setThemeMode('dark')">
+                  深色
+                </button>
+                <button :class="{ active: themeMode === 'light' }" @click="setThemeMode('light')">
+                  浅色
+                </button>
+              </div>
+              <p class="settings-note">跟随系统时会随 macOS 外观自动切换。</p>
+            </section>
+
+            <section class="settings-card">
+              <p class="hud">更新</p>
+              <div class="settings-row">
+                <div>
+                  <strong>检查更新</strong>
+                  <span>自动检查软件目录的频率</span>
+                </div>
+                <select v-model.number="refreshMinutes" class="settings-select" @change="saveRefreshInterval">
+                  <option :value="0">手动</option>
+                  <option :value="15">每 15 分钟</option>
+                  <option :value="30">每 30 分钟</option>
+                  <option :value="60">每 1 小时</option>
+                </select>
+              </div>
+              <div class="settings-actions">
+                <button class="settings-secondary" :disabled="loading" @click="load">立即检查</button>
+                <span class="service-state" :class="{ offline: !serviceOnline }">
+                  <i></i>{{ serviceOnline ? '分发服务在线' : '分发服务离线' }}
+                </span>
+              </div>
+            </section>
+
+            <section class="settings-card">
+              <p class="hud">分发服务</p>
+              <div class="settings-row settings-row-start">
+                <div>
+                  <strong>服务地址</strong>
+                  <span>安装、更新与校验都从这里读取</span>
+                </div>
+              </div>
+              <input
+                v-model="draftBaseUrl"
+                class="settings-input"
+                spellcheck="false"
+                placeholder="https://dist.woyuxiaji.cn/api/v1"
+              />
+              <div class="settings-actions">
+                <button class="settings-secondary" @click="resetBaseUrl">恢复默认</button>
+                <button class="settings-primary" :disabled="saving" @click="saveSettings">保存</button>
+              </div>
+            </section>
+          </div>
+
+          <div class="settings-col">
+            <section class="settings-card">
+              <p class="hud">安装位置</p>
+              <div class="settings-row settings-row-start">
+                <div>
+                  <strong>应用安装目录</strong>
+                  <span>新安装的应用会放在这里</span>
+                </div>
+              </div>
+              <code class="settings-path">~/Applications</code>
+            </section>
+
+            <section class="settings-card">
+              <p class="hud">关于</p>
+              <div class="about-mark">
+                <strong>VaKao Hub</strong>
+                <span>软件中心启动器</span>
+              </div>
+              <div class="about-grid">
+                <div><span class="hud">版本</span><strong>{{ launcherVersion }}</strong></div>
+                <div><span class="hud">系统</span><strong>{{ platformLabel }} {{ hostOsVersion }}</strong></div>
+                <div><span class="hud">架构</span><strong>{{ arch }}</strong></div>
+              </div>
+              <div class="settings-links">
+                <button @click="openUrl('https://github.com/Rouarn/VakaoHub')">GitHub ↗</button>
+                <button @click="openUrl('https://github.com/Rouarn/VakaoHub/releases')">版本发布 ↗</button>
+                <button @click="openUrl('https://github.com/Rouarn/VakaoHub#readme')">帮助文档 ↗</button>
+              </div>
+            </section>
+          </div>
         </div>
-        <h2>分发服务</h2>
-        <p class="hint">
-          本地开发使用 <code>http://127.0.0.1:3000/api/v1</code>；正式版本默认连接生产服务。
-        </p>
-        <label class="field">
-          <span class="hud">BASE URL</span>
-          <input v-model="draftBaseUrl" spellcheck="false" placeholder="https://dist.woyuxiaji.cn/api/v1" />
-        </label>
-        <div class="drawer-actions">
-          <button class="ghost-btn" @click="settingsVisible = false">取消</button>
-          <button class="action" :disabled="saving" @click="saveSettings">保存</button>
-        </div>
-        <div class="drawer-foot">
-          <span class="hud">ABOUT</span>
-          <p>VaKao Hub · 软件中心<br />统一安装、更新与校验。</p>
-        </div>
-      </aside>
+
+        <footer class="settings-foot">
+          <span class="hud">VAKAO HUB / {{ launcherVersion }}</span>
+          <button class="settings-primary" @click="settingsVisible = false">完成</button>
+        </footer>
+      </section>
     </div>
 
     <div v-if="uninstallTarget" class="confirm-overlay" @click.self="uninstallTarget = null">
@@ -472,10 +558,44 @@ const DETAIL_META: Record<string, DetailMeta> = {
 const apps = ref<AppView[]>([]);
 const platform = ref('');
 const arch = ref('');
+type ThemeMode = 'system' | 'light' | 'dark';
+
+const launcherVersion = '1.0.0';
+
+function systemTheme(): 'light' | 'dark' {
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function initialThemeMode(): ThemeMode {
+  try {
+    const savedMode = localStorage.getItem('vakaohub-theme-mode');
+    if (savedMode === 'system' || savedMode === 'dark' || savedMode === 'light') {
+      return savedMode;
+    }
+    const savedTheme = localStorage.getItem('vakaohub-theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme;
+  } catch {
+    // localStorage 不可用时跟随系统。
+  }
+  return 'system';
+}
+
+function initialRefreshMinutes(): number {
+  try {
+    const value = Number(localStorage.getItem('vakaohub-refresh-minutes'));
+    if (value === 0 || value === 15 || value === 30 || value === 60) return value;
+  } catch {
+    // localStorage 不可用时使用默认值。
+  }
+  return 30;
+}
+
 const hostOsVersion = ref('');
 const theme = ref<'light' | 'dark'>(
   document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
 );
+const themeMode = ref<ThemeMode>(initialThemeMode());
+const refreshMinutes = ref<number>(initialRefreshMinutes());
 const settings = ref<Settings>({ baseUrl: 'https://dist.woyuxiaji.cn/api/v1' });
 const loading = ref(false);
 const saving = ref(false);
@@ -597,7 +717,7 @@ async function load(): Promise<void> {
   try {
     const current = await api();
     settings.value = await current.GetSettings();
-    draftBaseUrl.value = settings.value.baseUrl;
+    if (!settingsVisible.value) draftBaseUrl.value = settings.value.baseUrl;
     const catalog = await current.GetCatalog();
     apps.value = catalog.apps ?? [];
     platform.value = catalog.platform;
@@ -956,11 +1076,39 @@ function setTheme(next: 'light' | 'dark'): void {
   }
 }
 
+function setThemeMode(mode: ThemeMode): void {
+  themeMode.value = mode;
+  try {
+    localStorage.setItem('vakaohub-theme-mode', mode);
+  } catch {
+    // localStorage 不可用时只保留本次会话的模式。
+  }
+  setTheme(mode === 'system' ? systemTheme() : mode);
+}
+
 function toggleTheme(): void {
-  setTheme(theme.value === 'dark' ? 'light' : 'dark');
+  setThemeMode(theme.value === 'dark' ? 'light' : 'dark');
+}
+
+function saveRefreshInterval(): void {
+  try {
+    localStorage.setItem('vakaohub-refresh-minutes', String(refreshMinutes.value));
+  } catch {
+    // localStorage 不可用时只保留本次会话的频率。
+  }
+  restartRefreshTimer();
+}
+
+function resetBaseUrl(): void {
+  draftBaseUrl.value = 'https://dist.woyuxiaji.cn/api/v1';
 }
 
 function onKeydown(event: KeyboardEvent): void {
+  if ((event.metaKey || event.ctrlKey) && event.key === ',') {
+    event.preventDefault();
+    openSettings();
+    return;
+  }
   if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === 'd') {
     event.preventDefault();
     toggleTheme();
@@ -983,9 +1131,27 @@ function onProgress(payload: Progress): void {
   }
 }
 
+let systemThemeMedia: MediaQueryList | undefined;
+function onSystemThemeChange(): void {
+  if (themeMode.value === 'system') setTheme(systemTheme());
+}
+
+function restartRefreshTimer(): void {
+  if (refreshTimer) window.clearInterval(refreshTimer);
+  refreshTimer = undefined;
+  if (refreshMinutes.value <= 0) return;
+  refreshTimer = window.setInterval(() => {
+    if (!document.hidden && !loading.value) {
+      void load();
+    }
+  }, refreshMinutes.value * 60 * 1000);
+}
+
 onMounted(() => {
+  const mode = initialThemeMode();
+  themeMode.value = mode;
+  setTheme(mode === 'system' ? systemTheme() : mode);
   document.documentElement.style.colorScheme = theme.value;
-  applyNativeTheme(theme.value);
   void load();
   window.addEventListener('click', closeMenu);
   window.addEventListener('keydown', onKeydown);
@@ -998,15 +1164,15 @@ onMounted(() => {
   }).runtime;
   runtime?.EventsOn('install:progress', onProgress);
 
-  refreshTimer = window.setInterval(() => {
-    if (!document.hidden && !loading.value) {
-      void load();
-    }
-  }, 30 * 60 * 1000);
+  restartRefreshTimer();
+
+  systemThemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+  systemThemeMedia.addEventListener('change', onSystemThemeChange);
 });
 
 onUnmounted(() => {
   if (refreshTimer) window.clearInterval(refreshTimer);
+  systemThemeMedia?.removeEventListener('change', onSystemThemeChange);
   window.removeEventListener('click', closeMenu);
   window.removeEventListener('keydown', onKeydown);
   window.removeEventListener('resize', updateScrollbar);
