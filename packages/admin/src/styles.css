@@ -1,3 +1,5 @@
+@import '../../shared/design/tokens.css';
+
 @font-face {
   font-family: 'Archivo';
   src: url('./assets/fonts/archivo.woff2') format('woff2');
@@ -18,26 +20,6 @@
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-}
-
-:root {
-  --paper: #f6f7f9;
-  --raised: #ffffff;
-  --ink: #14161b;
-  --strong: #0b0c0f;
-  --muted: #5f6572;
-  --faint: #8b90a0;
-  --line: #e5e7ec;
-  --line-soft: #eef0f4;
-  --accent: #4f7cf7;
-  --orange: #f0995f;
-  --blue: #5fbedc;
-  --purple: #a27fc2;
-  --yellow: #eddf55;
-  --display: 'Archivo', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  --body: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  --mono: 'SF Mono', 'Menlo', ui-monospace, monospace;
-  --serif: 'Instrument Serif', 'Songti SC', serif;
 }
 
 * {
@@ -127,7 +109,7 @@ body {
 /* ---------- Naive UI surface ---------- */
 
 .n-card {
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03) !important;
+  box-shadow: 0 1px 2px var(--shadow-soft) !important;
 }
 
 .n-card > .n-card-header .n-card-header__main {
@@ -146,7 +128,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: hidden;
-  background: #fff;
+  background: var(--raised);
 }
 
 .n-data-table .n-data-table-th {
@@ -155,8 +137,8 @@ body {
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #6b7280;
-  background: #f8f9fb;
+  color: var(--table-head-text);
+  background: var(--table-head);
 }
 
 .n-data-table .n-data-table-td {

@@ -262,7 +262,7 @@ function confirmRemoveArtifact(row: ArtifactRow): void {
   padding: 11px 12px;
   border: 1px dashed var(--line);
   border-radius: 7px;
-  background: rgba(250, 249, 245, 0.5);
+  background: var(--raised-soft);
   cursor: pointer;
   transition: border-color 0.16s ease, background 0.16s ease;
 }
@@ -270,7 +270,7 @@ function confirmRemoveArtifact(row: ArtifactRow): void {
 .file-drop:hover,
 .file-drop.dragging {
   border-color: var(--accent);
-  background: rgba(70, 166, 198, 0.05);
+  background: var(--accent-soft);
 }
 
 .file-drop.has-file {

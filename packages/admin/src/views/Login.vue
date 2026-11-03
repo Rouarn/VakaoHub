@@ -118,7 +118,7 @@ async function submit(): Promise<void> {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   min-height: 100vh;
-  background: #f6f7f9;
+  background: var(--paper);
 }
 
 .login-visual {
@@ -127,8 +127,8 @@ async function submit(): Promise<void> {
   align-items: center;
   overflow: hidden;
   padding: 56px;
-  background: #0f1115;
-  color: #f4f5f7;
+  background: var(--nav-bg);
+  color: var(--nav-text);
 }
 
 .visual-glow {
@@ -144,13 +144,13 @@ async function submit(): Promise<void> {
 .visual-glow.one {
   top: -140px;
   left: -120px;
-  background: #4f7cf7;
+  background: var(--accent);
 }
 
 .visual-glow.two {
   right: -160px;
   bottom: -160px;
-  background: #a27fc2;
+  background: var(--purple);
 }
 
 .visual-inner {
@@ -183,9 +183,9 @@ async function submit(): Promise<void> {
 .visual-brand b {
   margin-left: 4px;
   padding: 2px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--nav-line);
   border-radius: 4px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--nav-soft);
   font-size: 8px;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -196,7 +196,7 @@ async function submit(): Promise<void> {
 }
 
 .login-visual .hud {
-  color: rgba(244, 245, 247, 0.4);
+  color: var(--nav-muted);
 }
 
 .visual-copy h1 {
@@ -209,17 +209,14 @@ async function submit(): Promise<void> {
 }
 
 .visual-copy h1 span {
-  background: linear-gradient(100deg, #8ea8ff, #6fd3e8 60%, #bca4e8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--accent);
 }
 
 .visual-lede {
   margin: 0;
   font-size: 14px;
   line-height: 1.8;
-  color: rgba(244, 245, 247, 0.6);
+  color: var(--nav-soft);
 }
 
 .visual-cards {
@@ -234,9 +231,9 @@ async function submit(): Promise<void> {
   flex-direction: column;
   gap: 3px;
   padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--nav-line);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--nav-hover);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
@@ -244,7 +241,7 @@ async function submit(): Promise<void> {
 .visual-cards span {
   font-family: var(--mono);
   font-size: 9px;
-  color: #8ea8ff;
+  color: var(--accent);
 }
 
 .visual-cards strong {
@@ -254,7 +251,7 @@ async function submit(): Promise<void> {
 }
 
 .visual-cards small {
-  color: rgba(244, 245, 247, 0.45);
+  color: var(--nav-muted);
   font-size: 10px;
 }
 
@@ -264,11 +261,11 @@ async function submit(): Promise<void> {
   gap: 20px;
   margin-top: 34px;
   padding-top: 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--nav-line);
 }
 
 .visual-foot .hud {
-  color: rgba(244, 245, 247, 0.3);
+  color: var(--nav-muted);
 }
 
 .login-panel {
@@ -276,7 +273,7 @@ async function submit(): Promise<void> {
   align-items: center;
   justify-content: center;
   padding: 48px;
-  background: #f6f7f9;
+  background: var(--paper);
 }
 
 .login-box {
@@ -285,8 +282,8 @@ async function submit(): Promise<void> {
   padding: 30px;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 18px 50px rgba(16, 24, 40, 0.07);
+  background: var(--raised);
+  box-shadow: 0 18px 50px var(--shadow-panel);
 }
 
 .login-box .hud {

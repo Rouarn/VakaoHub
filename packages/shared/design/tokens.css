@@ -1,0 +1,106 @@
+/*
+ * VaKao Hub 设计令牌（唯一来源）
+ * 与 docs/design-system.md 同步；admin 直接 @import 本文件，launcher 前端与 website
+ * 因独立构建无法引用 workspace 文件，保持同值并由 packages/server/tests/design-tokens.test.mjs 校验一致。
+ * 只允许在这里新增/修改色值；组件样式一律引用变量。
+ */
+
+:root {
+  --paper: #f3f1ec;
+  --raised: #faf9f5;
+  --ink: #171512;
+  --strong: #0e0d0b;
+  --muted: #5e5a52;
+  --faint: #8c877d;
+  --line: rgba(23, 21, 18, 0.12);
+  --line-soft: rgba(23, 21, 18, 0.07);
+  --line-strong: rgba(23, 21, 18, 0.24);
+  --accent: #46a6c6;
+  --orange: #f0995f;
+  --blue: #5fbedc;
+  --purple: #a27fc2;
+  --yellow: #eddf55;
+  --yellow-muted: #d5b84a;
+  --success: #4a8f6b;
+  --warning: #b4763c;
+  --danger: #9a453a;
+  --table-head: #f8f7f2;
+  --table-head-text: #6b6459;
+  --shadow-soft: rgba(16, 24, 40, 0.03);
+  --shadow-panel: rgba(16, 24, 40, 0.07);
+  --topbar-bg: rgba(250, 249, 245, 0.86);
+  --raised-soft: rgba(250, 249, 245, 0.5);
+  --accent-soft: rgba(70, 166, 198, 0.05);
+  /* 导航（墨色侧栏，明暗两套保持一致） */
+  --nav-bg: #171512;
+  --nav-text: #faf9f5;
+  --nav-soft: rgba(250, 249, 245, 0.6);
+  --nav-muted: rgba(250, 249, 245, 0.38);
+  --nav-hover: rgba(250, 249, 245, 0.06);
+  --nav-active: rgba(70, 166, 198, 0.16);
+  --nav-line: rgba(250, 249, 245, 0.12);
+  --focus-ring: rgba(70, 166, 198, 0.14);
+  --display: 'Archivo', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --body: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --serif: 'Instrument Serif', 'Songti SC', serif;
+  --mono: 'SF Mono', 'Menlo', ui-monospace, monospace;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+:root[data-theme='dark'] {
+  --paper: #121210;
+  --raised: #1a1916;
+  --ink: #f2efe7;
+  --strong: #ffffff;
+  --muted: #b8b2a6;
+  --faint: #807a6e;
+  --line: rgba(242, 239, 231, 0.14);
+  --line-soft: rgba(242, 239, 231, 0.075);
+  --line-strong: rgba(242, 239, 231, 0.28);
+  --accent: #6fc7e3;
+  --table-head: #211f1b;
+  --table-head-text: #a9a294;
+  --shadow-soft: rgba(0, 0, 0, 0.24);
+  --shadow-panel: rgba(0, 0, 0, 0.45);
+  --topbar-bg: rgba(26, 25, 22, 0.86);
+  --raised-soft: rgba(26, 25, 22, 0.5);
+  --accent-soft: rgba(111, 199, 227, 0.08);
+  --nav-bg: #0d0c0a;
+  --nav-text: #f2efe7;
+  --nav-soft: rgba(242, 239, 231, 0.6);
+  --nav-muted: rgba(242, 239, 231, 0.38);
+  --nav-hover: rgba(242, 239, 231, 0.07);
+  --nav-active: rgba(111, 199, 227, 0.18);
+  --nav-line: rgba(242, 239, 231, 0.12);
+  --focus-ring: rgba(111, 199, 227, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #121210;
+    --raised: #1a1916;
+    --ink: #f2efe7;
+    --strong: #ffffff;
+    --muted: #b8b2a6;
+    --faint: #807a6e;
+    --line: rgba(242, 239, 231, 0.14);
+    --line-soft: rgba(242, 239, 231, 0.075);
+    --line-strong: rgba(242, 239, 231, 0.28);
+    --accent: #6fc7e3;
+    --table-head: #211f1b;
+    --table-head-text: #a9a294;
+    --shadow-soft: rgba(0, 0, 0, 0.24);
+    --shadow-panel: rgba(0, 0, 0, 0.45);
+    --topbar-bg: rgba(26, 25, 22, 0.86);
+    --raised-soft: rgba(26, 25, 22, 0.5);
+    --accent-soft: rgba(111, 199, 227, 0.08);
+    --nav-bg: #0d0c0a;
+    --nav-text: #f2efe7;
+    --nav-soft: rgba(242, 239, 231, 0.6);
+    --nav-muted: rgba(242, 239, 231, 0.38);
+    --nav-hover: rgba(242, 239, 231, 0.07);
+    --nav-active: rgba(111, 199, 227, 0.18);
+    --nav-line: rgba(242, 239, 231, 0.12);
+    --focus-ring: rgba(111, 199, 227, 0.18);
+  }
+}

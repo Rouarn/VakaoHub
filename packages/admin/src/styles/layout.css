@@ -9,8 +9,8 @@
   display: flex;
   flex-direction: column;
   padding: 22px 14px 18px;
-  background: #0f1115;
-  color: #f4f5f7;
+  background: var(--nav-bg);
+  color: var(--nav-text);
 }
 
 .side-brand {
@@ -18,7 +18,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 8px 20px;
-  border-bottom: 1px solid rgba(242, 239, 231, 0.12);
+  border-bottom: 1px solid var(--nav-line);
 }
 
 .side-star {
@@ -41,7 +41,7 @@
   font-family: var(--body);
   font-size: 9px;
   letter-spacing: 0.06em;
-  color: rgba(244, 245, 247, 0.38);
+  color: var(--nav-muted);
 }
 
 .side-nav {
@@ -57,7 +57,7 @@
   margin-bottom: 6px;
   font-size: 9px;
   letter-spacing: 0.08em;
-  color: rgba(244, 245, 247, 0.32);
+  color: var(--nav-muted);
 }
 
 .nav-item {
@@ -70,20 +70,20 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: rgba(244, 245, 247, 0.6);
+  color: var(--nav-soft);
   font-size: 12px;
   text-align: left;
   transition: background 0.16s ease, color 0.16s ease;
 }
 
 .nav-item:hover {
-  color: #f4f5f7;
-  background: rgba(255, 255, 255, 0.055);
+  color: var(--nav-text);
+  background: var(--nav-hover);
 }
 
 .nav-item.active {
-  background: rgba(79, 124, 247, 0.16);
-  color: #ffffff;
+  background: var(--nav-active);
+  color: var(--nav-text);
 }
 
 .nav-icon {
@@ -100,7 +100,7 @@
 
 .nav-item.active .nav-icon {
   opacity: 1;
-  color: #8ea8ff;
+  color: var(--accent);
 }
 
 .nav-label {
@@ -115,7 +115,7 @@
 }
 
 .nav-item.active .nav-mark {
-  background: #8ea8ff;
+  background: var(--accent);
 }
 
 .side-foot {
@@ -124,7 +124,7 @@
   flex-direction: column;
   gap: 14px;
   padding: 14px 8px 0;
-  border-top: 1px solid rgba(242, 239, 231, 0.12);
+  border-top: 1px solid var(--nav-line);
 }
 
 .side-status {
@@ -135,7 +135,7 @@
   font-size: 8px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(244, 245, 247, 0.38);
+  color: var(--nav-muted);
 }
 
 .side-status i,
@@ -144,7 +144,7 @@
   height: 5px;
   border-radius: 50%;
   background: var(--blue);
-  box-shadow: 0 0 0 3px rgba(95, 190, 220, 0.14);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .side-user {
@@ -160,8 +160,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: #f4f5f7;
+  background: var(--nav-hover);
+  color: var(--nav-text);
   font-family: var(--display);
   font-size: 12px;
   font-weight: 700;
@@ -176,7 +176,7 @@
   display: block;
   font-family: var(--mono);
   font-size: 8px;
-  color: rgba(244, 245, 247, 0.35);
+  color: var(--nav-muted);
 }
 
 .content-wrap {
@@ -194,7 +194,7 @@
   height: 64px;
   padding: 0 28px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.86);
+  background: var(--topbar-bg);
   backdrop-filter: blur(12px);
   flex: none;
 }
@@ -248,7 +248,7 @@
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  background: #f6f7f9;
+  background: var(--paper);
 }
 
 .content::-webkit-scrollbar {

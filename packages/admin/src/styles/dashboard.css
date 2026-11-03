@@ -22,8 +22,8 @@
   padding: 14px 16px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+  background: var(--raised);
+  box-shadow: 0 1px 2px var(--shadow-soft);
 }
 
 .stat-top {
@@ -63,8 +63,8 @@
   padding: 18px 20px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+  background: var(--raised);
+  box-shadow: 0 1px 2px var(--shadow-soft);
 }
 
 .panel-head {
@@ -130,7 +130,7 @@
 .funnel-bar {
   height: 5px;
   border-radius: 3px;
-  background: rgba(23, 21, 18, 0.07);
+  background: var(--line-soft);
   overflow: hidden;
 }
 
@@ -172,7 +172,7 @@
 .event-bar {
   height: 4px;
   border-radius: 2px;
-  background: rgba(23, 21, 18, 0.07);
+  background: var(--line-soft);
   overflow: hidden;
 }
 
