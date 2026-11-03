@@ -136,7 +136,7 @@ import { compareVersion } from './lib/version';
 const apps = ref<AppView[]>([]);
 const platform = ref('');
 const arch = ref('');
-const launcherVersion = '1.0.0';
+const launcherVersion = ref('dev');
 
 function initialRefreshMinutes(): number {
   try {
@@ -268,6 +268,7 @@ async function load(): Promise<void> {
   error.value = '';
   try {
     const current = await api();
+    launcherVersion.value = (await current.GetAppVersion()) || 'dev';
     settings.value = await current.GetSettings();
     if (!settingsVisible.value) draftBaseUrl.value = settings.value.baseUrl;
     const catalog = await current.GetCatalog();

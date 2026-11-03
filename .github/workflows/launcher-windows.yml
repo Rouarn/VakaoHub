@@ -30,9 +30,15 @@ jobs:
         working-directory: packages/launcher/frontend
         run: npm install --no-audit --no-fund
 
+      - name: Read launcher version
+        id: meta
+        working-directory: packages/launcher
+        shell: bash
+        run: echo "version=$(node -p "require('./wails.json').info.productVersion")" >> "$GITHUB_OUTPUT"
+
       - name: Build Windows launcher
         working-directory: packages/launcher
-        run: wails build -clean -platform windows/amd64
+        run: wails build -clean -platform windows/amd64 -ldflags "-X vakaohub/launcher/internal/version.Version=${{ steps.meta.outputs.version }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

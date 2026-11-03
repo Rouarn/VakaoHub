@@ -24,8 +24,9 @@ VaKao 软件中心的桌面客户端：读取分发服务的应用目录，下�
 # 开发（热更新，Wails 内置 Vite）
 wails dev
 
-# 生产构建
-wails build
+# 生产构建（版本号写入 wails.json 的 info.productVersion，构建时注入 Go 代码；
+# 运行时前端通过 GetAppVersion 读取，不要在前端硬编码）
+wails build -ldflags "-X vakaohub/launcher/internal/version.Version=$(node -p "require('./wails.json').info.productVersion")"
 
 # 产物
 build/bin/VaKaoHub.app

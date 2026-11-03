@@ -18,6 +18,7 @@ import (
 	"vakaohub/launcher/internal/api"
 	"vakaohub/launcher/internal/install"
 	"vakaohub/launcher/internal/store"
+	launcherversion "vakaohub/launcher/internal/version"
 )
 
 // App 是暴露给前端的方法集合。
@@ -43,6 +44,11 @@ func NewApp() *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+}
+
+// GetAppVersion 返回构建时注入的启动器版本（开发构建为空串）。
+func (a *App) GetAppVersion() string {
+	return launcherversion.Version
 }
 
 func (a *App) httpContext() context.Context {
@@ -182,6 +188,8 @@ func (a *App) catalogLocked() (CatalogView, error) {
 			MinOs:             artifact.MinOs,
 		}
 
+		// 每次刷新都会重查平台已安装列表（Windows 走卸载注册表）：
+		// MSI/EXE 向导安装完成后，注册表出现匹配条目即在此补记路径与版本，自动显示为已安装。
 		detected := install.FindApps(app.Name)
 		installedPath := ""
 		installedVersion := ""

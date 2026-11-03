@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"vakaohub/launcher/internal/version"
 )
 
 // Detected 是一个在卸载注册表 / 约定安装目录中发现的已安装程序。
@@ -17,10 +19,17 @@ type Detected struct {
 	Version string
 }
 
-// CurrentBundle 在 Windows 上无法从进程路径推断安装来源，也不掌握启动器自身版本，
-// 返回 false，避免用空版本参与更新判断。
+// CurrentBundle 返回启动器可执行文件路径与构建注入的版本；
+// 开发构建未注入版本时返回 false，避免空版本参与更新判断。
 func CurrentBundle() (string, string, bool) {
-	return "", "", false
+	if version.Version == "" {
+		return "", "", false
+	}
+	executable, err := os.Executable()
+	if err != nil {
+		return "", "", false
+	}
+	return executable, version.Version, true
 }
 
 // FindApps 扫描卸载注册表，按显示名匹配已安装程序。

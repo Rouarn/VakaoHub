@@ -3,6 +3,8 @@
 import {main} from '../models';
 import {store} from '../models';
 
+export function GetAppVersion():Promise<string>;
+
 export function GetCatalog():Promise<main.CatalogView>;
 
 export function GetSettings():Promise<main.Settings>;
