@@ -90,11 +90,11 @@ export class ArtifactsService {
 
       const sha256 = await sha256File(file.path);
       const info = await stat(file.path);
-      const dir = join(
-        env.storageDir,
-        app.appKey,
+      // 历史版本可能存有未校验的 versionName，目录名同样做安全化，防止 ../ 逃逸
+      const versionDir = safeFileName(
         `v${release.versionCode}_${release.versionName}`,
       );
+      const dir = join(env.storageDir, app.appKey, versionDir);
       await mkdir(dir, { recursive: true });
 
       const fileName = safeFileName(
