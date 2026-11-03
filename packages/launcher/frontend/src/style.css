@@ -97,37 +97,37 @@ button {
 
 /* ---------- topbar ---------- */
 
-.topbar {
+.masthead {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
   flex: none;
-  height: 72px;
-  padding: 10px 18px 0 82px;
+  height: 96px;
+  padding: 0 18px 0 82px;
   border-bottom: 1px solid var(--line);
   background: rgba(243, 241, 236, 0.92);
   backdrop-filter: blur(10px);
   --wails-draggable: drag;
 }
 
-.toolbar,
-.toolbar * {
+.masthead-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   --wails-draggable: no-drag;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 12px;
   min-width: 0;
-  padding-right: 18px;
-  border-right: 1px solid var(--line);
 }
 
 .brand-star {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   object-fit: contain;
   flex: none;
 }
@@ -135,22 +135,85 @@ button {
 .brand-name {
   display: flex;
   flex-direction: column;
-  line-height: 1.1;
+  line-height: 1;
 }
 
 .brand-name strong {
   font-family: var(--display);
-  font-size: 15px;
-  font-weight: 750;
-  letter-spacing: -0.025em;
+  font-size: 27px;
+  font-weight: 760;
+  letter-spacing: -0.035em;
 }
 
-.brand-name span {
-  margin-top: 3px;
+.brand-divider {
+  width: 1px;
+  height: 30px;
+  flex: none;
+  background: var(--line);
+}
+
+.brand-tag {
   font-family: var(--mono);
-  font-size: 8px;
-  letter-spacing: 0.16em;
+  font-size: 9px;
+  letter-spacing: 0.13em;
   color: var(--faint);
+  white-space: nowrap;
+}
+
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+  height: 56px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--raised);
+  --wails-draggable: no-drag;
+}
+
+.toolbar-row .toolbar {
+  margin-left: auto;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--muted);
+}
+
+.refresh-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.refresh-btn svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .toolbar {
@@ -1648,7 +1711,8 @@ button {
   background: var(--paper);
 }
 
-[data-theme='dark'] .topbar {
+[data-theme='dark'] .masthead,
+[data-theme='dark'] .toolbar-row {
   background: rgba(18, 18, 16, 0.9);
 }
 
@@ -1733,4 +1797,25 @@ button {
 
 [data-theme='dark'] .theme-toggle {
   color: var(--muted);
+}
+
+
+@media (max-width: 760px) {
+  .masthead {
+    padding-left: 18px;
+  }
+
+  .brand-tag,
+  .brand-divider {
+    display: none;
+  }
+
+  .toolbar-row {
+    gap: 6px;
+    padding: 0 12px;
+  }
+
+  .toolbar-row .search {
+    width: 150px;
+  }
 }

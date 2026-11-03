@@ -1,23 +1,56 @@
 <template>
   <div class="shell">
-    <header class="topbar">
+    <header class="masthead">
       <div class="brand">
         <img :src="starUrl" class="brand-star" alt="" />
         <div class="brand-name">
           <strong>VaKao Hub</strong>
-          <span>SOFTWARE SUITE</span>
         </div>
+        <span class="brand-divider" aria-hidden="true"></span>
+        <span class="brand-tag">SOFTWARE SUITE</span>
       </div>
 
-      <div class="toolbar">
+      <div class="masthead-actions">
         <button
-          class="update-all"
-          :disabled="!updateCount || updatingAll"
-          @click="updateAll"
+          class="icon-btn theme-toggle"
+          :title="theme === 'dark' ? '切换到浅色' : '切换到深色'"
+          :aria-label="theme === 'dark' ? '切换到浅色' : '切换到深色'"
+          @click="toggleTheme"
         >
-          {{ updatingAll ? '更新中…' : updateCount ? `全部更新 (${updateCount})` : '已是最新' }}
+          <svg v-if="theme === 'dark'" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="3.1" />
+            <path d="M8 1.4v1.7M8 12.9v1.7M1.4 8h1.7M12.9 8h1.7M3.3 3.3l1.2 1.2M11.5 11.5l1.2 1.2M12.7 3.3l-1.2 1.2M4.5 11.5l-1.2 1.2" />
+          </svg>
+          <svg v-else viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M13.4 9.5A5.6 5.6 0 0 1 6.5 2.6 5.6 5.6 0 1 0 13.4 9.5Z" />
+          </svg>
         </button>
 
+        <button class="icon-btn" title="设置" @click="openSettings">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 5.2A2.8 2.8 0 1 0 8 10.8 2.8 2.8 0 0 0 8 5.2Zm6 3.9v-1.8l-1.6-.3a4.7 4.7 0 0 0-.5-1.2l1-1.3-1.3-1.3-1.3 1a4.7 4.7 0 0 0-1.2-.5L8.8 2H7l-.3 1.6a4.7 4.7 0 0 0-1.2.5l-1.3-1L2.9 4.4l1 1.3a4.7 4.7 0 0 0-.5 1.2L2 7.3v1.8l1.6.3c.1.4.3.9.5 1.2l-1 1.3 1.3 1.3 1.3-1c.4.2.8.4 1.2.5l.3 1.6h1.8l.3-1.6c.4-.1.9-.3 1.2-.5l1.3 1 1.3-1.3-1-1.3c.2-.4.4-.8.5-1.2l1.6-.3Z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="toolbar-row">
+      <button class="refresh-btn" title="刷新目录" :disabled="loading" @click="load">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M13.2 8a5.2 5.2 0 1 1-1.6-3.8M13.2 2.8v3.4H9.8" />
+        </svg>
+      </button>
+
+      <button
+        v-if="updateCount"
+        class="update-all"
+        :disabled="updatingAll"
+        @click="updateAll"
+      >
+        {{ updatingAll ? '更新中…' : `全部更新 (${updateCount})` }}
+      </button>
+
+      <div class="toolbar">
         <label class="sort">
           <span class="hud">排序</span>
           <select v-model="sortBy">
@@ -49,29 +82,8 @@
             </svg>
           </button>
         </div>
-
-        <button
-          class="icon-btn theme-toggle"
-          :title="theme === 'dark' ? '切换到浅色' : '切换到深色'"
-          :aria-label="theme === 'dark' ? '切换到浅色' : '切换到深色'"
-          @click="toggleTheme"
-        >
-          <svg v-if="theme === 'dark'" viewBox="0 0 16 16" aria-hidden="true">
-            <circle cx="8" cy="8" r="3.1" />
-            <path d="M8 1.4v1.7M8 12.9v1.7M1.4 8h1.7M12.9 8h1.7M3.3 3.3l1.2 1.2M11.5 11.5l1.2 1.2M12.7 3.3l-1.2 1.2M4.5 11.5l-1.2 1.2" />
-          </svg>
-          <svg v-else viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M13.4 9.5A5.6 5.6 0 0 1 6.5 2.6 5.6 5.6 0 1 0 13.4 9.5Z" />
-          </svg>
-        </button>
-
-        <button class="icon-btn" title="设置" @click="openSettings">
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M8 5.2A2.8 2.8 0 1 0 8 10.8 2.8 2.8 0 0 0 8 5.2Zm6 3.9v-1.8l-1.6-.3a4.7 4.7 0 0 0-.5-1.2l1-1.3-1.3-1.3-1.3 1a4.7 4.7 0 0 0-1.2-.5L8.8 2H7l-.3 1.6a4.7 4.7 0 0 0-1.2.5l-1.3-1L2.9 4.4l1 1.3a4.7 4.7 0 0 0-.5 1.2L2 7.3v1.8l1.6.3c.1.4.3.9.5 1.2l-1 1.3 1.3 1.3 1.3-1c.4.2.8.4 1.2.5l.3 1.6h1.8l.3-1.6c.4-.1.9-.3 1.2-.5l1.3 1 1.3-1.3-1-1.3c.2-.4.4-.8.5-1.2l1.6-.3Z" />
-          </svg>
-        </button>
       </div>
-    </header>
+    </section>
 
     <main class="content">
       <div class="catalog-meta">
