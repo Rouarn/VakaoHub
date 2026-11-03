@@ -33,11 +33,6 @@ export class UploadArtifactDto {
   @Length(0, 16)
   minOs?: string;
 
-  @IsOptional()
-  @IsString()
-  @Length(0, 255)
-  signature?: string;
-
   /** multipart 表单字段是字符串，这里保持字符串，由 Service 解析 */
   @IsOptional()
   @IsString()

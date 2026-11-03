@@ -24,6 +24,9 @@
               <span class="min-os-hint">指用户运行设备的操作系统版本，不是软件版本。</span>
             </div>
           </n-form-item>
+          <n-form-item label="公证 / 签名">
+            <n-checkbox v-model:checked="form.notarized">该产物已完成 macOS 公证或 Windows 代码签名</n-checkbox>
+          </n-form-item>
           <n-form-item label="文件">
             <div
               class="file-drop"
@@ -57,8 +60,8 @@
 
 <script setup lang="ts">
 import {
-  NButton, NDataTable, NDivider, NDrawer, NDrawerContent, NEmpty,
-  NForm, NFormItem, NInput, NSelect, useDialog, useMessage,
+  NButton, NCheckbox, NDataTable, NDivider, NDrawer, NDrawerContent, NEmpty,
+  NForm, NFormItem, NInput, NSelect, NTag, useDialog, useMessage,
 } from 'naive-ui';
 import type { DataTableColumns, SelectOption } from 'naive-ui';
 import { computed, h, reactive, ref, watch } from 'vue';
@@ -87,6 +90,7 @@ const form = reactive({
   arch: 'universal',
   format: 'apk',
   minOs: '',
+  notarized: false,
   file: null as File | null,
 });
 
@@ -138,6 +142,14 @@ const artifactColumns: DataTableColumns<ArtifactRow> = [
   { title: '格式', key: 'format', width: 80 },
   { title: '文件', key: 'fileName' },
   { title: '大小', key: 'size', width: 100, render: (row) => formatBytes(row.size) },
+  {
+    title: '公证',
+    key: 'notarized',
+    width: 80,
+    render: (row) => row.notarized
+      ? h(NTag, { size: 'tiny', type: 'success', bordered: false }, { default: () => '已公证' })
+      : '—',
+  },
   { title: '下载', key: 'downloadCount', width: 70 },
   {
     title: '操作',
@@ -199,6 +211,7 @@ async function upload(): Promise<void> {
     body.append('arch', form.arch);
     body.append('format', form.format);
     if (form.minOs) body.append('minOs', form.minOs);
+    body.append('notarized', form.notarized ? 'true' : 'false');
     body.append('file', form.file);
     await api.artifacts.upload(body);
     message.success('上传成功');

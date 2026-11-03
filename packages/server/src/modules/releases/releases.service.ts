@@ -14,7 +14,8 @@ import {
   RELEASE_STATUS,
   ReleaseEntity,
 } from '../../database/entities/release.entity.js';
-import { resolveStoragePath } from '../../utils/paths.js';
+import { dirname } from 'node:path';
+import { pruneEmptyDir, resolveStoragePath } from '../../utils/paths.js';
 import type { CreateReleaseDto } from './dto/create-release.dto.js';
 import type { ListReleasesQueryDto } from './dto/list-releases-query.dto.js';
 import type { PublishReleaseDto } from './dto/publish-release.dto.js';
@@ -89,7 +90,6 @@ export class ReleasesService {
         channel,
         status: RELEASE_STATUS.DRAFT,
         grayPercent: 0,
-        graySchedule: null,
         forceUpdate: 0,
         minVersionCode: dto.minVersionCode ?? 0,
         updateLog: dto.updateLog ?? null,
@@ -260,7 +260,9 @@ export class ReleasesService {
     }
 
     for (const artifact of record.artifacts ?? []) {
-      await rm(resolveStoragePath(artifact.relPath), { force: true });
+      const filePath = resolveStoragePath(artifact.relPath);
+      await rm(filePath, { force: true });
+      await pruneEmptyDir(dirname(filePath));
     }
     await this.releases.remove(record);
     return { success: true };

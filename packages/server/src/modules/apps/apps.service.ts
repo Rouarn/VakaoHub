@@ -29,12 +29,6 @@ export class AppsService {
     return app;
   }
 
-  async getByKey(appKey: string): Promise<AppEntity> {
-    const app = await this.apps.findOne({ where: { appKey } });
-    if (!app) throw new NotFoundException('应用不存在');
-    return app;
-  }
-
   async create(dto: CreateAppDto): Promise<AppEntity> {
     const exists = await this.apps.findOne({ where: { appKey: dto.appKey } });
     if (exists) throw new ConflictException('appKey 已存在');

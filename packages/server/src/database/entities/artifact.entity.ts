@@ -49,10 +49,6 @@ export class ArtifactEntity {
   @Column({ type: 'varchar', length: 16, nullable: true })
   minOs!: string | null;
 
-  /** 代码签名信息（macOS notarized / Windows Authenticode），v1 仅记录 */
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  signature!: string | null;
-
   @Column({ type: 'int', default: 0 })
   notarized!: number;
 

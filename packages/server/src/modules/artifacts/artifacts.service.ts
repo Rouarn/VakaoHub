@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { rm, rename, stat, mkdir } from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { Repository } from 'typeorm';
 import { env } from '../../config/env.js';
 import { AppEntity } from '../../database/entities/app.entity.js';
@@ -14,7 +14,7 @@ import { ArtifactEntity } from '../../database/entities/artifact.entity.js';
 import { ReleaseEntity } from '../../database/entities/release.entity.js';
 import { sha256File } from '../../utils/hash.js';
 import { validateArtifactFile } from './validate.js';
-import { resolveStoragePath, safeFileName } from '../../utils/paths.js';
+import { pruneEmptyDir, resolveStoragePath, safeFileName } from '../../utils/paths.js';
 import type { UploadArtifactDto } from './dto/upload-artifact.dto.js';
 
 /** 产物格式与平台的基本一致性 */
@@ -115,7 +115,6 @@ export class ArtifactsService {
           size: info.size,
           sha256,
           minOs: dto.minOs ?? null,
-          signature: dto.signature ?? null,
           notarized: dto.notarized === 'true' || dto.notarized === '1' ? 1 : 0,
           downloadCount: 0,
           createdAt: Date.now(),
@@ -143,7 +142,9 @@ export class ArtifactsService {
     }
 
     await this.artifacts.remove(artifact);
-    await rm(resolveStoragePath(artifact.relPath), { force: true });
+    const filePath = resolveStoragePath(artifact.relPath);
+    await rm(filePath, { force: true });
+    await pruneEmptyDir(dirname(filePath));
     return { success: true };
   }
 }

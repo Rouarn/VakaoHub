@@ -48,10 +48,6 @@ export class ReleaseEntity {
   @Column({ type: 'int', default: 0 })
   grayPercent!: number;
 
-  /** 预留：灰度递增时间表 JSON */
-  @Column({ type: 'text', nullable: true })
-  graySchedule!: string | null;
-
   /** 强更开关，可随时修改 */
   @Column({ type: 'int', default: 0 })
   forceUpdate!: number;
