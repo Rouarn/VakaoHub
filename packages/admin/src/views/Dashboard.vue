@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NSelect } from 'naive-ui';
+import { NButton, NSelect, useMessage } from 'naive-ui';
 import type { SelectOption } from 'naive-ui';
 import { computed, onMounted, ref } from 'vue';
 import { api } from '@/api';
@@ -46,7 +46,10 @@ const stats = ref<Stats | null>(null);
 const funnel = ref<Funnel | null>(null);
 const apps = ref<AppRow[]>([]);
 const funnelAppId = ref<number | null>(null);
+const message = useMessage();
 const loading = ref(false);
+let loadRequestId = 0;
+let funnelRequestId = 0;
 
 const appOptions = computed<SelectOption[]>(() =>
   apps.value.map((app) => ({ label: `${app.name}（${app.appKey}）`, value: app.id })),
@@ -69,25 +72,35 @@ function formatBytes(bytes: number): string {
 }
 
 async function load(): Promise<void> {
+  const requestId = ++loadRequestId;
   loading.value = true;
   try {
-    const [statsResult, funnelResult] = await Promise.all([
-      api.stats(),
-      api.funnel(funnelAppId.value ?? undefined),
-    ]);
-    stats.value = statsResult;
-    funnel.value = funnelResult;
+    const [statsResult] = await Promise.all([api.stats(), loadFunnel()]);
+    if (requestId === loadRequestId) stats.value = statsResult;
+  } catch (error) {
+    if (requestId === loadRequestId) message.error((error as Error).message);
   } finally {
-    loading.value = false;
+    if (requestId === loadRequestId) loading.value = false;
   }
 }
 
 async function loadFunnel(): Promise<void> {
-  funnel.value = await api.funnel(funnelAppId.value ?? undefined);
+  const requestId = ++funnelRequestId;
+  try {
+    const result = await api.funnel(funnelAppId.value ?? undefined);
+    // 快速切换应用时，只接受最后一次请求的结果
+    if (requestId === funnelRequestId) funnel.value = result;
+  } catch (error) {
+    if (requestId === funnelRequestId) message.error((error as Error).message);
+  }
 }
 
 onMounted(async () => {
-  apps.value = await api.apps.list();
+  try {
+    apps.value = await api.apps.list();
+  } catch (error) {
+    message.error((error as Error).message);
+  }
   await load();
 });
 </script>

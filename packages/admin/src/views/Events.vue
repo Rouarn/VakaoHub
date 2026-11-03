@@ -52,6 +52,7 @@ import {
   NPagination,
   NSelect,
   NTag,
+  useMessage,
 } from 'naive-ui';
 import type { DataTableColumns, SelectOption } from 'naive-ui';
 import { computed, h, onMounted, ref } from 'vue';
@@ -61,6 +62,8 @@ import type { AppRow, EventRow } from '@/api/types';
 const apps = ref<AppRow[]>([]);
 const events = ref<EventRow[]>([]);
 const loading = ref(false);
+const message = useMessage();
+let requestId = 0;
 const page = ref(1);
 const pageSize = 20;
 const total = ref(0);
@@ -131,10 +134,15 @@ const columns: DataTableColumns<EventRow> = [
 ];
 
 async function loadApps(): Promise<void> {
-  apps.value = await api.apps.list();
+  try {
+    apps.value = await api.apps.list();
+  } catch (error) {
+    message.error((error as Error).message);
+  }
 }
 
 async function load(): Promise<void> {
+  const current = ++requestId;
   loading.value = true;
   try {
     const result = await api.events({
@@ -143,10 +151,14 @@ async function load(): Promise<void> {
       appId: appId.value ?? undefined,
       type: type.value ?? undefined,
     });
+    // 快速切换筛选/翻页时，只接受最后一次请求的结果
+    if (current !== requestId) return;
     events.value = result.records;
     total.value = result.total;
+  } catch (error) {
+    if (current === requestId) message.error((error as Error).message);
   } finally {
-    loading.value = false;
+    if (current === requestId) loading.value = false;
   }
 }
 

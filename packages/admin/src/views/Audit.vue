@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NDataTable, NPagination, NTag } from 'naive-ui';
+import { NButton, NDataTable, NPagination, NTag, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
 import { api } from '@/api';
@@ -36,6 +36,8 @@ import type { AuditLog } from '@/api/types';
 
 const logs = ref<AuditLog[]>([]);
 const loading = ref(false);
+const message = useMessage();
+let requestId = 0;
 const page = ref(1);
 const pageSize = 20;
 const total = ref(0);
@@ -78,13 +80,18 @@ const columns: DataTableColumns<AuditLog> = [
 ];
 
 async function load(): Promise<void> {
+  const current = ++requestId;
   loading.value = true;
   try {
     const result = await api.auditLogs({ page: page.value, pageSize });
+    // 快速翻页时，只接受最后一次请求的结果
+    if (current !== requestId) return;
     logs.value = result.records;
     total.value = result.total;
+  } catch (error) {
+    if (current === requestId) message.error((error as Error).message);
   } finally {
-    loading.value = false;
+    if (current === requestId) loading.value = false;
   }
 }
 
