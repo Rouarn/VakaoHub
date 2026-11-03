@@ -147,6 +147,8 @@ export interface ReportEventPayload {
   toVersionCode?: number;
 }
 
+export * from './format.js';
+
 /** 管理端分页响应 */
 export interface Paginated<T> {
   records: T[];

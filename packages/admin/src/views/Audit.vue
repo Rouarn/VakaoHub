@@ -33,6 +33,7 @@ import type { DataTableColumns } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
 import { api } from '@/api';
 import type { AuditLog } from '@/api/types';
+import { formatDateTime } from '@vakao/hub-shared';
 
 const logs = ref<AuditLog[]>([]);
 const loading = ref(false);
@@ -47,7 +48,7 @@ const columns: DataTableColumns<AuditLog> = [
     title: '时间',
     key: 'createdAt',
     width: 170,
-    render: (row) => new Date(row.createdAt).toLocaleString(),
+    render: (row) => formatDateTime(row.createdAt),
   },
   { title: '账号', key: 'username', width: 100 },
   {

@@ -62,6 +62,7 @@ import {
 } from 'naive-ui';
 import type { DataTableColumns, SelectOption } from 'naive-ui';
 import { computed, h, reactive, ref, watch } from 'vue';
+import { formatBytes } from '@vakao/hub-shared';
 import { api } from '@/api';
 import type { ArtifactRow, ReleaseRow } from '@/api/types';
 
@@ -136,7 +137,7 @@ const artifactColumns: DataTableColumns<ArtifactRow> = [
   { title: '架构', key: 'arch', width: 90 },
   { title: '格式', key: 'format', width: 80 },
   { title: '文件', key: 'fileName' },
-  { title: '大小', key: 'size', width: 100, render: (row) => `${(row.size / 1024 / 1024).toFixed(1)} MB` },
+  { title: '大小', key: 'size', width: 100, render: (row) => formatBytes(row.size) },
   { title: '下载', key: 'downloadCount', width: 70 },
   {
     title: '操作',
@@ -183,13 +184,6 @@ function onFileChange(event: Event): void {
 function onDrop(event: DragEvent): void {
   dragging.value = false;
   form.file = event.dataTransfer?.files?.[0] ?? null;
-}
-
-function formatBytes(bytes: number): string {
-  if (!bytes) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-  return `${(bytes / 1024 ** index).toFixed(1)} ${units[index]}`;
 }
 
 async function upload(): Promise<void> {

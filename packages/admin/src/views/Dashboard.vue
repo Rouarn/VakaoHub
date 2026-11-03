@@ -35,6 +35,7 @@
 import { NButton, NSelect, useMessage } from 'naive-ui';
 import type { SelectOption } from 'naive-ui';
 import { computed, onMounted, ref } from 'vue';
+import { formatBytes } from '@vakao/hub-shared';
 import { api } from '@/api';
 import type { AppRow, Funnel, Stats } from '@/api/types';
 import DashboardStats from '@/components/dashboard/DashboardStats.vue';
@@ -63,13 +64,6 @@ const cards = computed(() => [
   { label: '事件', value: stats.value?.counts.events ?? 0, hud: 'EVENTS' },
   { label: '占用空间', value: formatBytes(stats.value?.storageBytes ?? 0), hud: 'STORAGE' },
 ]);
-
-function formatBytes(bytes: number): string {
-  if (!bytes) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-  return `${(bytes / 1024 ** index).toFixed(1)} ${units[index]}`;
-}
 
 async function load(): Promise<void> {
   const requestId = ++loadRequestId;

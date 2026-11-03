@@ -30,5 +30,6 @@ export function shadeColor(hex: string, amount: number): string {
 
 export function releaseUrl(app: AppView): string {
   if (app.releaseUrl) return app.releaseUrl;
+  if (!app.repoUrl) return '';
   return `${app.repoUrl.replace(/\.git$/, '').replace(/\/$/, '')}/releases`;
 }

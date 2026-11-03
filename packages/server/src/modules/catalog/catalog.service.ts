@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Request } from 'express';
 import { Repository } from 'typeorm';
-import type {
-  ArtifactSummary,
-  CatalogApp,
-  CatalogResponse,
+import {
+  artifactScore,
+  type ArtifactSummary,
+  type CatalogApp,
+  type CatalogResponse,
 } from '@vakao/hub-shared';
 import { env } from '../../config/env.js';
 import { AppEntity } from '../../database/entities/app.entity.js';
@@ -55,10 +56,9 @@ export class CatalogService {
             );
       if (!usable.length) continue;
 
-      usable.sort((a, b) => {
-        const score = (item: ArtifactEntity) => (item.arch === arch ? 0 : 1);
-        return score(a) - score(b);
-      });
+      usable.sort(
+        (a, b) => artifactScore(a, platform, arch) - artifactScore(b, platform, arch),
+      );
 
       items.push({
         id: app.id,

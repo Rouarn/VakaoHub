@@ -1,6 +1,14 @@
+// 与 @vakao/hub-shared/format 的 compareVersion 同一口径：忽略 v 前缀与预发布后缀。
+function versionParts(value: string): number[] {
+  const trimmed = (value || '').trim().replace(/^v/i, '');
+  const cut = trimmed.search(/[-+]/);
+  const core = cut === -1 ? trimmed : trimmed.slice(0, cut);
+  return core.split('.').map((part) => parseInt(part, 10) || 0);
+}
+
 export function compareVersion(left: string, right: string): number {
-  const a = left.split('.').map((part) => parseInt(part, 10) || 0);
-  const b = right.split('.').map((part) => parseInt(part, 10) || 0);
+  const a = versionParts(left);
+  const b = versionParts(right);
   const length = Math.max(a.length, b.length);
   for (let index = 0; index < length; index += 1) {
     const x = a[index] ?? 0;

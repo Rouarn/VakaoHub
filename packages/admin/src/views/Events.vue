@@ -58,6 +58,7 @@ import type { DataTableColumns, SelectOption } from 'naive-ui';
 import { computed, h, onMounted, ref } from 'vue';
 import { api } from '@/api';
 import type { AppRow, EventRow } from '@/api/types';
+import { formatDateTime } from '@vakao/hub-shared';
 
 const apps = ref<AppRow[]>([]);
 const events = ref<EventRow[]>([]);
@@ -103,7 +104,7 @@ const columns: DataTableColumns<EventRow> = [
     title: '时间',
     key: 'createdAt',
     width: 170,
-    render: (row) => new Date(row.createdAt).toLocaleString(),
+    render: (row) => formatDateTime(row.createdAt),
   },
   {
     title: '应用',

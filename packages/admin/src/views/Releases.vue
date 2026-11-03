@@ -40,6 +40,7 @@ import { computed, h, onMounted, ref, watch } from 'vue';
 import { api } from '@/api';
 import type { AppRow, ReleaseRow } from '@/api/types';
 import { STATUS_LABEL, STATUS_TAG_TYPE } from '@/lib/release-status';
+import { formatDateTime } from '@vakao/hub-shared';
 import ArtifactDrawer from '@/components/releases/ArtifactDrawer.vue';
 import CreateReleaseModal from '@/components/releases/CreateReleaseModal.vue';
 import PublishReleaseModal from '@/components/releases/PublishReleaseModal.vue';
@@ -101,7 +102,7 @@ const columns: DataTableColumns<ReleaseRow> = [
     title: '发布时间',
     key: 'publishedAt',
     width: 160,
-    render: (row) => (row.publishedAt ? new Date(row.publishedAt).toLocaleString() : '—'),
+    render: (row) => formatDateTime(row.publishedAt),
   },
   {
     title: '操作',

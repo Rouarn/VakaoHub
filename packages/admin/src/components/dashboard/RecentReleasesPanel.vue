@@ -17,6 +17,7 @@ import type { DataTableColumns } from 'naive-ui';
 import { h } from 'vue';
 import type { Stats } from '@/api/types';
 import { STATUS_LABEL, STATUS_TAG_TYPE } from '@/lib/release-status';
+import { formatDateTime } from '@vakao/hub-shared';
 
 defineProps<{
   releases: Stats['latestReleases'];
@@ -32,6 +33,6 @@ const columns: DataTableColumns<Stats['latestReleases'][number]> = [
     width: 90,
     render: (row) => h(NTag, { size: 'small', bordered: false, type: STATUS_TAG_TYPE[row.status] ?? 'default' }, { default: () => STATUS_LABEL[row.status] ?? String(row.status) }),
   },
-  { title: '创建时间', key: 'createdAt', render: (row) => new Date(row.createdAt).toLocaleString() },
+  { title: '创建时间', key: 'createdAt', render: (row) => formatDateTime(row.createdAt) },
 ];
 </script>

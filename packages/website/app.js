@@ -79,16 +79,19 @@
     return palette[hash % palette.length];
   }
 
-  function formatSize(bytes) {
-    if (!bytes) return '未知大小';
-    var units = ['B', 'KB', 'MB', 'GB'];
+  // 与 @vakao/hub-shared 的 formatBytes 保持同一口径（website 无构建，按共享规则实现）。
+  function formatBytes(bytes) {
+    if (bytes === null || bytes === undefined || !isFinite(bytes) || bytes < 0) return '未知大小';
+    if (!bytes) return '0 B';
+    var units = ['B', 'KB', 'MB', 'GB', 'TB'];
     var index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
     return (bytes / Math.pow(1024, index)).toFixed(1) + ' ' + units[index];
   }
 
   function formatDate(timestamp) {
-    if (!timestamp) return '';
-    return new Date(timestamp).toLocaleDateString('zh-CN');
+    if (!timestamp || !isFinite(timestamp) || timestamp < 0) return '—';
+    var ms = timestamp > 1e12 ? timestamp : timestamp * 1000;
+    return new Date(ms).toLocaleDateString('zh-CN');
   }
 
   function renderPlatforms() {
@@ -185,7 +188,7 @@
           ' · ' +
           artifact.arch +
           ' · ' +
-          formatSize(artifact.size);
+          formatBytes(artifact.size);
         downloads.appendChild(
           el(
             'a',

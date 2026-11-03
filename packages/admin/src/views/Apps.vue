@@ -20,6 +20,7 @@ import type { DataTableColumns } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
 import { api } from '@/api';
 import type { AppRow } from '@/api/types';
+import { formatDateTime } from '@vakao/hub-shared';
 import AppFormModal from '@/components/AppFormModal.vue';
 
 const message = useMessage();
@@ -46,7 +47,7 @@ const columns: DataTableColumns<AppRow> = [
     title: '创建时间',
     key: 'createdAt',
     width: 170,
-    render: (row) => new Date(row.createdAt).toLocaleString(),
+    render: (row) => formatDateTime(row.createdAt),
   },
   {
     title: '操作',

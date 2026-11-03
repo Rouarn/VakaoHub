@@ -19,15 +19,8 @@ import {
 } from '../../database/entities/release.entity.js';
 import type { CheckUpdateQueryDto } from './dto/check-update-query.dto.js';
 import { grayHit } from './gray.js';
+import { pickArtifact as pickPreferredArtifact } from '@vakao/hub-shared';
 import type { ReportEventDto } from './dto/report-event.dto.js';
-
-/** 各平台偏好的产物格式（同一版本多格式时优先选第一个） */
-const FORMAT_PREFERENCE: Record<string, string[]> = {
-  android: ['apk', 'zip'],
-  darwin: ['dmg', 'zip'],
-  win32: ['msi', 'exe', 'zip'],
-  linux: ['appimage', 'deb', 'zip'],
-};
 
 @Injectable()
 export class UpdatesService {
@@ -181,29 +174,7 @@ export class UpdatesService {
     const rows = await this.artifacts.find({
       where: { releaseId, platform },
     });
-    if (!rows.length) return null;
-
-    const preference = FORMAT_PREFERENCE[platform] ?? [];
-    const candidates =
-      arch === 'universal'
-        ? rows
-        : rows.filter((row) => row.arch === arch || row.arch === 'universal');
-    if (!candidates.length) return null;
-
-    candidates.sort((a, b) => {
-      const archScore = (item: ArtifactEntity) =>
-        item.arch === arch ? 0 : 1;
-      const archDiff = archScore(a) - archScore(b);
-      if (archDiff !== 0) return archDiff;
-
-      const formatScore = (item: ArtifactEntity) => {
-        const index = preference.indexOf(item.format);
-        return index === -1 ? preference.length : index;
-      };
-      return formatScore(a) - formatScore(b);
-    });
-
-    return candidates[0];
+    return pickPreferredArtifact(rows, platform, arch);
   }
 
   private toArtifactSummary(
