@@ -38,25 +38,57 @@
       v-model:show="createVisible"
       preset="card"
       title="新建版本"
-      style="width: 520px"
+      style="width: 600px"
     >
-      <n-form label-placement="left" label-width="110">
-        <n-form-item label="versionName">
-          <n-input v-model:value="createForm.versionName" placeholder="1.0.2" />
-        </n-form-item>
-        <n-form-item label="versionCode">
-          <n-input-number v-model:value="createForm.versionCode" :min="1" style="width: 100%" />
-        </n-form-item>
-        <n-form-item label="渠道">
-          <n-select v-model:value="createForm.channel" :options="channelOptions" />
-        </n-form-item>
-        <n-form-item label="最低版本号">
-          <n-input-number v-model:value="createForm.minVersionCode" :min="0" style="width: 100%" />
-        </n-form-item>
+      <n-form label-placement="top" :show-feedback="false">
+        <div class="create-grid">
+          <n-form-item label="版本名称">
+            <div class="create-field">
+              <n-input v-model:value="createForm.versionName" placeholder="如 1.0.1" />
+              <span class="create-hint">展示给用户的版本，例如 1.0.1。</span>
+            </div>
+          </n-form-item>
+
+          <n-form-item label="构建号（versionCode）">
+            <div class="create-field">
+              <n-input-number
+                v-model:value="createForm.versionCode"
+                :min="1"
+                :precision="0"
+                style="width: 100%"
+              />
+              <span class="create-hint">
+                必须大于当前最新构建号 {{ maxVersionCode }}，决定升级顺序。
+              </span>
+            </div>
+          </n-form-item>
+        </div>
+
+        <div class="create-grid">
+          <n-form-item label="发布通道">
+            <n-select v-model:value="createForm.channel" :options="channelOptions" />
+          </n-form-item>
+
+          <n-form-item label="最低可更新构建号">
+            <div class="create-field">
+              <n-input-number
+                v-model:value="createForm.minVersionCode"
+                :min="0"
+                :precision="0"
+                style="width: 100%"
+              />
+              <span class="create-hint">
+                已安装版本低于此构建号时不提示更新；0 表示不限制。
+              </span>
+            </div>
+          </n-form-item>
+        </div>
+
         <n-form-item label="更新说明">
           <n-input
             v-model:value="createForm.updateLog"
             type="textarea"
+            placeholder="这一版改了什么"
             :autosize="{ minRows: 3, maxRows: 6 }"
           />
         </n-form-item>
@@ -267,9 +299,13 @@ const uploadForm = reactive({
 });
 
 const channelOptions: SelectOption[] = [
-  { label: 'stable', value: 'stable' },
-  { label: 'beta', value: 'beta' },
+  { label: '稳定版（stable）', value: 'stable' },
+  { label: '测试版（beta）', value: 'beta' },
 ];
+
+const maxVersionCode = computed(() =>
+  releases.value.reduce((max, item) => Math.max(max, item.versionCode), 0),
+);
 
 const platformOptions: SelectOption[] = [
   { label: 'android', value: 'android' },
@@ -465,7 +501,7 @@ async function loadReleases(): Promise<void> {
 
 function openCreate(): void {
   createForm.versionName = '';
-  createForm.versionCode = 1;
+  createForm.versionCode = maxVersionCode.value + 1;
   createForm.channel = 'stable';
   createForm.minVersionCode = 0;
   createForm.updateLog = '';
@@ -475,7 +511,11 @@ function openCreate(): void {
 async function saveCreate(): Promise<void> {
   if (!appId.value) return;
   if (!createForm.versionName || !createForm.versionCode) {
-    message.warning('请填写版本名与版本号');
+    message.warning('请填写版本名称与构建号');
+    return;
+  }
+  if (createForm.versionCode <= maxVersionCode.value) {
+    message.warning(`构建号必须大于当前最新构建号 ${maxVersionCode.value}`);
     return;
   }
   saving.value = true;
@@ -801,5 +841,35 @@ onMounted(async () => {
   color: var(--faint);
   font-size: 10px;
   line-height: 1.4;
+}
+
+.create-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.create-grid:last-of-type {
+  margin-bottom: 16px;
+}
+
+.create-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.create-hint {
+  color: var(--faint);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .create-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
