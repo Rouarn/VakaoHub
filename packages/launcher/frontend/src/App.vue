@@ -86,13 +86,6 @@
     </section>
 
     <main ref="contentRef" class="content">
-      <div class="catalog-meta">
-        <span class="hud">ALL APPS / {{ apps.length }}</span>
-        <span class="hud">{{ installedCount }} INSTALLED</span>
-        <span class="hud">{{ updateCount }} UPDATES</span>
-        <span class="hud right">{{ platformLabel }} / {{ arch }}</span>
-      </div>
-
       <div v-if="error" class="banner">
         <span>{{ error }}</span>
         <button @click="load">重试</button>
@@ -109,7 +102,6 @@
           <div class="app-section-head">
             <span class="hud">{{ group.label }}</span>
             <span class="app-section-count">{{ group.apps.length }}</span>
-            <span class="app-section-rule"></span>
           </div>
 
           <div class="app-grid" :class="{ 'list-mode': !gridMode }">
@@ -149,10 +141,9 @@
               <span v-else>{{ initial(app.name) }}</span>
             </div>
             <div class="app-title">
-              <h2>{{ app.name }}</h2>
-              <div class="provider">
-                <span>{{ app.category || 'application' }}</span>
-                <span>由 VAKAO 提供</span>
+              <div class="title-line">
+                <h2>{{ app.name }}</h2>
+                <span class="provider-badge">由 VAKAO 提供</span>
               </div>
             </div>
             <span v-if="app.running" class="state running">当前运行</span>

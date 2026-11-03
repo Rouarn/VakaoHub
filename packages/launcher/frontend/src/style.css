@@ -356,10 +356,7 @@ button {
   min-height: 0;
   overflow-y: auto;
   padding: 16px 18px 30px;
-  background-image:
-    linear-gradient(rgba(23, 21, 18, 0.024) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 21, 18, 0.024) 1px, transparent 1px);
-  background-size: 56px 56px;
+  background: var(--paper);
 }
 
 .catalog-meta {
@@ -401,22 +398,25 @@ button {
 .app-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 11px;
+  gap: 0;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
 }
 
 .app-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 286px;
-  padding: 13px;
-  border: 1px solid var(--line);
-  border-left: 2px solid var(--app-color, var(--line));
-  border-radius: 6px;
+  min-height: 320px;
+  padding: 16px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
   background: var(--raised);
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.18s var(--ease), box-shadow 0.18s ease, border-color 0.18s ease;
+  transition: background 0.16s ease;
 }
 
 .app-card::before {
@@ -447,14 +447,11 @@ button {
 }
 
 .app-card:hover {
-  border-color: transparent;
-  border-left-color: var(--app-color, var(--line));
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(23, 21, 18, 0.08);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .app-card:hover::before {
-  opacity: 1;
+  opacity: 0;
 }
 
 .app-card::after {
@@ -474,7 +471,7 @@ button {
 }
 
 .app-card:hover::after {
-  opacity: 1;
+  opacity: 0;
 }
 
 .app-card > * {
@@ -529,10 +526,10 @@ button {
 }
 
 .app-icon {
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
   flex: none;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -570,14 +567,39 @@ button {
 
 .app-title h2 {
   margin: 0;
+  min-width: 0;
   font-family: var(--display);
-  font-size: 22px;
+  font-size: 24px;
   line-height: 1.12;
   font-weight: 720;
   letter-spacing: -0.035em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.title-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.title-line h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.provider-badge {
+  flex: none;
+  padding: 1px 5px;
+  border: 1px solid rgba(70, 166, 198, 0.24);
+  border-radius: 2px;
+  color: #2f7f99;
+  font-family: var(--body);
+  font-size: 8px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .provider {
@@ -1717,9 +1739,7 @@ button {
 }
 
 [data-theme='dark'] .content {
-  background-image:
-    linear-gradient(rgba(242, 239, 231, 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(242, 239, 231, 0.028) 1px, transparent 1px);
+  background: var(--paper);
 }
 
 [data-theme='dark'] .icon-btn:hover {
@@ -2192,8 +2212,25 @@ button {
   font-size: 9px;
 }
 
-.app-section-rule {
-  flex: 1;
-  height: 1px;
-  background: var(--line-soft);
+
+.app-card .action {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--body);
+  font-weight: 550;
+}
+
+.app-card .action:hover {
+  border-color: var(--ink);
+  background: rgba(23, 21, 18, 0.04);
+}
+
+[data-theme='dark'] .app-card:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+[data-theme='dark'] .provider-badge {
+  border-color: rgba(111, 199, 227, 0.3);
+  color: #8fd8ec;
 }
