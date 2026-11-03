@@ -103,7 +103,7 @@ button {
   justify-content: space-between;
   gap: 18px;
   flex: none;
-  height: 96px;
+  height: 64px;
   padding: 0 18px 0 82px;
   border-bottom: 1px solid var(--line);
   background: rgba(243, 241, 236, 0.92);
@@ -126,8 +126,8 @@ button {
 }
 
 .brand-star {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
   flex: none;
 }
@@ -140,21 +140,21 @@ button {
 
 .brand-name strong {
   font-family: var(--display);
-  font-size: 27px;
+  font-size: 23px;
   font-weight: 760;
   letter-spacing: -0.035em;
 }
 
 .brand-divider {
   width: 1px;
-  height: 30px;
+  height: 24px;
   flex: none;
   background: var(--line);
 }
 
 .brand-tag {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 8px;
   letter-spacing: 0.13em;
   color: var(--faint);
   white-space: nowrap;
@@ -165,7 +165,7 @@ button {
   align-items: center;
   gap: 9px;
   flex: none;
-  height: 56px;
+  height: 52px;
   padding: 0 18px;
   border-bottom: 1px solid var(--line);
   background: var(--raised);
@@ -2275,4 +2275,73 @@ button {
 .app-card:not(.is-installed) .action:hover {
   border-color: var(--strong);
   background: var(--strong);
+}
+
+
+/* ---------- status bar ---------- */
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex: none;
+  height: 34px;
+  padding: 0 18px;
+  border-top: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.02em;
+}
+
+.status-copy {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.status-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.status-actions .service-state {
+  font-family: var(--body);
+  font-size: 9px;
+}
+
+.status-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--faint);
+}
+
+.status-actions button:hover {
+  color: var(--ink);
+}
+
+.status-actions svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.status-actions button:first-of-type svg {
+  fill: currentColor;
+  stroke: none;
 }

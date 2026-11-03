@@ -11,21 +11,6 @@
       </div>
 
       <div class="masthead-actions">
-        <button
-          class="icon-btn theme-toggle"
-          :title="theme === 'dark' ? '切换到浅色' : '切换到深色'"
-          :aria-label="theme === 'dark' ? '切换到浅色' : '切换到深色'"
-          @click="toggleTheme"
-        >
-          <svg v-if="theme === 'dark'" viewBox="0 0 16 16" aria-hidden="true">
-            <circle cx="8" cy="8" r="3.1" />
-            <path d="M8 1.4v1.7M8 12.9v1.7M1.4 8h1.7M12.9 8h1.7M3.3 3.3l1.2 1.2M11.5 11.5l1.2 1.2M12.7 3.3l-1.2 1.2M4.5 11.5l-1.2 1.2" />
-          </svg>
-          <svg v-else viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M13.4 9.5A5.6 5.6 0 0 1 6.5 2.6 5.6 5.6 0 1 0 13.4 9.5Z" />
-          </svg>
-        </button>
-
         <button class="icon-btn" title="设置" @click="openSettings">
           <svg viewBox="0 0 16 16" aria-hidden="true">
             <path d="M8 5.2A2.8 2.8 0 1 0 8 10.8 2.8 2.8 0 0 0 8 5.2Zm6 3.9v-1.8l-1.6-.3a4.7 4.7 0 0 0-.5-1.2l1-1.3-1.3-1.3-1.3 1a4.7 4.7 0 0 0-1.2-.5L8.8 2H7l-.3 1.6a4.7 4.7 0 0 0-1.2.5l-1.3-1L2.9 4.4l1 1.3a4.7 4.7 0 0 0-.5 1.2L2 7.3v1.8l1.6.3c.1.4.3.9.5 1.2l-1 1.3 1.3 1.3 1.3-1c.4.2.8.4 1.2.5l.3 1.6h1.8l.3-1.6c.4-.1.9-.3 1.2-.5l1.3 1 1.3-1.3-1-1.3c.2-.4.4-.8.5-1.2l1.6-.3Z" />
@@ -387,6 +372,28 @@
       </section>
     </div>
 
+    <footer class="status-bar">
+      <span class="status-copy">
+        上次检查：{{ lastCheckedLabel }} · 来源：VAKAO API 和 GITHUB
+      </span>
+      <div class="status-actions">
+        <span class="service-state" :class="{ offline: !serviceOnline }">
+          <i></i>{{ serviceOnline ? '服务在线' : '服务离线' }}
+        </span>
+        <button title="GitHub" @click="openUrl('https://github.com/Rouarn/VakaoHub')">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 1.5a6.5 6.5 0 0 0-2.1 12.7c.3 0 .4-.1.4-.3v-1.2c-1.7.4-2.1-.7-2.1-.7-.3-.7-.7-.9-.7-.9-.6-.4.1-.4.1-.4.6 0 1 .6 1 .6.6 1 1.5.7 1.9.5.1-.4.2-.7.4-.9-1.3-.1-2.6-.7-2.6-2.9 0-.6.2-1.2.6-1.6-.1-.1-.3-.8.1-1.6 0 0 .5-.2 1.7.6a5.8 5.8 0 0 1 3 0c1.2-.8 1.7-.6 1.7-.6.4.8.2 1.5.1 1.6.4.4.6 1 .6 1.6 0 2.2-1.3 2.8-2.6 2.9.2.2.4.5.4 1v1.5c0 .2.1.3.4.3A6.5 6.5 0 0 0 8 1.5Z" />
+          </svg>
+        </button>
+        <button title="帮助文档" @click="openUrl('https://github.com/Rouarn/VakaoHub#readme')">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6" />
+            <path d="M2 8h12M8 2c1.7 1.7 2.5 3.8 2.5 6S9.7 12.3 8 14c-1.7-1.7-2.5-3.8-2.5-6S6.3 3.7 8 2Z" />
+          </svg>
+        </button>
+      </div>
+    </footer>
+
     <div v-if="settingsVisible" class="settings-overlay" @click.self="settingsVisible = false">
       <section class="settings-window" role="dialog" aria-modal="true" aria-label="设置">
         <header class="settings-head">
@@ -629,9 +636,22 @@ const scrollThumbTop = ref(0);
 const screenIndex = ref(0);
 const showAllChanges = ref(false);
 const serviceOnline = ref(true);
+const lastCheckedAt = ref(0);
+const now = ref(Date.now());
 
 const installedCount = computed(() => apps.value.filter((app) => app.installed).length);
 const updateCount = computed(() => apps.value.filter((app) => app.hasUpdate).length);
+
+const lastCheckedLabel = computed(() => {
+  if (!lastCheckedAt.value) return '尚未检查';
+  const seconds = Math.max(0, Math.floor((now.value - lastCheckedAt.value) / 1000));
+  if (seconds < 60) return '刚刚';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} 分钟前`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} 小时前`;
+  return new Date(lastCheckedAt.value).toLocaleDateString('zh-CN');
+});
 const platformLabel = computed(() => {
   const labels: Record<string, string> = {
     darwin: 'macOS',
@@ -724,6 +744,7 @@ const remainingChanges = computed(() =>
 
 let client: ReturnType<typeof appApi> | null = null;
 let refreshTimer: number | undefined;
+let clockTimer: number | undefined;
 
 function api(): ReturnType<typeof appApi> {
   if (!client) client = appApi();
@@ -748,6 +769,8 @@ async function load(): Promise<void> {
     serviceOnline.value = false;
   } finally {
     loading.value = false;
+    lastCheckedAt.value = Date.now();
+    now.value = Date.now();
     (window as Window & { __vakaoHideSplash?: () => void }).__vakaoHideSplash?.();
     if (!initialScrollDone) {
       initialScrollDone = true;
@@ -1191,6 +1214,9 @@ onMounted(() => {
   runtime?.EventsOn('install:progress', onProgress);
 
   restartRefreshTimer();
+  clockTimer = window.setInterval(() => {
+    now.value = Date.now();
+  }, 30 * 1000);
 
   systemThemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
   systemThemeMedia.addEventListener('change', onSystemThemeChange);
@@ -1198,6 +1224,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (refreshTimer) window.clearInterval(refreshTimer);
+  if (clockTimer) window.clearInterval(clockTimer);
   systemThemeMedia?.removeEventListener('change', onSystemThemeChange);
   window.removeEventListener('click', closeMenu);
   window.removeEventListener('keydown', onKeydown);
