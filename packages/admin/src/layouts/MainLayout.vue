@@ -478,7 +478,14 @@ function logout(): void {
 .content {
   flex: 1;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   background: #f6f7f9;
+}
+
+@supports not (scrollbar-gutter: stable) {
+  .content {
+    overflow-y: scroll;
+  }
 }
 
 @media (max-width: 900px) {

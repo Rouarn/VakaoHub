@@ -49,6 +49,7 @@ body,
 #app {
   height: 100%;
   margin: 0;
+  overflow: hidden;
 }
 
 body {
@@ -207,6 +208,12 @@ body {
 }
 
 @media (max-width: 900px) {
+  html,
+  body,
+  #app {
+    overflow: auto;
+  }
+
   .page {
     padding: 20px;
   }
