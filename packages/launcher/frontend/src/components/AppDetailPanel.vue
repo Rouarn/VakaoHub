@@ -179,7 +179,7 @@ const props = defineProps<{
   platformLabel: string;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   close: [];
   prev: [];
   next: [];

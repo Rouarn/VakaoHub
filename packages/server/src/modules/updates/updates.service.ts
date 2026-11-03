@@ -133,7 +133,7 @@ export class UpdatesService {
       if (!release) return { success: true };
     }
 
-    let artifactId: number | null = dto.artifactId ?? null;
+    const artifactId: number | null = dto.artifactId ?? null;
     if (artifactId !== null) {
       const artifact = await this.artifacts.findOne({ where: { id: artifactId } });
       if (!artifact) return { success: true };

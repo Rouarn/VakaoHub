@@ -88,9 +88,9 @@
     />
 
     <SettingsModal
-      :visible="settingsVisible"
       v-model:base-url="draftBaseUrl"
       v-model:refresh-minutes="refreshMinutes"
+      :visible="settingsVisible"
       :theme-mode="themeMode"
       :service-online="serviceOnline"
       :saving="saving"
@@ -114,7 +114,6 @@
       @close="uninstallTarget = null"
       @confirm="confirmUninstall"
     />
-
   </div>
 </template>
 

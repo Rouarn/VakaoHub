@@ -223,20 +223,9 @@ export class CatalogService {
     req: Request,
   ): ArtifactSummary {
     const path = `api/v1/updates/download/${artifact.id}`;
-    let downloadUrl = '';
-    if (env.publicBaseUrl) {
-      downloadUrl = `${env.publicBaseUrl}/${path}`;
-    } else {
-      const proto =
-        ((req.headers['x-forwarded-proto'] as string) ?? '')
-          .split(',')[0]
-          .trim() || req.protocol;
-      const host =
-        ((req.headers['x-forwarded-host'] as string) ?? '')
-          .split(',')[0]
-          .trim() || req.headers.host;
-      downloadUrl = `${proto}://${host}/${path}`;
-    }
+    const downloadUrl = env.publicBaseUrl
+      ? `${env.publicBaseUrl}/${path}`
+      : `${this.requestOrigin(req)}/${path}`;
 
     return {
       id: artifact.id,
@@ -250,5 +239,17 @@ export class CatalogService {
       notarized: artifact.notarized === 1,
       downloadUrl,
     };
+  }
+
+  private requestOrigin(req: Request): string {
+    const proto =
+      ((req.headers['x-forwarded-proto'] as string) ?? '')
+        .split(',')[0]
+        .trim() || req.protocol;
+    const host =
+      ((req.headers['x-forwarded-host'] as string) ?? '')
+        .split(',')[0]
+        .trim() || req.headers.host;
+    return `${proto}://${host}`;
   }
 }

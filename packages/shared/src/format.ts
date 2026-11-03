@@ -1,4 +1,4 @@
-import type { ArtifactFormat, Arch, Platform } from './index.js';
+import type { ArtifactFormat, Platform } from './index.js';
 
 /**
  * 跨端统一的展示口径（admin / website / launcher 三端共用同一套规则）：

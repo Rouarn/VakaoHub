@@ -4,7 +4,6 @@ import test from 'node:test';
 import { UpdatesService } from '../dist/modules/updates/updates.service.js';
 
 const app = { id: 1, appKey: 'alpha' };
-const otherApp = { id: 2, appKey: 'beta' };
 
 function buildService() {
   const saved = [];

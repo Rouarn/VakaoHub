@@ -15,7 +15,7 @@ test('更新版本允许常规版本号', async () => {
   assert.equal(errors.length, 0);
 });
 
-test('更新版本拒绝带路径分隔符的 versionName', async t => {
+test('更新版本拒绝带路径分隔符的 versionName', async (_t) => {
   for (const value of ['../evil', 'a/b', 'a\\b', '.hidden', '1.0 版']) {
     const errors = await validateVersionName(value);
     assert.equal(errors.length, 1, `${value} 应被拒绝`);
