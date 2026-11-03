@@ -35,7 +35,13 @@
     </header>
 
     <section class="toolbar-row">
-      <button class="refresh-btn" title="刷新目录" :disabled="loading" @click="load">
+      <button
+        class="refresh-btn"
+        :class="{ spinning: loading }"
+        :title="loading ? '正在刷新…' : '刷新目录'"
+        :disabled="loading"
+        @click="load"
+      >
         <svg viewBox="0 0 16 16" aria-hidden="true">
           <path d="M13.2 8a5.2 5.2 0 1 1-1.6-3.8M13.2 2.8v3.4H9.8" />
         </svg>
