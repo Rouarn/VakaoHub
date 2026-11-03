@@ -150,14 +150,15 @@ async function save(): Promise<void> {
     const payload = {
       appKey: form.appKey,
       name: form.name,
-      category: form.category || undefined,
-      iconUrl: form.iconUrl || undefined,
-      repoUrl: form.repoUrl || undefined,
-      homepage: form.homepage || undefined,
-      docsUrl: form.docsUrl || undefined,
-      releaseUrl: form.releaseUrl || undefined,
+      // 可选字段留空时发送 null（而不是 undefined），否则 PATCH 会当作“不修改”而保留旧值
+      category: form.category.trim() || null,
+      iconUrl: form.iconUrl.trim() || null,
+      repoUrl: form.repoUrl.trim() || null,
+      homepage: form.homepage.trim() || null,
+      docsUrl: form.docsUrl.trim() || null,
+      releaseUrl: form.releaseUrl.trim() || null,
       themeColor: themeAuto.value ? null : form.themeColor || null,
-      description: form.description || undefined,
+      description: form.description.trim() || null,
     };
     if (props.editing) {
       await api.apps.update(props.editing.id, payload);
