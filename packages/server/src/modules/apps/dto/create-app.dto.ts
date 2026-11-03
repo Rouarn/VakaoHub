@@ -42,4 +42,14 @@ export class CreateAppDto {
   @IsUrl({ require_protocol: true })
   @Length(0, 255)
   homepage?: string;
+
+  @IsOptional()
+  @IsUrl({ require_protocol: true })
+  @Length(0, 255)
+  docsUrl?: string;
+
+  @IsOptional()
+  @IsUrl({ require_protocol: true })
+  @Length(0, 255)
+  releaseUrl?: string;
 }

@@ -124,3 +124,23 @@ systemctl restart vakaohub
 - [ ] `storage/` 有写权限，磁盘余量足够
 - [ ] 备份任务已生效，且实际还原过一次
 - [ ] 监控 `/api/v1/health`（返回 503 表示数据库不可用）
+
+## macOS 打包与上传
+
+macOS 在复制/打包带扩展属性的文件时会生成 `._*` AppleDouble 元数据文件；它们不是代码，也不是重复文件，但不应部署到服务器。
+
+部署前清理：
+
+```bash
+find /www/wwwroot/Vakao-hub -name '._*' -delete
+find /www/wwwroot/Vakao-hub -name '.DS_Store' -delete
+```
+
+本机打包时排除：
+
+```bash
+COPYFILE_DISABLE=1 tar --no-mac-metadata --exclude='._*' --exclude='.DS_Store' -czf dist.tgz <目录>
+ditto -c -k --keepParent --norsrc --noextattr VaKaoHub.app VaKaoHub.zip
+```
+
+不要删除站点根目录的 `.user.ini` 和 `.htaccess`：它们是宝塔/PHP 的运行配置，与 AppleDouble 无关。

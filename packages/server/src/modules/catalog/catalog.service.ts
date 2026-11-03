@@ -69,6 +69,8 @@ export class CatalogService {
         category: app.category,
         repoUrl: app.repoUrl,
         homepage: app.homepage,
+        docsUrl: app.docsUrl,
+        releaseUrl: app.releaseUrl,
         latest: {
           id: release.id,
           versionName: release.versionName,

@@ -37,6 +37,12 @@ export class AppEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   homepage!: string | null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  docsUrl!: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  releaseUrl!: string | null;
+
   @Column({ type: 'bigint', transformer: bigintTransformer })
   createdAt!: number;
 

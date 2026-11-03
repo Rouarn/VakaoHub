@@ -45,6 +45,12 @@
         <n-form-item label="主页">
           <n-input v-model:value="form.homepage" placeholder="https://..." />
         </n-form-item>
+        <n-form-item label="帮助文档">
+          <n-input v-model:value="form.docsUrl" placeholder="https://.../docs" />
+        </n-form-item>
+        <n-form-item label="版本发布">
+          <n-input v-model:value="form.releaseUrl" placeholder="https://github.com/.../releases" />
+        </n-form-item>
         <n-form-item label="描述">
           <n-input
             v-model:value="form.description"
@@ -96,6 +102,8 @@ const form = reactive({
   iconUrl: '',
   repoUrl: '',
   homepage: '',
+  docsUrl: '',
+  releaseUrl: '',
   description: '',
 });
 
@@ -153,6 +161,8 @@ function resetForm(): void {
   form.iconUrl = '';
   form.repoUrl = '';
   form.homepage = '';
+  form.docsUrl = '';
+  form.releaseUrl = '';
   form.description = '';
 }
 
@@ -170,6 +180,8 @@ function openEdit(row: AppRow): void {
   form.iconUrl = row.iconUrl ?? '';
   form.repoUrl = row.repoUrl ?? '';
   form.homepage = row.homepage ?? '';
+  form.docsUrl = row.docsUrl ?? '';
+  form.releaseUrl = row.releaseUrl ?? '';
   form.description = row.description ?? '';
   modalVisible.value = true;
 }
@@ -188,6 +200,8 @@ async function save(): Promise<void> {
       iconUrl: form.iconUrl || undefined,
       repoUrl: form.repoUrl || undefined,
       homepage: form.homepage || undefined,
+      docsUrl: form.docsUrl || undefined,
+      releaseUrl: form.releaseUrl || undefined,
       description: form.description || undefined,
     };
     if (editingId.value) {

@@ -59,22 +59,24 @@ type Progress struct {
 }
 
 type AppView struct {
-	AppKey               string `json:"appKey"`
-	Name                 string `json:"name"`
-	Description          string `json:"description"`
-	IconURL              string `json:"iconUrl"`
-	Category             string `json:"category"`
-	Homepage             string `json:"homepage"`
-	RepoURL              string `json:"repoUrl"`
-	LatestVersion        string `json:"latestVersion"`
-	LatestVersionCode    int    `json:"latestVersionCode"`
-	LatestPublishedAt    int64  `json:"latestPublishedAt"`
-	ForceUpdate          bool   `json:"forceUpdate"`
-	UpdateLog            string `json:"updateLog"`
-	ArtifactID           int    `json:"artifactID"`
-	ArtifactFormat       string `json:"artifactFormat"`
-	ArtifactSize         int64  `json:"artifactSize"`
-	ArtifactSHA256       string `json:"artifactSha256"`
+	AppKey               string   `json:"appKey"`
+	Name                 string   `json:"name"`
+	Description          string   `json:"description"`
+	IconURL              string   `json:"iconUrl"`
+	Category             string   `json:"category"`
+	Homepage             string   `json:"homepage"`
+	RepoURL              string   `json:"repoUrl"`
+	DocsURL              string   `json:"docsUrl"`
+	ReleaseURL           string   `json:"releaseUrl"`
+	LatestVersion        string   `json:"latestVersion"`
+	LatestVersionCode    int      `json:"latestVersionCode"`
+	LatestPublishedAt    int64    `json:"latestPublishedAt"`
+	ForceUpdate          bool     `json:"forceUpdate"`
+	UpdateLog            string   `json:"updateLog"`
+	ArtifactID           int      `json:"artifactID"`
+	ArtifactFormat       string   `json:"artifactFormat"`
+	ArtifactSize         int64    `json:"artifactSize"`
+	ArtifactSHA256       string   `json:"artifactSha256"`
 	Installed            bool     `json:"installed"`
 	InstalledVersion     string   `json:"installedVersion"`
 	InstalledVersionCode int      `json:"installedVersionCode"`
@@ -141,6 +143,8 @@ func (a *App) catalogLocked() (CatalogView, error) {
 			Category:          app.Category,
 			Homepage:          app.Homepage,
 			RepoURL:           app.RepoURL,
+			DocsURL:           app.DocsURL,
+			ReleaseURL:        app.ReleaseURL,
 			LatestVersion:     app.Latest.VersionName,
 			LatestVersionCode: app.Latest.VersionCode,
 			LatestPublishedAt: app.Latest.PublishedAt,

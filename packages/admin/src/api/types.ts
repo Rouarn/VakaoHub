@@ -7,6 +7,8 @@ export interface AppRow {
   category: string | null;
   repoUrl: string | null;
   homepage: string | null;
+  docsUrl: string | null;
+  releaseUrl: string | null;
   createdAt: number;
   updatedAt: number;
 }

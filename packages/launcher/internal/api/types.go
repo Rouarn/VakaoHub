@@ -15,20 +15,22 @@ type CatalogApp struct {
 	Category    string   `json:"category"`
 	RepoURL     string   `json:"repoUrl"`
 	Homepage    string   `json:"homepage"`
+	DocsURL     string   `json:"docsUrl"`
+	ReleaseURL  string   `json:"releaseUrl"`
 	Latest      *Release `json:"latest"`
 }
 
 type Release struct {
-	ID           int        `json:"id"`
-	VersionName  string     `json:"versionName"`
-	VersionCode  int        `json:"versionCode"`
-	Channel      string     `json:"channel"`
-	Status       int        `json:"status"`
-	ForceUpdate  bool       `json:"forceUpdate"`
-	MinVersion   int        `json:"minVersionCode"`
-	UpdateLog    string     `json:"updateLog"`
-	PublishedAt  int64      `json:"publishedAt"`
-	Artifacts    []Artifact `json:"artifacts"`
+	ID          int        `json:"id"`
+	VersionName string     `json:"versionName"`
+	VersionCode int        `json:"versionCode"`
+	Channel     string     `json:"channel"`
+	Status      int        `json:"status"`
+	ForceUpdate bool       `json:"forceUpdate"`
+	MinVersion  int        `json:"minVersionCode"`
+	UpdateLog   string     `json:"updateLog"`
+	PublishedAt int64      `json:"publishedAt"`
+	Artifacts   []Artifact `json:"artifacts"`
 }
 
 type Artifact struct {

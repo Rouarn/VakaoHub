@@ -49,6 +49,8 @@ export class AppsService {
         category: dto.category ?? null,
         repoUrl: dto.repoUrl ?? null,
         homepage: dto.homepage ?? null,
+        docsUrl: dto.docsUrl ?? null,
+        releaseUrl: dto.releaseUrl ?? null,
         createdAt: now,
         updatedAt: now,
       }),
@@ -64,6 +66,8 @@ export class AppsService {
       ...(dto.category !== undefined ? { category: dto.category } : {}),
       ...(dto.repoUrl !== undefined ? { repoUrl: dto.repoUrl } : {}),
       ...(dto.homepage !== undefined ? { homepage: dto.homepage } : {}),
+      ...(dto.docsUrl !== undefined ? { docsUrl: dto.docsUrl } : {}),
+      ...(dto.releaseUrl !== undefined ? { releaseUrl: dto.releaseUrl } : {}),
       updatedAt: Date.now(),
     });
     return this.apps.save(app);

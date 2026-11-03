@@ -17,6 +17,8 @@ export interface AppView {
   category: string;
   homepage: string;
   repoUrl: string;
+  docsUrl: string;
+  releaseUrl: string;
   latestVersion: string;
   latestVersionCode: number;
   latestPublishedAt: number;

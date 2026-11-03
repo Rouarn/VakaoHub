@@ -8,6 +8,8 @@ export namespace main {
 	    category: string;
 	    homepage: string;
 	    repoUrl: string;
+	    docsUrl: string;
+	    releaseUrl: string;
 	    latestVersion: string;
 	    latestVersionCode: number;
 	    latestPublishedAt: number;
@@ -38,6 +40,8 @@ export namespace main {
 	        this.category = source["category"];
 	        this.homepage = source["homepage"];
 	        this.repoUrl = source["repoUrl"];
+	        this.docsUrl = source["docsUrl"];
+	        this.releaseUrl = source["releaseUrl"];
 	        this.latestVersion = source["latestVersion"];
 	        this.latestVersionCode = source["latestVersionCode"];
 	        this.latestPublishedAt = source["latestPublishedAt"];
