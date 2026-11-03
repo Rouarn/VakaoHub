@@ -22,16 +22,18 @@ import (
 
 // App 是暴露给前端的方法集合。
 type App struct {
-	ctx      context.Context
-	mu       sync.Mutex
-	settings Settings
-	store    *store.Store
+	ctx        context.Context
+	mu         sync.Mutex
+	settingsMu sync.RWMutex
+	settings   Settings
+	store      *store.Store
 }
 
 func NewApp() *App {
 	s, err := store.Open()
 	if err != nil {
-		fmt.Println("读取已安装列表失败：", err)
+		fmt.Println("读取已安装列表失败，本次运行使用内存记录：", err)
+		s = store.NewMemory()
 	}
 	return &App{
 		settings: loadSettings(),
@@ -96,10 +98,22 @@ type CatalogView struct {
 }
 
 func (a *App) GetSettings() Settings {
+	a.settingsMu.RLock()
+	defer a.settingsMu.RUnlock()
 	return a.settings
 }
 
+// baseURL 返回当前服务地址的副本，供网络调用在并发保存设置时安全读取。
+func (a *App) baseURL() string {
+	a.settingsMu.RLock()
+	defer a.settingsMu.RUnlock()
+	return a.settings.BaseURL
+}
+
 func (a *App) SaveSettings(baseURL string) (Settings, error) {
+	a.settingsMu.Lock()
+	defer a.settingsMu.Unlock()
+
 	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
 	if baseURL == "" {
 		return a.settings, fmt.Errorf("服务地址不能为空")
@@ -107,10 +121,12 @@ func (a *App) SaveSettings(baseURL string) (Settings, error) {
 	if !strings.HasPrefix(baseURL, "http://") && !strings.HasPrefix(baseURL, "https://") {
 		return a.settings, fmt.Errorf("服务地址必须以 http:// 或 https:// 开头")
 	}
-	a.settings.BaseURL = baseURL
-	if err := saveSettings(a.settings); err != nil {
+	next := a.settings
+	next.BaseURL = baseURL
+	if err := saveSettings(next); err != nil {
 		return a.settings, err
 	}
+	a.settings = next
 	return a.settings, nil
 }
 
@@ -122,7 +138,7 @@ func (a *App) GetCatalog() (CatalogView, error) {
 
 func (a *App) catalogLocked() (CatalogView, error) {
 	platform, arch := platformInfo()
-	client := api.New(a.settings.BaseURL)
+	client := api.New(a.baseURL())
 	response, err := client.Catalog(a.httpContext(), platform, arch)
 	if err != nil {
 		return CatalogView{}, err
@@ -237,7 +253,7 @@ func (a *App) Install(appKey string, artifactID int) (store.Installed, error) {
 	defer a.mu.Unlock()
 
 	platform, arch := platformInfo()
-	client := api.New(a.settings.BaseURL)
+	client := api.New(a.baseURL())
 	response, err := client.Catalog(a.httpContext(), platform, arch)
 	if err != nil {
 		return store.Installed{}, err

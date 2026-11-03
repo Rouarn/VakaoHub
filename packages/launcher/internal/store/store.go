@@ -21,10 +21,14 @@ type Store struct {
 	apps map[string]Installed
 }
 
+func NewMemory() *Store {
+	return &Store{apps: map[string]Installed{}}
+}
+
 func Open() (*Store, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
-		return &Store{apps: map[string]Installed{}}, nil
+		return NewMemory(), nil
 	}
 	base := filepath.Join(dir, "vakaohub")
 	if err := os.MkdirAll(base, 0o755); err != nil {
@@ -77,6 +81,10 @@ func (s *Store) Remove(appKey string) error {
 }
 
 func (s *Store) save() error {
+	if s.path == "" {
+		// 内存模式：目录不可用时仍保持本次会话可用，不落盘
+		return nil
+	}
 	items := s.List()
 	data, err := json.MarshalIndent(items, "", "  ")
 	if err != nil {
