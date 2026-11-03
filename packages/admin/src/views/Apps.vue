@@ -56,9 +56,11 @@
             <n-color-picker
               v-model:value="form.themeColor"
               :show-alpha="false"
+              :modes="['hex']"
               :swatches="themeSwatches"
+              style="width: 180px; flex: none"
             />
-            <n-button size="tiny" @click="form.themeColor = ''">自动</n-button>
+            <n-button size="tiny" @click="form.themeColor = null">自动</n-button>
           </div>
         </n-form-item>
         <n-form-item label="描述">
@@ -124,7 +126,7 @@ const form = reactive({
   homepage: '',
   docsUrl: '',
   releaseUrl: '',
-  themeColor: '',
+  themeColor: null as string | null,
   description: '',
 });
 
@@ -184,7 +186,7 @@ function resetForm(): void {
   form.homepage = '';
   form.docsUrl = '';
   form.releaseUrl = '';
-  form.themeColor = '';
+  form.themeColor = null;
   form.description = '';
 }
 
@@ -204,7 +206,7 @@ function openEdit(row: AppRow): void {
   form.homepage = row.homepage ?? '';
   form.docsUrl = row.docsUrl ?? '';
   form.releaseUrl = row.releaseUrl ?? '';
-  form.themeColor = row.themeColor ?? '';
+  form.themeColor = row.themeColor ?? null;
   form.description = row.description ?? '';
   modalVisible.value = true;
 }
