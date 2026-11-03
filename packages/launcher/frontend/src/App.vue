@@ -105,7 +105,11 @@
           </div>
 
           <div class="card-head">
-            <div class="app-icon" :style="{ background: appColor(app) }">
+            <div
+              class="app-icon"
+              :class="{ 'with-image': app.iconUrl }"
+              :style="app.iconUrl ? {} : { background: appColor(app) }"
+            >
               <img v-if="app.iconUrl" :src="app.iconUrl" :alt="app.name" />
               <span v-else>{{ initial(app.name) }}</span>
             </div>
@@ -192,7 +196,11 @@
       </header>
 
       <div class="detail-hero">
-        <div class="detail-icon" :style="{ background: appColor(selected) }">
+        <div
+          class="detail-icon"
+          :class="{ 'with-image': selected.iconUrl }"
+          :style="selected.iconUrl ? {} : { background: appColor(selected) }"
+        >
           <img v-if="selected.iconUrl" :src="selected.iconUrl" :alt="selected.name" />
           <span v-else>{{ initial(selected.name) }}</span>
         </div>
@@ -260,7 +268,11 @@
             </template>
           </div>
           <div v-else class="screen-fallback">
-            <div class="fallback-icon" :style="{ background: appColor(selected) }">
+            <div
+              class="fallback-icon"
+              :class="{ 'with-image': selected.iconUrl }"
+              :style="selected.iconUrl ? {} : { background: appColor(selected) }"
+            >
               <img v-if="selected.iconUrl" :src="selected.iconUrl" :alt="selected.name" />
               <span v-else>{{ initial(selected.name) }}</span>
             </div>
