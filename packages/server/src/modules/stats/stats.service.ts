@@ -100,12 +100,16 @@ export class StatsService {
     };
   }
 
+  /** 最近 30 天事件漏斗（检查 → 下载 → 安装）；按 deviceId 去重，匿名事件按行计数。 */
   async funnel(appId?: number) {
     const since = Date.now() - 30 * 24 * 60 * 60 * 1000;
     const query = this.events
       .createQueryBuilder('e')
       .select('e.type', 'type')
-      .addSelect('COUNT(*)', 'count')
+      .addSelect(
+        "COUNT(DISTINCT COALESCE(NULLIF(e.deviceId, ''), CONCAT('event:', CAST(e.id AS CHAR))))",
+        'count',
+      )
       .where('e.createdAt >= :since', { since });
 
     if (appId) query.andWhere('e.appId = :appId', { appId });

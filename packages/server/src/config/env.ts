@@ -78,6 +78,11 @@ export const env = {
 
   storageDir: resolve(process.cwd(), process.env.STORAGE_DIR ?? 'storage'),
   uploadMaxBytes: toInt(process.env.UPLOAD_MAX_BYTES, 2 * 1024 * 1024 * 1024),
+
+  events: {
+    /** 客户端事件保留天数；0（默认）表示永久保留，不启用清理任务。 */
+    retentionDays: Math.max(0, toInt(process.env.EVENT_RETENTION_DAYS, 0)),
+  },
 } as const;
 
 export type AppEnv = typeof env;

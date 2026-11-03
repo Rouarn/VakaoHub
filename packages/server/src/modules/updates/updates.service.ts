@@ -124,11 +124,36 @@ export class UpdatesService {
     const app = await this.apps.findOne({ where: { appKey: dto.appKey } });
     if (!app) return { success: true };
 
+    let releaseId: number | null = dto.releaseId ?? null;
+    if (releaseId !== null) {
+      const release = await this.releases.findOne({
+        where: { id: releaseId, appId: app.id },
+      });
+      // 上报的版本不属于该应用：静默忽略，避免伪造归属污染统计。
+      if (!release) return { success: true };
+    }
+
+    let artifactId: number | null = dto.artifactId ?? null;
+    if (artifactId !== null) {
+      const artifact = await this.artifacts.findOne({ where: { id: artifactId } });
+      if (!artifact) return { success: true };
+      if (releaseId !== null) {
+        if (artifact.releaseId !== releaseId) return { success: true };
+      } else {
+        const owner = await this.releases.findOne({
+          where: { id: artifact.releaseId, appId: app.id },
+        });
+        if (!owner) return { success: true };
+        // 只给了产物时回填所属版本，便于按版本聚合。
+        releaseId = artifact.releaseId;
+      }
+    }
+
     await this.events.save(
       this.events.create({
         appId: app.id,
-        releaseId: dto.releaseId ?? null,
-        artifactId: dto.artifactId ?? null,
+        releaseId,
+        artifactId,
         deviceId: dto.deviceId ?? null,
         platform: dto.platform,
         arch: dto.arch ?? null,

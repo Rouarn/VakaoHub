@@ -6,6 +6,7 @@ import { ClientEventEntity } from '../../database/entities/client-event.entity.j
 import { ReleaseEntity } from '../../database/entities/release.entity.js';
 import { UpdatesController } from './updates.controller.js';
 import { UpdatesService } from './updates.service.js';
+import { EventRetentionService } from './event-retention.service.js';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { UpdatesService } from './updates.service.js';
     ]),
   ],
   controllers: [UpdatesController],
-  providers: [UpdatesService],
+  providers: [UpdatesService, EventRetentionService],
 })
 export class UpdatesModule {}
