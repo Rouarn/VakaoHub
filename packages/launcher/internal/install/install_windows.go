@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func installLocal(format, filePath, appKey, appName string) (string, error) {
+func installLocal(format, filePath, appKey, appName, targetPath string) (string, error) {
 	switch format {
 	case "zip":
 		return installZip(filePath, appKey)

@@ -10,18 +10,18 @@ import (
 	"strings"
 )
 
-func installLocal(format, filePath, appKey, appName string) (string, error) {
+func installLocal(format, filePath, appKey, appName, targetPath string) (string, error) {
 	switch format {
 	case "dmg":
-		return installDMG(filePath)
+		return installDMG(filePath, targetPath)
 	case "zip":
-		return installZip(filePath)
+		return installZip(filePath, targetPath)
 	default:
 		return "", fmt.Errorf("macOS 暂不支持 %s 格式，请上传 dmg 或 zip", format)
 	}
 }
 
-func installZip(filePath string) (string, error) {
+func installZip(filePath, targetPath string) (string, error) {
 	tmp, err := os.MkdirTemp("", "vakaohub-unzip-*")
 	if err != nil {
 		return "", err
@@ -36,10 +36,10 @@ func installZip(filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return copyToApplications(appPath)
+	return copyToApplications(appPath, targetPath)
 }
 
-func installDMG(filePath string) (string, error) {
+func installDMG(filePath, targetPath string) (string, error) {
 	mountPoint, err := os.MkdirTemp("", "vakaohub-dmg-*")
 	if err != nil {
 		return "", err
@@ -63,7 +63,7 @@ func installDMG(filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return copyToApplications(appPath)
+	return copyToApplications(appPath, targetPath)
 }
 
 func findApp(root string) (string, error) {
@@ -90,7 +90,7 @@ func findApp(root string) (string, error) {
 	return found, nil
 }
 
-func copyToApplications(appPath string) (string, error) {
+func copyToApplications(appPath, targetPath string) (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -101,6 +101,24 @@ func copyToApplications(appPath string) (string, error) {
 	}
 
 	target := filepath.Join(destinationDir, filepath.Base(appPath))
+	if targetPath != "" {
+		clean := filepath.Clean(targetPath)
+		allowed := []string{
+			filepath.Join(home, "Applications"),
+			"/Applications",
+		}
+		valid := false
+		for _, root := range allowed {
+			if strings.HasPrefix(clean, root+string(os.PathSeparator)) {
+				valid = true
+				break
+			}
+		}
+		if !valid {
+			return "", fmt.Errorf("目标路径不在允许的安装目录内：%s", targetPath)
+		}
+		target = clean
+	}
 	if err := os.RemoveAll(target); err != nil {
 		return "", err
 	}
@@ -121,12 +139,17 @@ func removeLocal(path string) error {
 	if err != nil {
 		return err
 	}
-	root := filepath.Join(home, "Applications")
-	clean := filepath.Clean(path)
-	if !strings.HasPrefix(clean, root+string(os.PathSeparator)) {
-		return fmt.Errorf("拒绝删除 %s 之外的路径", root)
+	roots := []string{
+		filepath.Join(home, "Applications"),
+		"/Applications",
 	}
-	return os.RemoveAll(clean)
+	clean := filepath.Clean(path)
+	for _, root := range roots {
+		if strings.HasPrefix(clean, root+string(os.PathSeparator)) {
+			return os.RemoveAll(clean)
+		}
+	}
+	return fmt.Errorf("拒绝删除 ~/Applications 与 /Applications 之外的路径")
 }
 
 func launchLocal(path string) error {

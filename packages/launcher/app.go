@@ -74,10 +74,13 @@ type AppView struct {
 	ArtifactFormat       string `json:"artifactFormat"`
 	ArtifactSize         int64  `json:"artifactSize"`
 	ArtifactSHA256       string `json:"artifactSha256"`
-	Installed            bool   `json:"installed"`
-	InstalledVersion     string `json:"installedVersion"`
-	InstalledVersionCode int    `json:"installedVersionCode"`
-	HasUpdate            bool   `json:"hasUpdate"`
+	Installed            bool     `json:"installed"`
+	InstalledVersion     string   `json:"installedVersion"`
+	InstalledVersionCode int      `json:"installedVersionCode"`
+	HasUpdate            bool     `json:"hasUpdate"`
+	Running              bool     `json:"running"`
+	InstallPath          string   `json:"installPath"`
+	Duplicates           []string `json:"duplicates"`
 }
 
 type CatalogView struct {
@@ -147,12 +150,66 @@ func (a *App) catalogLocked() (CatalogView, error) {
 			ArtifactSHA256:    artifact.SHA256,
 		}
 
-		if installed, ok := a.store.Get(app.AppKey); ok {
-			item.Installed = true
-			item.InstalledVersion = installed.VersionName
-			item.InstalledVersionCode = installed.VersionCode
-			item.HasUpdate = installed.VersionCode < app.Latest.VersionCode
+		detected := install.FindApps(app.Name)
+		installedPath := ""
+		installedVersion := ""
+		installedCode := 0
+
+		if app.AppKey == "vakaohub" {
+			if path, version, ok := install.CurrentBundle(); ok {
+				item.Installed = true
+				item.Running = true
+				item.InstallPath = path
+				installedPath = path
+				installedVersion = version
+			}
 		}
+
+		if !item.Installed {
+			if record, ok := a.store.Get(app.AppKey); ok {
+				if _, statErr := os.Stat(record.InstallPath); statErr == nil {
+					item.Installed = true
+					item.InstallPath = record.InstallPath
+					installedPath = record.InstallPath
+					installedVersion = record.VersionName
+					installedCode = record.VersionCode
+				} else {
+					_ = a.store.Remove(app.AppKey)
+				}
+			}
+		}
+
+		if !item.Installed && len(detected) > 0 {
+			item.Installed = true
+			item.InstallPath = detected[0].Path
+			installedPath = detected[0].Path
+			installedVersion = detected[0].Version
+			_ = a.store.Put(store.Installed{
+				AppKey:      app.AppKey,
+				Name:        app.Name,
+				VersionName: installedVersion,
+				VersionCode: 0,
+				InstallPath: detected[0].Path,
+				InstalledAt: time.Now().Unix(),
+			})
+		}
+
+		if item.Installed {
+			item.InstalledVersion = installedVersion
+			item.InstalledVersionCode = installedCode
+			if installedCode > 0 {
+				item.HasUpdate = installedCode < app.Latest.VersionCode
+			} else {
+				item.HasUpdate = installedVersion != "" && installedVersion != app.Latest.VersionName
+			}
+		}
+
+		for _, found := range detected {
+			if found.Path != installedPath {
+				item.Duplicates = append(item.Duplicates, found.Path)
+			}
+		}
+
 		view.Apps = append(view.Apps, item)
 	}
 	return view, nil
@@ -188,6 +245,9 @@ func (a *App) Install(appKey string, artifactID int) (store.Installed, error) {
 	if app == nil || artifact == nil {
 		return store.Installed{}, fmt.Errorf("未找到该应用或产物")
 	}
+	if appKey == "vakaohub" {
+		return store.Installed{}, fmt.Errorf("启动器不能通过自身安装；请下载新版本手动替换")
+	}
 
 	a.emit(appKey, "preparing", -1, "准备下载")
 	tmpDir, err := os.MkdirTemp("", "vakaohub-install-*")
@@ -215,8 +275,20 @@ func (a *App) Install(appKey string, artifactID int) (store.Installed, error) {
 		return store.Installed{}, fmt.Errorf("%s", message)
 	}
 
+	existingPath := ""
+	if record, ok := a.store.Get(appKey); ok {
+		if _, statErr := os.Stat(record.InstallPath); statErr == nil {
+			existingPath = record.InstallPath
+		}
+	}
+	if existingPath == "" {
+		if found := install.FindApps(app.Name); len(found) > 0 {
+			existingPath = found[0].Path
+		}
+	}
+
 	a.emit(appKey, "installing", 100, "正在安装")
-	installPath, err := install.Install(artifact.Format, filePath, app.AppKey, app.Name)
+	installPath, err := install.Install(artifact.Format, filePath, app.AppKey, app.Name, existingPath)
 	if err != nil {
 		a.emit(appKey, "error", -1, err.Error())
 		return store.Installed{}, err
@@ -241,6 +313,10 @@ func (a *App) Install(appKey string, artifactID int) (store.Installed, error) {
 func (a *App) Uninstall(appKey string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
+
+	if appKey == "vakaohub" {
+		return fmt.Errorf("不能卸载正在运行的启动器")
+	}
 
 	item, ok := a.store.Get(appKey)
 	if !ok {

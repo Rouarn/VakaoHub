@@ -44,7 +44,8 @@
                 {{ app.category || '应用' }} · {{ app.artifactFormat.toUpperCase() }}
               </p>
             </div>
-            <span v-if="app.hasUpdate" class="badge update">可更新</span>
+            <span v-if="app.running" class="badge ok">当前运行</span>
+            <span v-else-if="app.hasUpdate" class="badge update">可更新</span>
             <span v-else-if="app.installed" class="badge ok">已安装</span>
           </div>
 
@@ -52,9 +53,18 @@
 
           <div class="versions">
             <span>最新 {{ app.latestVersion }}</span>
-            <span v-if="app.installed">已安装 {{ app.installedVersion }}</span>
+            <span v-if="app.installed">
+              {{ app.running ? '当前' : '已安装' }} {{ app.installedVersion }}
+            </span>
             <span v-if="mustUpdate(app)" class="warn">必须更新</span>
           </div>
+
+          <p v-if="app.duplicates?.length" class="hint warn">
+            检测到多份安装：{{ (app.duplicates ?? []).join('、') }}，请只保留一份。
+          </p>
+          <p v-if="app.running && app.hasUpdate" class="hint warn">
+            有新版本，请手动下载替换当前启动器。
+          </p>
 
           <div v-if="progress[app.appKey] && busy(app.appKey)" class="progress">
             <div class="bar">
@@ -73,6 +83,12 @@
           </p>
 
           <div class="card-actions">
+            <template v-if="app.running">
+              <button v-if="app.homepage" class="ghost" @click="openUrl(app.homepage)">
+                主页
+              </button>
+            </template>
+            <template v-else>
             <button
               v-if="!app.installed"
               class="primary"
@@ -103,6 +119,7 @@
             <button v-if="app.homepage" class="ghost" @click="openUrl(app.homepage)">
               主页
             </button>
+            </template>
           </div>
         </article>
       </section>
@@ -181,6 +198,7 @@ async function load(): Promise<void> {
 }
 
 async function install(app: AppView): Promise<void> {
+  if (app.running) return;
   busyKeys.value = { ...busyKeys.value, [app.appKey]: true };
   error.value = '';
   try {
@@ -196,6 +214,7 @@ async function install(app: AppView): Promise<void> {
 }
 
 async function uninstall(app: AppView): Promise<void> {
+  if (app.running) return;
   if (!window.confirm(`确定卸载 ${app.name}？安装目录会被删除。`)) return;
   error.value = '';
   try {
@@ -246,7 +265,7 @@ function busy(appKey: string): boolean {
 }
 
 function mustUpdate(app: AppView): boolean {
-  return app.installed && app.hasUpdate && app.forceUpdate;
+  return !app.running && app.installed && app.hasUpdate && app.forceUpdate;
 }
 
 function percentOf(appKey: string): string {

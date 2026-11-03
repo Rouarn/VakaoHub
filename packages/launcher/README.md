@@ -30,6 +30,9 @@ build/bin/VaKaoHub.app
 - 应用目录：按当前操作系统与 CPU 架构过滤，展示最新版本、已安装版本与可更新状态；
 - 安装/更新：下载（带进度事件）→ SHA-256 校验 → 平台安装；
 - 打开：调用系统默认方式启动已安装应用；
+- 自检测：启动器识别当前运行的 `.app`，不会把自己当成未安装而再次安装；
+- 手动安装识别：扫描 `~/Applications` 与 `/Applications`，手动拖入的应用也会显示为已安装；
+- 重复安装提示：同一应用存在多份时列出路径，更新时替换已有路径而不是再复制一份；
 - 自动刷新：启动即加载，之后每 30 分钟静默刷新；顶部显示可更新数量；
 - 断点续传：半包保存在 `~/Library/Caches/vakaohub/downloads/<artifactID>.part`，下次继续；
 - 强制更新：未更新到最新版时「打开」被禁用并提示；
@@ -55,6 +58,8 @@ Windows 需要 Windows 机器或 CI。仓库提供 [`.github/workflows/launcher-
 ## 托盘
 
 暂未实现系统托盘：Wails v2 与常见 Go 托盘库都要求占用主线程，两者同时启动会冲突；后续换 Wails v3 或原生 `NSStatusItem` 再补。
+
+![自检测与重复安装提示](docs/screenshot-selfdetect.png)
 
 ## 冒烟测试
 

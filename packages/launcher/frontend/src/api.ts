@@ -29,6 +29,9 @@ export interface AppView {
   installedVersion: string;
   installedVersionCode: number;
   hasUpdate: boolean;
+  running: boolean;
+  installPath: string;
+  duplicates: string[];
 }
 
 export interface CatalogView {

@@ -20,6 +20,9 @@ export namespace main {
 	    installedVersion: string;
 	    installedVersionCode: number;
 	    hasUpdate: boolean;
+	    running: boolean;
+	    installPath: string;
+	    duplicates: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new AppView(source);
@@ -46,6 +49,9 @@ export namespace main {
 	        this.installedVersion = source["installedVersion"];
 	        this.installedVersionCode = source["installedVersionCode"];
 	        this.hasUpdate = source["hasUpdate"];
+	        this.running = source["running"];
+	        this.installPath = source["installPath"];
+	        this.duplicates = source["duplicates"];
 	    }
 	}
 	export class CatalogView {

@@ -8,5 +8,12 @@
   "frontend:dev:serverUrl": "auto",
   "author": {
     "name": "Rouarn"
+  },
+  "info": {
+    "companyName": "Rouarn",
+    "productName": "VaKaoHub",
+    "productVersion": "0.1.1",
+    "copyright": "Copyright 2026 Rouarn",
+    "comments": "VaKao Hub Launcher"
   }
 }
