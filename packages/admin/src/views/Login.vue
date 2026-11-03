@@ -65,7 +65,6 @@
             size="large"
             :loading="loading"
             attr-type="submit"
-            @click="submit"
           >
             登录
           </n-button>
@@ -94,6 +93,7 @@ const form = reactive({ username: 'admin', password: '' });
 const loading = ref(false);
 
 async function submit(): Promise<void> {
+  if (loading.value) return;
   if (!form.username || !form.password) {
     message.warning('请输入用户名与密码');
     return;
