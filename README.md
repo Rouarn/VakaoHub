@@ -96,6 +96,7 @@ pnpm dev:admin
 客户端（公开）：
 
 - `GET /api/v1/catalog?platform=&arch=&channel=` 应用目录
+- `GET /api/v1/catalog/summary` 官网首屏汇总（应用总数、活跃平台数）
 - `GET /api/v1/updates/check?appKey=&platform=&arch=&versionCode=&channel=&deviceId=` 检查更新
 - `GET /api/v1/updates/download/:artifactId` 下载产物（支持 Range）
 - `POST /api/v1/updates/report` 事件上报
@@ -108,7 +109,7 @@ pnpm dev:admin
 - `GET/POST/PATCH/DELETE /api/v1/admin/releases`
 - `POST /api/v1/admin/releases/:id/publish|offline|force`
 - `POST /api/v1/admin/releases/rollback/:appId`
-- `POST /api/v1/admin/artifacts`（multipart，字段 `file/releaseId/platform/arch/format`）
+- `POST /api/v1/admin/artifacts`（multipart，字段 `file/releaseId/platform/arch/format`，可选 `minOs/notarized`）
 - `DELETE /api/v1/admin/artifacts/:id`
 - `GET /api/v1/admin/stats`、`GET /api/v1/admin/stats/funnel`、`GET /api/v1/admin/events`、`GET /api/v1/admin/audit-logs`
 
@@ -126,7 +127,7 @@ pnpm dev:admin
 - MySQL 8：事件表会持续增长，且现有项目均使用 MySQL；生产 `DB_SYNCHRONIZE=false`，改表走迁移。迁移文件幂等（按列检测补齐），开发库即使先由 synchronize 建表，之后再执行迁移也会正常记录，不会出现 Duplicate column。
 - 存储：产物落在 `STORAGE_DIR/{appKey}/v{versionCode}_{versionName}/`，按应用与版本分目录；删除版本/应用会清理磁盘文件。
 - 安全：产物 SHA-256 入库，下载支持 ETag/Range；管理端 JWT；上传有扩展名与格式/平台一致性校验。后续补代码签名与 manifest 签名。
-- 尚未实现（按计划推进）：产物魔数校验、代码签名/公证信息展示、灰度自动递增、回滚、Windows 安装链路。
+- 尚未实现（按计划推进）：产物魔数校验、代码签名校验、灰度自动递增、Windows 安装链路。
 
 ## 桌面启动器
 
@@ -142,7 +143,7 @@ Windows 构建由 [`.github/workflows/launcher-windows.yml`](.github/workflows/l
 
 ## 官网下载页
 
-`packages/website` 是独立静态页，读取 `/catalog` 并按平台展示下载：
+`packages/website` 是独立静态页，读取 `/catalog` 并按平台展示下载；首屏统计改用 `/catalog/summary`，把四次平台请求合并为一次：
 
 ```bash
 pnpm website   # http://localhost:5200

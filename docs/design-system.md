@@ -22,10 +22,36 @@
 | `--muted` | `#5E5A52` | 正文/描述 |
 | `--faint` | `#8C877D` | HUD、注释、次要信息 |
 | `--line` | `rgba(23,21,18,.12)` | 1px 分隔线/边框 |
+| `--line-soft` | `rgba(23,21,18,.07)` | 表格内分隔线 |
+| `--line-strong` | `rgba(23,21,18,.24)` | 输入框 hover 边框 |
+| `--table-head` | `#F8F7F2` | 表头/行 hover |
+| `--table-head-text` | `#6B6459` | 表头文字 |
+| `--shadow-soft` | `rgba(16,24,40,.03)` | 卡片微阴影 |
+| `--shadow-panel` | `rgba(16,24,40,.07)` | 登录/浮层阴影 |
+| `--topbar-bg` | `rgba(250,249,245,.86)` | 管理端顶栏 |
+| `--raised-soft` | `rgba(250,249,245,.5)` | 半透明面板 |
+| `--accent-soft` | `rgba(70,166,198,.05)` | 强调块底色 |
+| `--success` | `#4A8F6B` | 成功状态 |
+| `--warning` | `#B4763C` | 警告状态 |
+| `--danger` | `#9A453A` | 危险状态 |
+| `--nav-bg` | `#171512` | 导航底色 |
+| `--nav-text` | `#FAF9F5` | 导航主文字 |
+| `--nav-soft` | `rgba(250,249,245,.6)` | 导航次文字 |
+| `--nav-muted` | `rgba(250,249,245,.38)` | 导航 HUD |
+| `--nav-hover` | `rgba(250,249,245,.06)` | 导航 hover |
+| `--nav-active` | `rgba(70,166,198,.16)` | 导航选中底色 |
+| `--nav-line` | `rgba(250,249,245,.12)` | 导航分隔线 |
 | `--accent` | `#46A6C6` | 链接、进度、交互 |
 | `--orange / --blue / --purple / --yellow` | `#F0995F / #5FBEDC / #A27FC2 / #EDDF55` | 星芒、状态、单点强调 |
 
 深色：背景 `#121210`、面板 `#1A1916`、文字 `#F2EFE7`，四色不变。
+
+## 实现
+
+- 令牌唯一来源是 [`packages/shared/design/tokens.css`](../packages/shared/design/tokens.css)，admin 通过 `@import` 使用。
+- website 与 launcher 前端是独立构建产物（不依赖 workspace 包），保留同值副本；`packages/server/tests/design-tokens.test.mjs` 校验三端令牌一致，并确保 admin 样式无硬编码色值。
+- admin 的 Naive UI 主题在运行时读取 CSS 变量构造，不在 JS 维护第二套色值。
+- 暗色：显式 `data-theme="dark"` 或系统 `prefers-color-scheme`；admin 顶栏提供明暗切换，选择写入 localStorage。
 
 字体：
 
