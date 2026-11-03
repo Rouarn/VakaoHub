@@ -123,6 +123,7 @@ import { appApi, type AppView, type Progress, type Settings } from './api';
 import type { DetailMeta } from './lib/meta';
 import { DETAIL_META } from './lib/detail-meta';
 import AppCard from './components/AppCard.vue';
+import AppDetailPanel from './components/AppDetailPanel.vue';
 import LauncherHeader from './components/LauncherHeader.vue';
 import SettingsModal from './components/SettingsModal.vue';
 import StatusBar from './components/StatusBar.vue';

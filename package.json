@@ -12,6 +12,7 @@
     "dev": "pnpm build:shared && pnpm --parallel --filter @vakao/hub-server --filter @vakao/hub-admin dev",
     "dev:server": "pnpm build:shared && pnpm --filter @vakao/hub-server dev",
     "dev:admin": "pnpm build:shared && pnpm --filter @vakao/hub-admin dev",
+    "dev:launcher": "cd packages/launcher && wails dev",
     "build:shared": "pnpm --filter @vakao/hub-shared build",
     "build": "pnpm build:shared && pnpm --filter @vakao/hub-server build && pnpm --filter @vakao/hub-admin build",
     "lint": "eslint .",
