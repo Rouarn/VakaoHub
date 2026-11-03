@@ -1,5 +1,5 @@
 <template>
-  <n-config-provider>
+  <n-config-provider :theme-overrides="themeOverrides">
     <n-message-provider>
       <n-dialog-provider>
         <router-view />
@@ -14,4 +14,5 @@ import {
   NDialogProvider,
   NMessageProvider,
 } from 'naive-ui';
+import { themeOverrides } from './theme';
 </script>

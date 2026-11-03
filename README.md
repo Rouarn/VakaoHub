@@ -4,6 +4,14 @@
 
 线上：<https://dist.woyuxiaji.cn>（下载页）；管理端 <https://dist.woyuxiaji.cn/admin/>。
 
+## 界面
+
+三端共用一套「纸面 / 墨色 / 四色星芒」的设计语言，令牌与参考见 [`docs/design-system.md`](docs/design-system.md)。
+
+- 启动器：`packages/launcher/docs/screenshot-macos.png`
+- 管理后台：`packages/admin/docs/screenshot-dashboard.png`
+- 下载站：`packages/website/docs/screenshot-home.png`
+
 ## 与其它项目的关系
 
 - `vakao-static-hub`：保持「资源库 + 分享链接」定位，不承载软件分发，本次不做任何改动。
@@ -176,4 +184,5 @@ pnpm website   # http://localhost:5200
 - [ ] manifest 签名与启动器自更新
 - [ ] 灰度自动递增
 - [x] 官网下载页与静态入口
+- [x] 三端视觉统一（启动器 / 管理后台 / 下载站）
 - [x] 启动器上架生产目录（`vakaohub` 0.1.0）

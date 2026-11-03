@@ -2,6 +2,8 @@
 
 ![下载页](docs/screenshot.png)
 
+设计语言与令牌见 [`docs/design-system.md`](../../docs/design-system.md)。
+
 独立静态下载页，读取分发服务的 `/catalog` 接口，按平台展示最新版本与产物。
 
 ## 本地预览

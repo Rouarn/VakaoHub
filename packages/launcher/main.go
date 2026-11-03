@@ -17,9 +17,9 @@ func main() {
 
 	err := wails.Run(&options.App{
 		Title:            "VaKao Hub",
-		Width:            1120,
-		Height:           760,
-		MinWidth:         900,
+		Width:            1200,
+		Height:           800,
+		MinWidth:         980,
 		MinHeight:        620,
 		BackgroundColour: &options.RGBA{R: 243, G: 241, B: 236, A: 1},
 		AssetServer: &assetserver.Options{

@@ -2,7 +2,10 @@
   <div class="page">
     <div class="page-head">
       <div class="toolbar">
-        <h2 class="page-title">版本与产物</h2>
+        <div>
+          <p class="hud">CATALOG / RELEASES</p>
+          <h2 class="page-title">版本与产物</h2>
+        </div>
         <n-select
           v-model:value="appId"
           :options="appOptions"

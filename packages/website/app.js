@@ -9,22 +9,31 @@
     linux: 'Linux',
   };
   var platformOrder = ['darwin', 'win32', 'android', 'linux'];
+  var iconMap = {
+    vakaohub: './assets/icons/vakaohub.png',
+    wiredeck: './assets/icons/wiredeck.png',
+    dianmo: './assets/icons/dianmo.png',
+  };
   var palette = ['#5fbedc', '#f0995f', '#a27fc2', '#eddf55'];
 
   var state = {
     platform: detectPlatform(),
     arch: 'universal',
     apps: [],
+    totalApps: 0,
+    totalPlatforms: 0,
     loading: false,
     error: '',
+    query: '',
   };
 
   var apiBase = resolveApi();
   var archSelect = document.getElementById('arch');
   var platformBox = document.getElementById('platforms');
-  var appsBox = document.getElementById('apps');
+  var appsBox = document.getElementById('apps-grid');
   var statusBox = document.getElementById('status');
   var noteBox = document.getElementById('platform-note');
+  var searchInput = document.getElementById('search');
 
   function resolveApi() {
     var override = params.get('api');
@@ -64,8 +73,8 @@
 
   function colorFor(key) {
     var hash = 0;
-    for (var i = 0; i < key.length; i += 1) {
-      hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+    for (var index = 0; index < key.length; index += 1) {
+      hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
     }
     return palette[hash % palette.length];
   }
@@ -93,6 +102,7 @@
       button.addEventListener('click', function () {
         state.platform = platform;
         renderPlatforms();
+        renderStatus();
         load();
       });
       platformBox.appendChild(button);
@@ -105,49 +115,70 @@
     noteBox.hidden = state.platform !== 'darwin';
   }
 
+  function iconFor(app) {
+    var source = app.iconUrl || iconMap[app.appKey] || '';
+    if (!source) {
+      var fallback = el('div', {
+        class: 'app-icon',
+        style: 'background:' + colorFor(app.appKey),
+      });
+      fallback.textContent = (app.name || '?').trim().charAt(0).toUpperCase();
+      return fallback;
+    }
+
+    var box = el('div', { class: 'app-icon' });
+    box.appendChild(el('img', { src: source, alt: app.name, loading: 'lazy' }));
+    return box;
+  }
+
+  function matchesQuery(app) {
+    if (!state.query) return true;
+    var value = state.query.toLowerCase();
+    return (
+      (app.name || '').toLowerCase().indexOf(value) >= 0 ||
+      (app.appKey || '').toLowerCase().indexOf(value) >= 0 ||
+      (app.description || '').toLowerCase().indexOf(value) >= 0
+    );
+  }
+
   function renderApps() {
     appsBox.textContent = '';
 
     if (state.loading) {
-      appsBox.appendChild(el('div', { class: 'empty', text: '正在加载…' }));
+      appsBox.appendChild(el('div', { class: 'empty', text: '正在读取软件目录…' }));
       return;
     }
 
-    if (!state.apps.length) {
+    var visible = state.apps.filter(matchesQuery);
+    if (!visible.length) {
       appsBox.appendChild(
-        el('div', { class: 'empty', text: '该平台暂无发布版本，稍后再来看看。' }),
+        el('div', {
+          class: 'empty',
+          text: state.query ? '没有匹配的软件。' : '该平台暂无发布版本。',
+        }),
       );
       return;
     }
 
-    state.apps.forEach(function (app) {
+    visible.forEach(function (app) {
       var latest = app.latest;
-      var icon = el('div', {
-        class: 'icon',
-        style: 'background:' + colorFor(app.appKey),
-      });
-      if (app.iconUrl) {
-        var img = el('img', { src: app.iconUrl, alt: app.name });
-        icon.appendChild(img);
-      } else {
-        icon.textContent = (app.name || '?').trim().charAt(0).toUpperCase();
-      }
+      var icon = iconFor(app);
 
-      var head = el('div', { class: 'card-head' }, [
-        icon,
-        el('div', {}, [
-          el('h3', { text: app.name }),
-          el('p', {
-            class: 'meta',
-            text:
-              (app.category || '应用') +
-              ' · ' +
-              (latest ? 'v' + latest.versionName : '暂无版本'),
-          }),
-        ]),
+      var title = el('div', { class: 'app-title' }, [
+        el('h3', { text: app.name }),
+        el('p', {
+          text: (app.category || 'application') + ' / ' + (app.appKey || ''),
+        }),
       ]);
 
-      var artifacts = el('div', { class: 'artifacts' });
+      var version = el('div', { class: 'app-version' }, [
+        el('strong', { text: latest ? 'v' + latest.versionName : '—' }),
+        el('span', {
+          text: latest && latest.publishedAt ? formatDate(latest.publishedAt) : '',
+        }),
+      ]);
+
+      var downloads = el('div', { class: 'app-downloads' });
       (latest ? latest.artifacts : []).forEach(function (artifact) {
         var label =
           artifact.format.toUpperCase() +
@@ -155,22 +186,23 @@
           artifact.arch +
           ' · ' +
           formatSize(artifact.size);
-        var link = el(
-          'a',
-          {
-            class: 'download',
-            href: artifact.downloadUrl,
-            rel: 'noreferrer',
-          },
-          [
-            el('strong', { text: '下载 ' + artifact.format.toUpperCase() }),
-            el('span', { text: label }),
-          ],
+        downloads.appendChild(
+          el(
+            'a',
+            {
+              class: 'download',
+              href: artifact.downloadUrl,
+              rel: 'noreferrer',
+            },
+            [
+              el('strong', { text: '下载 ' + artifact.format.toUpperCase() }),
+              el('span', { text: label }),
+            ],
+          ),
         );
-        artifacts.appendChild(link);
       });
 
-      var links = el('div', { class: 'links' });
+      var links = el('div', { class: 'app-links' });
       if (app.homepage) {
         links.appendChild(
           el('a', { href: app.homepage, target: '_blank', rel: 'noreferrer', text: '主页' }),
@@ -183,14 +215,66 @@
       }
 
       appsBox.appendChild(
-        el('article', { class: 'card' }, [
-          head,
-          el('p', { class: 'desc', text: app.description || '暂无描述' }),
-          artifacts,
+        el('article', { class: 'app-card' }, [
+          el('div', { class: 'app-head' }, [icon, title, version]),
+          el('p', { class: 'app-desc', text: app.description || '暂无描述' }),
+          downloads,
           links,
         ]),
       );
     });
+  }
+
+  function updateHero() {
+    var launcher = state.apps.filter(function (app) {
+      return app.appKey === 'vakaohub' && app.latest && app.latest.artifacts.length;
+    })[0];
+    if (!launcher) return;
+
+    var artifact = launcher.latest.artifacts[0];
+    var link = document.getElementById('hero-download');
+    if (link && artifact) link.href = artifact.downloadUrl;
+    var version = document.getElementById('hero-version');
+    if (version) version.textContent = 'v' + launcher.latest.versionName;
+  }
+
+  function updateStats() {
+    var count = state.totalApps || state.apps.length;
+    var stat = document.getElementById('stat-apps');
+    if (stat) stat.textContent = String(count).padStart(2, '0');
+    var summary = document.getElementById('float-summary');
+    if (summary && state.totalApps) {
+      summary.textContent = state.totalApps + ' apps · ' + state.totalPlatforms + ' platforms';
+    }
+  }
+
+  async function loadTotals() {
+    var platforms = ['darwin', 'win32', 'android', 'linux'];
+    try {
+      var bodies = await Promise.all(
+        platforms.map(function (platform) {
+          return fetch(
+            apiBase + '/catalog?platform=' + platform + '&arch=universal',
+          ).then(function (response) {
+            return response.json();
+          });
+        }),
+      );
+      var keys = new Set();
+      var active = 0;
+      bodies.forEach(function (body) {
+        var apps = body && body.data && body.data.apps ? body.data.apps : [];
+        if (apps.length) active += 1;
+        apps.forEach(function (app) {
+          keys.add(app.appKey);
+        });
+      });
+      state.totalApps = keys.size;
+      state.totalPlatforms = active;
+      updateStats();
+    } catch {
+      /* keep current-platform count */
+    }
   }
 
   function load() {
@@ -217,6 +301,8 @@
       })
       .then(function (data) {
         state.apps = data.apps || [];
+        updateHero();
+        updateStats();
       })
       .catch(function (error) {
         state.apps = [];
@@ -234,9 +320,16 @@
     load();
   });
 
+  searchInput.addEventListener('input', function () {
+    state.query = searchInput.value.trim();
+    renderApps();
+  });
+
   document.getElementById('refresh').addEventListener('click', load);
-  document.getElementById('api-label').textContent = '接口：' + apiBase;
+  document.getElementById('api-label').textContent = apiBase;
 
   renderPlatforms();
+  renderStatus();
   load();
+  loadTotals();
 })();

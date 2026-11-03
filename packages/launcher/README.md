@@ -59,8 +59,6 @@ Windows 需要 Windows 机器或 CI。仓库提供 [`.github/workflows/launcher-
 
 暂未实现系统托盘：Wails v2 与常见 Go 托盘库都要求占用主线程，两者同时启动会冲突；后续换 Wails v3 或原生 `NSStatusItem` 再补。
 
-![自检测与重复安装提示](docs/screenshot-selfdetect.png)
-
 ## 冒烟测试
 
 需要本地服务已启动，并已在后台创建 `wiredeck` 应用与 macOS 产物：

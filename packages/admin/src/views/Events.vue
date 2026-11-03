@@ -1,7 +1,10 @@
 <template>
   <div class="page">
     <div class="page-head">
-      <h2 class="page-title">事件日志</h2>
+      <div>
+        <p class="hud">OBSERVABILITY / EVENTS</p>
+        <h2 class="page-title">事件日志</h2>
+      </div>
       <div class="toolbar">
         <n-select
           v-model:value="appId"

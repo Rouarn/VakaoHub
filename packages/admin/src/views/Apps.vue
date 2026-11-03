@@ -1,7 +1,10 @@
 <template>
   <div class="page">
     <div class="page-head">
-      <h2 class="page-title">应用管理</h2>
+      <div>
+        <p class="hud">CATALOG / APPS</p>
+        <h2 class="page-title">应用管理</h2>
+      </div>
       <n-button type="primary" @click="openCreate">新建应用</n-button>
     </div>
 

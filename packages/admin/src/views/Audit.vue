@@ -1,7 +1,10 @@
 <template>
   <div class="page">
     <div class="page-head">
-      <h2 class="page-title">操作审计</h2>
+      <div>
+        <p class="hud">OBSERVABILITY / AUDIT</p>
+        <h2 class="page-title">操作审计</h2>
+      </div>
       <n-button size="small" :loading="loading" @click="load">刷新</n-button>
     </div>
 

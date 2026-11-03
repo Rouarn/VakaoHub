@@ -1,147 +1,215 @@
 <template>
   <div class="shell">
-    <header class="topbar">
-      <div class="brand">
-        <span class="mark" aria-hidden="true">
-          <i class="blue" /><i class="orange" /><i class="purple" /><i class="yellow" />
-        </span>
+    <aside class="rail">
+      <div class="rail-brand">
+        <img :src="starUrl" class="rail-star" alt="" />
         <div>
-          <h1>VaKao Hub</h1>
-          <p>软件中心</p>
+          <strong>VaKao Hub</strong>
+          <span>软件中心</span>
         </div>
       </div>
-      <div class="top-actions">
-        <span v-if="updatesAvailable" class="badge update">
-          {{ updatesAvailable }} 个更新
-        </span>
-        <button class="ghost" :disabled="loading" @click="load">刷新</button>
-        <button class="ghost" @click="openSettings">设置</button>
-      </div>
-    </header>
 
-    <main>
+      <nav class="rail-nav" aria-label="视图">
+        <button :class="{ active: filter === 'all' }" @click="filter = 'all'">
+          <span>全部软件</span><b>{{ apps.length }}</b>
+        </button>
+        <button :class="{ active: filter === 'updates' }" @click="filter = 'updates'">
+          <span>可更新</span><b>{{ updateCount }}</b>
+        </button>
+        <button :class="{ active: filter === 'installed' }" @click="filter = 'installed'">
+          <span>已安装</span><b>{{ installedCount }}</b>
+        </button>
+      </nav>
+
+      <div class="rail-note">
+        <span class="hud">DELIVERY</span>
+        <p>统一版本、灰度与校验。<br />所有软件，一个入口。</p>
+      </div>
+
+      <div class="rail-foot">
+        <div class="service">
+          <i :class="{ off: !serviceOnline }"></i>
+          <span>{{ serviceOnline ? '分发服务在线' : '服务不可达' }}</span>
+        </div>
+        <button class="rail-link" @click="openSettings">设置 <span>↗</span></button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="masthead">
+        <div>
+          <p class="hud">WORKBENCH / {{ platformLabel }}</p>
+          <h1>{{ filterTitle }}</h1>
+        </div>
+        <div class="mast-actions">
+          <label class="search">
+            <span aria-hidden="true">⌕</span>
+            <input v-model="search" type="search" placeholder="搜索应用" autocomplete="off" />
+          </label>
+          <button class="icon-btn" :disabled="loading" title="刷新" @click="load">↻</button>
+        </div>
+      </header>
+
       <div v-if="error" class="banner">
         <span>{{ error }}</span>
-        <button class="link" @click="load">重试</button>
+        <button @click="load">重试</button>
       </div>
 
-      <div v-if="loading && !apps.length" class="empty">正在读取应用目录…</div>
-      <div v-else-if="!apps.length" class="empty">
-        <p>目录还是空的。</p>
-        <p class="hint">先在管理后台创建应用并上传产物，再回到这里刷新。</p>
-      </div>
+      <section class="metrics" aria-label="概览">
+        <div>
+          <span class="hud">INSTALLED</span>
+          <strong>{{ installedCount }}</strong>
+          <span>已安装</span>
+        </div>
+        <div>
+          <span class="hud">UPDATES</span>
+          <strong>{{ updateCount }}</strong>
+          <span>可更新</span>
+        </div>
+        <div>
+          <span class="hud">CATALOG</span>
+          <strong>{{ apps.length }}</strong>
+          <span>应用总数</span>
+        </div>
+      </section>
 
-      <section v-else class="grid">
-        <article v-for="app in apps" :key="app.appKey" class="card">
-          <div class="card-head">
-            <div class="icon" :style="{ background: colorFor(app.appKey) }">
-              <img v-if="app.iconUrl" :src="app.iconUrl" :alt="app.name" />
-              <span v-else>{{ initial(app.name) }}</span>
-            </div>
-            <div class="title">
+      <section class="list">
+        <div v-if="loading && !apps.length" class="empty">正在读取软件目录…</div>
+        <div v-else-if="!filteredApps.length" class="empty">
+          <p>{{ search ? '没有匹配的软件。' : '这个视图里还没有软件。' }}</p>
+          <p class="hint">试试切换左侧筛选，或到管理后台发布版本。</p>
+        </div>
+
+        <article
+          v-for="app in filteredApps"
+          :key="app.appKey"
+          class="app-row"
+          :style="{ '--app-color': colorFor(app.appKey) }"
+        >
+          <span class="accent" aria-hidden="true"></span>
+
+          <div class="app-icon" :style="{ background: colorFor(app.appKey) }">
+            <img v-if="app.iconUrl" :src="app.iconUrl" :alt="app.name" />
+            <span v-else>{{ initial(app.name) }}</span>
+          </div>
+
+          <div class="app-body">
+            <div class="app-head">
               <h2>{{ app.name }}</h2>
-              <p class="meta">
-                {{ app.category || '应用' }} · {{ app.artifactFormat.toUpperCase() }}
+              <span v-if="app.running" class="pill running">当前运行</span>
+              <span v-else-if="app.hasUpdate" class="pill update">可更新</span>
+              <span v-else-if="app.installed" class="pill installed">已安装</span>
+              <span v-if="mustUpdate(app)" class="pill force">必须更新</span>
+            </div>
+
+            <p class="desc">{{ app.description || '暂无描述' }}</p>
+
+            <div class="meta">
+              <span><em>最新</em>{{ app.latestVersion }}</span>
+              <span v-if="app.installed">
+                <em>{{ app.running ? '当前' : '已安装' }}</em>{{ app.installedVersion }}
+              </span>
+              <span>
+                <em>产物</em>{{ app.artifactFormat.toUpperCase() }} · {{ formatBytes(app.artifactSize) }}
+              </span>
+            </div>
+
+            <div v-if="progress[app.appKey] && busy(app.appKey)" class="progress">
+              <div class="bar">
+                <span :style="{ width: percentOf(app.appKey) }"></span>
+              </div>
+              <p class="hint">
+                {{ progress[app.appKey].message }}
+                <span v-if="progress[app.appKey].percent >= 0">
+                  {{ progress[app.appKey].percent }}%
+                </span>
               </p>
             </div>
-            <span v-if="app.running" class="badge ok">当前运行</span>
-            <span v-else-if="app.hasUpdate" class="badge update">可更新</span>
-            <span v-else-if="app.installed" class="badge ok">已安装</span>
-          </div>
 
-          <p class="desc">{{ app.description || '暂无描述' }}</p>
-
-          <div class="versions">
-            <span>最新 {{ app.latestVersion }}</span>
-            <span v-if="app.installed">
-              {{ app.running ? '当前' : '已安装' }} {{ app.installedVersion }}
-            </span>
-            <span v-if="mustUpdate(app)" class="warn">必须更新</span>
-          </div>
-
-          <p v-if="app.duplicates?.length" class="hint warn">
-            检测到多份安装：{{ (app.duplicates ?? []).join('、') }}，请只保留一份。
-          </p>
-          <p v-if="app.running && app.hasUpdate" class="hint warn">
-            有新版本，请手动下载替换当前启动器。
-          </p>
-
-          <div v-if="progress[app.appKey] && busy(app.appKey)" class="progress">
-            <div class="bar">
-              <span :style="{ width: percentOf(app.appKey) }" />
-            </div>
-            <p class="hint">
-              {{ progress[app.appKey].message }}
-              <span v-if="progress[app.appKey].percent >= 0">
-                {{ progress[app.appKey].percent }}%
-              </span>
+            <p v-if="app.duplicates?.length" class="notice">
+              检测到 {{ app.duplicates.length + 1 }} 份安装：{{ (app.duplicates ?? []).join('、') }}。请只保留一份。
+            </p>
+            <p v-if="app.running && app.hasUpdate" class="notice">
+              有新版本，请手动下载替换当前启动器。
+            </p>
+            <p v-if="mustUpdate(app)" class="notice">
+              该版本要求强制更新，更新到 {{ app.latestVersion }} 后才能打开。
             </p>
           </div>
 
-          <p v-if="mustUpdate(app)" class="hint warn">
-            该版本要求强制更新，更新到 {{ app.latestVersion }} 后才能打开。
-          </p>
-
-          <div class="card-actions">
+          <div class="app-actions">
             <template v-if="app.running">
-              <button v-if="app.homepage" class="ghost" @click="openUrl(app.homepage)">
+              <span class="running-note">正在使用</span>
+              <button v-if="app.homepage" class="btn ghost" @click="openUrl(app.homepage)">
                 主页
               </button>
             </template>
             <template v-else>
-            <button
-              v-if="!app.installed"
-              class="primary"
-              :disabled="busy(app.appKey)"
-              @click="install(app)"
-            >
-              安装
-            </button>
-            <template v-else>
               <button
-                v-if="app.hasUpdate"
-                class="primary"
+                v-if="!app.installed"
+                class="btn"
                 :disabled="busy(app.appKey)"
                 @click="install(app)"
               >
-                更新
+                安装
               </button>
-              <button
-                class="primary"
-                :disabled="busy(app.appKey) || mustUpdate(app)"
-                :title="mustUpdate(app) ? '请先更新到最新版本' : ''"
-                @click="launch(app)"
-              >
-                打开
+              <template v-else>
+                <button
+                  v-if="app.hasUpdate"
+                  class="btn"
+                  :disabled="busy(app.appKey)"
+                  @click="install(app)"
+                >
+                  更新
+                </button>
+                <button
+                  class="btn"
+                  :class="{ secondary: app.hasUpdate }"
+                  :disabled="busy(app.appKey) || mustUpdate(app)"
+                  :title="mustUpdate(app) ? '请先更新到最新版本' : ''"
+                  @click="launch(app)"
+                >
+                  打开
+                </button>
+                <button class="btn ghost danger" @click="uninstall(app)">卸载</button>
+              </template>
+              <button v-if="app.homepage" class="btn ghost" @click="openUrl(app.homepage)">
+                主页
               </button>
-              <button class="ghost danger" @click="uninstall(app)">卸载</button>
-            </template>
-            <button v-if="app.homepage" class="ghost" @click="openUrl(app.homepage)">
-              主页
-            </button>
             </template>
           </div>
         </article>
       </section>
+
+      <footer class="statusbar">
+        <span>{{ settings.baseUrl }}</span>
+        <span v-if="platform">PLATFORM / {{ platform }} / {{ arch }}</span>
+      </footer>
     </main>
 
-    <footer class="footer">
-      <span>服务：{{ settings.baseUrl }}</span>
-      <span v-if="platform">平台：{{ platform }} / {{ arch }}</span>
-    </footer>
-
-    <div v-if="settingsVisible" class="mask" @click.self="settingsVisible = false">
-      <div class="modal">
-        <h2>分发服务地址</h2>
-        <p class="hint">
-          本地开发默认 <code>http://127.0.0.1:3000/api/v1</code>，上线后改成实际域名。
-        </p>
-        <input v-model="draftBaseUrl" spellcheck="false" placeholder="http://127.0.0.1:3000/api/v1" />
-        <div class="modal-actions">
-          <button class="ghost" @click="settingsVisible = false">取消</button>
-          <button class="primary" :disabled="saving" @click="saveSettings">保存</button>
+    <div v-if="settingsVisible" class="overlay" @click.self="settingsVisible = false">
+      <aside class="drawer">
+        <div class="drawer-head">
+          <p class="hud">SETTINGS</p>
+          <button class="icon-btn" @click="settingsVisible = false">×</button>
         </div>
-      </div>
+        <h2>分发服务</h2>
+        <p class="hint">
+          本地开发使用 <code>http://127.0.0.1:3000/api/v1</code>；正式版本默认连接生产服务。
+        </p>
+        <label class="field">
+          <span class="hud">BASE URL</span>
+          <input v-model="draftBaseUrl" spellcheck="false" placeholder="https://dist.woyuxiaji.cn/api/v1" />
+        </label>
+        <div class="drawer-actions">
+          <button class="btn ghost" @click="settingsVisible = false">取消</button>
+          <button class="btn" :disabled="saving" @click="saveSettings">保存</button>
+        </div>
+        <div class="drawer-foot">
+          <span class="hud">ABOUT</span>
+          <p>VaKao Hub · 软件中心<br />统一安装、更新与校验。</p>
+        </div>
+      </aside>
     </div>
   </div>
 </template>
@@ -154,11 +222,12 @@ import {
   type Progress,
   type Settings,
 } from './api';
+import starUrl from './assets/star.png';
 
 const apps = ref<AppView[]>([]);
 const platform = ref('');
 const arch = ref('');
-const settings = ref<Settings>({ baseUrl: 'http://127.0.0.1:3000/api/v1' });
+const settings = ref<Settings>({ baseUrl: 'https://dist.woyuxiaji.cn/api/v1' });
 const loading = ref(false);
 const saving = ref(false);
 const error = ref('');
@@ -166,10 +235,43 @@ const busyKeys = ref<Record<string, boolean>>({});
 const progress = ref<Record<string, Progress>>({});
 const settingsVisible = ref(false);
 const draftBaseUrl = ref('');
+const filter = ref<'all' | 'updates' | 'installed'>('all');
+const search = ref('');
+const serviceOnline = ref(true);
 
-const updatesAvailable = computed(
+const installedCount = computed(
+  () => apps.value.filter((app) => app.installed).length,
+);
+const updateCount = computed(
   () => apps.value.filter((app) => app.hasUpdate).length,
 );
+const platformLabel = computed(() => {
+  const labels: Record<string, string> = {
+    darwin: 'macOS',
+    win32: 'Windows',
+    android: 'Android',
+    linux: 'Linux',
+  };
+  return labels[platform.value] ?? platform.value ?? 'DESKTOP';
+});
+const filterTitle = computed(() => {
+  if (filter.value === 'updates') return '可更新';
+  if (filter.value === 'installed') return '已安装';
+  return '软件目录';
+});
+const filteredApps = computed(() => {
+  const keyword = search.value.trim().toLowerCase();
+  return apps.value.filter((app) => {
+    if (filter.value === 'updates' && !app.hasUpdate) return false;
+    if (filter.value === 'installed' && !app.installed) return false;
+    if (!keyword) return true;
+    return (
+      app.name.toLowerCase().includes(keyword) ||
+      app.appKey.toLowerCase().includes(keyword) ||
+      (app.description ?? '').toLowerCase().includes(keyword)
+    );
+  });
+});
 
 let client: ReturnType<typeof appApi> | null = null;
 let refreshTimer: number | undefined;
@@ -190,8 +292,10 @@ async function load(): Promise<void> {
     apps.value = catalog.apps ?? [];
     platform.value = catalog.platform;
     arch.value = catalog.arch;
+    serviceOnline.value = true;
   } catch (cause) {
     error.value = (cause as Error).message;
+    serviceOnline.value = false;
   } finally {
     loading.value = false;
   }
@@ -276,6 +380,13 @@ function percentOf(appKey: string): string {
 
 function initial(name: string): string {
   return (name || '?').trim().charAt(0).toUpperCase();
+}
+
+function formatBytes(bytes: number): string {
+  if (!bytes) return '未知大小';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / 1024 ** index).toFixed(1)} ${units[index]}`;
 }
 
 const palette = ['#5fbedc', '#f0995f', '#a27fc2', '#eddf55'];
