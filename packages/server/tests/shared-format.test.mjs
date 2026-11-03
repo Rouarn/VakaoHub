@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import {
@@ -9,6 +11,11 @@ import {
   pickArtifact,
   releaseUrl,
 } from '@vakao/hub-shared';
+import {
+  formatBytes as launcherFormatBytes,
+  formatDate as launcherFormatDate,
+} from '../../launcher/frontend/src/lib/format.ts';
+import { compareVersion as launcherCompareVersion } from '../../launcher/frontend/src/lib/version.ts';
 
 test('formatBytes 三端口径：0 显示 0 B，缺失显示未知大小，单位到 TB', () => {
   assert.equal(formatBytes(0), '0 B');
@@ -56,3 +63,52 @@ test('pickArtifact 先架构精确匹配，再按格式偏好', () => {
   assert.equal(pickArtifact(universalOnly, 'darwin', 'arm64').format, 'dmg');
   assert.equal(pickArtifact(artifacts, 'linux', 'x64'), null);
 });
+
+/** website 无构建，函数是 app.js 内的局部实现；按大括号取出后执行，验证行为而非文本。 */
+function extractFunction(source, name) {
+  const start = source.indexOf(`function ${name}(`);
+  assert.ok(start >= 0, `website 缺少 ${name}`);
+  let depth = 0;
+  for (let index = source.indexOf('{', start); index < source.length; index += 1) {
+    if (source[index] === '{') depth += 1;
+    else if (source[index] === '}') {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, index + 1);
+    }
+  }
+  throw new Error(`无法解析 ${name}`);
+}
+
+const website = readFileSync(
+  fileURLToPath(new URL('../../website/app.js', import.meta.url)),
+  'utf8',
+);
+const websiteFormatBytes = new Function(`return (${extractFunction(website, 'formatBytes')})`)();
+const websiteFormatDate = new Function(`return (${extractFunction(website, 'formatDate')})`)();
+
+test('website 与 launcher 的字节/日期副本实现和 shared 行为一致', () => {
+  const byteFixtures = [0, null, undefined, -1, NaN, 1023, 1536, 5 * 1024 ** 4];
+  const dateFixtures = [0, null, undefined, -1, 1700000000, 1700000000000];
+  for (const value of byteFixtures) {
+    assert.equal(websiteFormatBytes(value), formatBytes(value));
+    assert.equal(launcherFormatBytes(value), formatBytes(value));
+  }
+  for (const value of dateFixtures) {
+    assert.equal(websiteFormatDate(value), formatDate(value));
+    assert.equal(launcherFormatDate(value), formatDate(value));
+  }
+});
+
+test('launcher 的版本比较副本实现和 shared 行为一致', () => {
+  const pairs = [
+    ['v1.2.3', '1.2.3'],
+    ['1.2.3-beta.1', '1.2.3'],
+    ['1.10', '1.9'],
+    ['1.2', '1.2.0'],
+    ['1.2.0', '1.2.1'],
+  ];
+  for (const [left, right] of pairs) {
+    assert.equal(launcherCompareVersion(left, right), compareVersion(left, right));
+  }
+});
+
