@@ -13,11 +13,7 @@ import (
 	"vakaohub/launcher/internal/version"
 )
 
-// Detected 是一个在卸载注册表 / 约定安装目录中发现的已安装程序。
-type Detected struct {
-	Path    string
-	Version string
-}
+// Detected 定义在 cache.go。
 
 // CurrentBundle 返回启动器可执行文件路径与构建注入的版本；
 // 开发构建未注入版本时返回 false，避免空版本参与更新判断。
@@ -32,10 +28,12 @@ func CurrentBundle() (string, string, bool) {
 	return executable, version.Version, true
 }
 
-// FindApps 扫描卸载注册表，按显示名匹配已安装程序。
+var uninstallCache scanCache[[]registryEntry]
+
+// FindApps 从缓存的卸载注册表索引中按显示名匹配已安装程序。
 func FindApps(name string) []Detected {
 	target := normalizeName(name)
-	entries := queryUninstallRegistry()
+	entries := uninstallCache.get(queryUninstallRegistry)
 	found := make([]Detected, 0, 2)
 
 	for _, entry := range entries {
@@ -51,6 +49,11 @@ func FindApps(name string) []Detected {
 
 	sort.Slice(found, func(i, j int) bool { return found[i].Path < found[j].Path })
 	return found
+}
+
+// InvalidateIndex 在安装/卸载后调用，下一次 FindApps 重新读取注册表。
+func InvalidateIndex() {
+	uninstallCache.reset()
 }
 
 var uninstallRegistryRoots = []string{

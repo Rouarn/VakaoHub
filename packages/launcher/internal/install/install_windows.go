@@ -23,7 +23,8 @@ func installLocal(format, filePath, appKey, appName, targetPath string) (string,
 			return "", fmt.Errorf("MSI 安装失败：%v %s", err, strings.TrimSpace(string(output)))
 		}
 		// MSI 的安装位置由安装包决定，只能从卸载注册表反查；
-		// 查不到时返回空路径，由调用方决定不落库（注册表可能尚未刷新）。
+		// 先失效索引再查，确保刚写入的注册表项可见。
+		InvalidateIndex()
 		if detected := FindApps(appName); len(detected) > 0 {
 			return detected[0].Path, nil
 		}

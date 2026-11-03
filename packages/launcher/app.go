@@ -344,6 +344,8 @@ func (a *App) Install(appKey string, artifactID int) (store.Installed, error) {
 		a.emit(appKey, "error", -1, err.Error())
 		return store.Installed{}, err
 	}
+	// 安装后让已安装索引重新扫描，下一次刷新能看到新条目。
+	install.InvalidateIndex()
 
 	if installPath == "" {
 		// msi / exe 交给系统安装程序，拿不到可启动路径；不写空路径记录，
@@ -398,6 +400,8 @@ func (a *App) Uninstall(appKey string, deleteData bool) error {
 		return err
 	}
 	_ = a.store.Remove(appKey)
+	// 卸载后让已安装索引重新扫描，避免残留条目继续显示为已安装。
+	install.InvalidateIndex()
 
 	if deleteData {
 		return install.RemoveData(bundleID)

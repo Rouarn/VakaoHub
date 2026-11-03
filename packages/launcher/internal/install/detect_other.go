@@ -2,11 +2,7 @@
 
 package install
 
-// Detected 是一个在标准安装目录中发现的 .app。
-type Detected struct {
-	Path    string
-	Version string
-}
+// Detected 定义在 cache.go。
 
 // CurrentBundle 在非 macOS 平台不可用。
 func CurrentBundle() (string, string, bool) {
@@ -17,3 +13,6 @@ func CurrentBundle() (string, string, bool) {
 func FindApps(_ string) []Detected {
 	return nil
 }
+
+// InvalidateIndex 在非 macOS 平台无需失效索引。
+func InvalidateIndex() {}
