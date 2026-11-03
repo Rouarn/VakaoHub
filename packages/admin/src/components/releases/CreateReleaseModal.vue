@@ -20,10 +20,10 @@
         <n-form-item label="发布通道">
           <n-select v-model:value="form.channel" :options="channelOptions" />
         </n-form-item>
-        <n-form-item label="最低可更新构建号">
+        <n-form-item label="强制更新下限（构建号）">
           <div class="create-field">
             <n-input-number v-model:value="form.minVersionCode" :min="0" :precision="0" style="width: 100%" />
-            <span class="create-hint">已安装版本低于此构建号时不提示更新；0 表示不限制。</span>
+            <span class="create-hint">已安装构建号低于此值时强制更新；0 表示不强制（仍按普通更新提示）。</span>
           </div>
         </n-form-item>
       </div>
