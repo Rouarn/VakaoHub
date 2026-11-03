@@ -1,3 +1,14 @@
+import type {
+  Arch,
+  ArtifactFormat,
+  Channel,
+  EventType,
+  Platform,
+  ReleaseStatus,
+} from '@vakao/hub-shared';
+
+export type { Paginated } from '@vakao/hub-shared';
+
 export interface AppRow {
   id: number;
   appKey: string;
@@ -17,9 +28,9 @@ export interface AppRow {
 export interface ArtifactRow {
   id: number;
   releaseId: number;
-  platform: string;
-  arch: string;
-  format: string;
+  platform: Platform;
+  arch: Arch;
+  format: ArtifactFormat;
   fileName: string;
   relPath: string;
   size: number;
@@ -35,8 +46,8 @@ export interface ReleaseRow {
   appId: number;
   versionName: string;
   versionCode: number;
-  channel: string;
-  status: number;
+  channel: Channel;
+  status: ReleaseStatus;
   grayPercent: number;
   forceUpdate: number;
   minVersionCode: number;
@@ -49,23 +60,15 @@ export interface ReleaseRow {
   app?: AppRow;
 }
 
-export interface Paginated<T> {
-  records: T[];
-  total: number;
-  totalPages: number;
-  current: number;
-  size: number;
-}
-
 export interface EventRow {
   id: number;
   appId: number;
   releaseId: number | null;
   artifactId: number | null;
   deviceId: string | null;
-  platform: string;
-  arch: string | null;
-  type: string;
+  platform: Platform;
+  arch: Arch | null;
+  type: EventType;
   fromVersionCode: number | null;
   toVersionCode: number | null;
   createdAt: number;
@@ -80,14 +83,14 @@ export interface Stats {
   };
   storageBytes: number;
   downloads: number;
-  eventsLast7Days: { type: string; count: number }[];
+  eventsLast7Days: { type: EventType; count: number }[];
   latestReleases: {
     id: number;
     appKey: string;
     appName: string;
     versionName: string;
     versionCode: number;
-    status: number;
+    status: ReleaseStatus;
     createdAt: number;
   }[];
 }

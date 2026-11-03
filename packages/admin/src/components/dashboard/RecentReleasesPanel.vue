@@ -16,18 +16,11 @@ import { NDataTable, NTag } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { h } from 'vue';
 import type { Stats } from '@/api/types';
+import { STATUS_LABEL, STATUS_TAG_TYPE } from '@/lib/release-status';
 
 defineProps<{
   releases: Stats['latestReleases'];
 }>();
-
-const statusLabel: Record<number, string> = { 0: '草稿', 1: '灰度', 2: '全量', 3: '已下架' };
-const statusType: Record<number, 'default' | 'info' | 'success' | 'warning' | 'error'> = {
-  0: 'default',
-  1: 'info',
-  2: 'success',
-  3: 'error',
-};
 
 const columns: DataTableColumns<Stats['latestReleases'][number]> = [
   { title: '应用', key: 'appName', width: 160 },
@@ -37,7 +30,7 @@ const columns: DataTableColumns<Stats['latestReleases'][number]> = [
     title: '状态',
     key: 'status',
     width: 90,
-    render: (row) => h(NTag, { size: 'small', bordered: false, type: statusType[row.status] ?? 'default' }, { default: () => statusLabel[row.status] ?? String(row.status) }),
+    render: (row) => h(NTag, { size: 'small', bordered: false, type: STATUS_TAG_TYPE[row.status] ?? 'default' }, { default: () => STATUS_LABEL[row.status] ?? String(row.status) }),
   },
   { title: '创建时间', key: 'createdAt', render: (row) => new Date(row.createdAt).toLocaleString() },
 ];

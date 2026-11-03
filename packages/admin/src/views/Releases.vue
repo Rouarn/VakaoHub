@@ -33,11 +33,13 @@
 </template>
 
 <script setup lang="ts">
+import { RELEASE_STATUS } from '@vakao/hub-shared';
 import { NButton, NDataTable, NSelect, NSpace, NSwitch, NTag, useDialog, useMessage } from 'naive-ui';
 import type { DataTableColumns, SelectOption } from 'naive-ui';
 import { computed, h, onMounted, ref, watch } from 'vue';
 import { api } from '@/api';
 import type { AppRow, ReleaseRow } from '@/api/types';
+import { STATUS_LABEL, STATUS_TAG_TYPE } from '@/lib/release-status';
 import ArtifactDrawer from '@/components/releases/ArtifactDrawer.vue';
 import CreateReleaseModal from '@/components/releases/CreateReleaseModal.vue';
 import PublishReleaseModal from '@/components/releases/PublishReleaseModal.vue';
@@ -56,18 +58,6 @@ const publishTarget = ref<ReleaseRow | null>(null);
 const drawerVisible = ref(false);
 const drawerRelease = ref<ReleaseRow | null>(null);
 
-const statusText: Record<number, string> = { 0: '草稿', 1: '灰度', 2: '全量', 3: '已下架' };
-const statusType: Record<number, 'default' | 'warning' | 'success' | 'error'> = {
-  0: 'default',
-  1: 'warning',
-  2: 'success',
-  3: 'error',
-};
-const STATUS_DRAFT = 0;
-const STATUS_GRAY = 1;
-const STATUS_PUBLISHED = 2;
-const STATUS_OFFLINE = 3;
-
 const appOptions = computed<SelectOption[]>(() =>
   apps.value.map((app) => ({ label: `${app.name}（${app.appKey}）`, value: app.id })),
 );
@@ -85,15 +75,15 @@ const columns: DataTableColumns<ReleaseRow> = [
     key: 'status',
     width: 90,
     render: (row) =>
-      h(NTag, { type: statusType[row.status] ?? 'default', size: 'small' }, {
-        default: () => statusText[row.status] ?? String(row.status),
+      h(NTag, { type: STATUS_TAG_TYPE[row.status] ?? 'default', size: 'small' }, {
+        default: () => STATUS_LABEL[row.status] ?? String(row.status),
       }),
   },
   {
     title: '灰度',
     key: 'grayPercent',
     width: 70,
-    render: (row) => (row.status === 1 ? `${row.grayPercent}%` : '—'),
+    render: (row) => (row.status === RELEASE_STATUS.GRAY ? `${row.grayPercent}%` : '—'),
   },
   {
     title: '强更',
@@ -121,13 +111,13 @@ const columns: DataTableColumns<ReleaseRow> = [
       const actions = [
         h(NButton, { size: 'small', onClick: () => openDrawer(row) }, { default: () => '产物' }),
       ];
-      if (row.status === STATUS_DRAFT || row.status === STATUS_GRAY || row.status === STATUS_OFFLINE) {
+      if (row.status === RELEASE_STATUS.DRAFT || row.status === RELEASE_STATUS.GRAY || row.status === RELEASE_STATUS.OFFLINE) {
         actions.push(h(NButton, { size: 'small', type: 'primary', onClick: () => openPublish(row) }, { default: () => '发布' }));
       }
-      if (row.status === STATUS_GRAY || row.status === STATUS_PUBLISHED) {
+      if (row.status === RELEASE_STATUS.GRAY || row.status === RELEASE_STATUS.PUBLISHED) {
         actions.push(h(NButton, { size: 'small', onClick: () => confirmOffline(row) }, { default: () => '下架' }));
       }
-      if (row.status === STATUS_DRAFT || row.status === STATUS_OFFLINE) {
+      if (row.status === RELEASE_STATUS.DRAFT || row.status === RELEASE_STATUS.OFFLINE) {
         actions.push(h(NButton, { size: 'small', type: 'error', secondary: true, onClick: () => confirmRemove(row) }, { default: () => '删除' }));
       }
       return h(NSpace, { size: 6 }, { default: () => actions });
