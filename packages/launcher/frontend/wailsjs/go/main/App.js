@@ -10,6 +10,10 @@ export function GetCatalog() {
   return window['go']['main']['App']['GetCatalog']();
 }
 
+export function GetDefaultBaseURL() {
+  return window['go']['main']['App']['GetDefaultBaseURL']();
+}
+
 export function GetSettings() {
   return window['go']['main']['App']['GetSettings']();
 }

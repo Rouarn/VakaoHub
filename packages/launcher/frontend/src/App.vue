@@ -153,7 +153,7 @@ const contentRef = ref<HTMLElement | null>(null);
 let initialScrollDone = false;
 const { themeMode, setThemeMode, toggleTheme } = useTheme();
 const refreshMinutes = ref<number>(initialRefreshMinutes());
-const settings = ref<Settings>({ baseUrl: 'https://dist.woyuxiaji.cn/api/v1' });
+const settings = ref<Settings>({ baseUrl: '' });
 const loading = ref(false);
 const saving = ref(false);
 const updatingAll = ref(false);
@@ -463,8 +463,8 @@ function saveRefreshInterval(): void {
   restartRefreshTimer();
 }
 
-function resetBaseUrl(): void {
-  draftBaseUrl.value = 'https://dist.woyuxiaji.cn/api/v1';
+async function resetBaseUrl(): Promise<void> {
+  draftBaseUrl.value = await api().GetDefaultBaseURL();
 }
 
 function onKeydown(event: KeyboardEvent): void {

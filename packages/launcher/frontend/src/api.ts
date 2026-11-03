@@ -57,6 +57,7 @@ export interface Installed {
 
 interface WailsApp {
   GetAppVersion(): Promise<string>;
+  GetDefaultBaseURL(): Promise<string>;
   GetSettings(): Promise<Settings>;
   SaveSettings(baseUrl: string): Promise<Settings>;
   GetCatalog(): Promise<CatalogView>;

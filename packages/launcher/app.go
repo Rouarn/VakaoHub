@@ -52,6 +52,11 @@ func (a *App) GetAppVersion() string {
 	return launcherversion.Version
 }
 
+// GetDefaultBaseURL 返回内置的默认服务地址，前端「恢复默认」不再自带副本。
+func (a *App) GetDefaultBaseURL() string {
+	return defaultBaseURL
+}
+
 func (a *App) httpContext() context.Context {
 	if a.ctx != nil {
 		return a.ctx

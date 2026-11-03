@@ -7,6 +7,8 @@ export function GetAppVersion():Promise<string>;
 
 export function GetCatalog():Promise<main.CatalogView>;
 
+export function GetDefaultBaseURL():Promise<string>;
+
 export function GetSettings():Promise<main.Settings>;
 
 export function Install(arg1:string,arg2:number):Promise<store.Installed>;
