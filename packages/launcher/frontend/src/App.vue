@@ -1,6 +1,6 @@
 <template>
   <div class="shell">
-    <header v-if="!selected" class="topbar">
+    <header class="topbar">
       <div class="brand">
         <img :src="starUrl" class="brand-star" alt="" />
         <div class="brand-name">
@@ -58,7 +58,7 @@
       </div>
     </header>
 
-    <main v-if="!selected" class="content">
+    <main class="content">
       <div class="catalog-meta">
         <span class="hud">ALL APPS / {{ apps.length }}</span>
         <span class="hud">{{ installedCount }} INSTALLED</span>
@@ -173,7 +173,10 @@
       </section>
     </main>
 
-    <section v-else class="detail">
+    <div v-if="selected" class="detail-overlay" @click.self="closeDetail">
+      <section class="detail-panel" :style="themeVars">
+        <div ref="detailScroll" class="detail-scroll">
+          <div class="detail-header">
       <header class="detail-bar">
         <div class="detail-nav">
           <button class="back" @click="closeDetail">←</button>
@@ -185,7 +188,7 @@
       </header>
 
       <div class="detail-hero">
-        <div class="detail-icon" :style="{ background: colorFor(selected.appKey) }">
+        <div class="detail-icon" :style="{ background: themeColorFor(selected.appKey) }">
           <img v-if="selected.iconUrl" :src="selected.iconUrl" :alt="selected.name" />
           <span v-else>{{ initial(selected.name) }}</span>
         </div>
@@ -232,7 +235,9 @@
           检测到多份安装
         </span>
       </div>
+          </div>
 
+          <div class="detail-body">
       <div class="detail-grid">
         <div class="gallery">
           <div v-if="selectedMeta.screenshots.length" class="screen-main">
@@ -244,7 +249,7 @@
             </template>
           </div>
           <div v-else class="screen-fallback">
-            <div class="fallback-icon" :style="{ background: colorFor(selected.appKey) }">
+            <div class="fallback-icon" :style="{ background: themeColorFor(selected.appKey) }">
               <img v-if="selected.iconUrl" :src="selected.iconUrl" :alt="selected.name" />
               <span v-else>{{ initial(selected.name) }}</span>
             </div>
@@ -305,7 +310,10 @@
           {{ showAllChanges ? '收起' : `显示另外 ${remainingChanges} 项` }}
         </button>
       </div>
-    </section>
+          </div>
+        </div>
+      </section>
+    </div>
 
     <div v-if="settingsVisible" class="overlay" @click.self="settingsVisible = false">
       <aside class="drawer">
@@ -335,7 +343,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { appApi, type AppView, type Progress, type Settings } from './api';
 import starUrl from './assets/star.png';
 
@@ -396,6 +404,7 @@ const sortBy = ref<'recent' | 'name' | 'status'>('recent');
 const gridMode = ref(true);
 const menuKey = ref('');
 const selectedKey = ref('');
+const detailScroll = ref<HTMLElement | null>(null);
 const screenIndex = ref(0);
 const showAllChanges = ref(false);
 const serviceOnline = ref(true);
@@ -431,6 +440,43 @@ const visibleApps = computed(() => {
     return right.latestVersionCode - left.latestVersionCode ||
       left.name.localeCompare(right.name, 'zh-CN');
   });
+});
+
+const THEME_COLORS: Record<string, string> = {
+  vakaohub: '#D5B84A',
+  wiredeck: '#A27FC2',
+  dianmo: '#5FBEDC',
+};
+
+const THEME_DEEP: Record<string, string> = {
+  vakaohub: '#8A6D1F',
+  wiredeck: '#6A4F87',
+  dianmo: '#2F7F99',
+};
+
+function themeColorFor(key: string): string {
+  return THEME_COLORS[key] ?? colorFor(key);
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const value = hex.replace('#', '');
+  const red = parseInt(value.slice(0, 2), 16);
+  const green = parseInt(value.slice(2, 4), 16);
+  const blue = parseInt(value.slice(4, 6), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+const themeVars = computed<Record<string, string>>(() => {
+  const app = selected.value;
+  const theme = app ? themeColorFor(app.appKey) : '#46A6C6';
+  const deep = app ? (THEME_DEEP[app.appKey] ?? theme) : theme;
+  return {
+    '--theme': theme,
+    '--theme-deep': deep,
+    '--theme-soft': hexToRgba(theme, 0.26),
+    '--theme-wash': hexToRgba(theme, 0.09),
+    '--theme-scroll': hexToRgba(theme, 0.6),
+  };
 });
 
 const selected = computed(() => apps.value.find((app) => app.appKey === selectedKey.value) ?? null);
@@ -549,11 +595,18 @@ async function launch(app: AppView): Promise<void> {
   }
 }
 
+function resetDetailScroll(): void {
+  void nextTick(() => {
+    detailScroll.value?.scrollTo({ top: 0 });
+  });
+}
+
 function openDetail(app: AppView): void {
   menuKey.value = '';
   selectedKey.value = app.appKey;
   screenIndex.value = 0;
   showAllChanges.value = false;
+  resetDetailScroll();
 }
 
 function closeDetail(): void {
@@ -570,6 +623,7 @@ function moveDetail(offset: number): void {
   selectedKey.value = list[next].appKey;
   screenIndex.value = 0;
   showAllChanges.value = false;
+  resetDetailScroll();
 }
 
 function prevApp(): void {
@@ -662,6 +716,15 @@ function colorFor(key: string): string {
   return palette[hash % palette.length];
 }
 
+function onKeydown(event: KeyboardEvent): void {
+  if (event.key !== 'Escape') return;
+  if (settingsVisible.value) {
+    settingsVisible.value = false;
+  } else if (selectedKey.value) {
+    closeDetail();
+  }
+}
+
 function onProgress(payload: Progress): void {
   progress.value = { ...progress.value, [payload.appKey]: payload };
   if (payload.phase === 'error') {
@@ -672,6 +735,7 @@ function onProgress(payload: Progress): void {
 onMounted(() => {
   void load();
   window.addEventListener('click', closeMenu);
+  window.addEventListener('keydown', onKeydown);
   const runtime = (window as unknown as {
     runtime?: {
       EventsOn(name: string, callback: (payload: Progress) => void): void;
@@ -690,6 +754,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (refreshTimer) window.clearInterval(refreshTimer);
   window.removeEventListener('click', closeMenu);
+  window.removeEventListener('keydown', onKeydown);
   const runtime = (window as unknown as {
     runtime?: { EventsOff(name: string): void };
   }).runtime;
