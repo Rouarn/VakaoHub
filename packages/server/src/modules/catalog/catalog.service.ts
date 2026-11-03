@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Request } from 'express';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   artifactScore,
+  PLATFORMS,
   type ArtifactSummary,
   type CatalogApp,
   type CatalogResponse,
@@ -16,8 +17,32 @@ import {
   ReleaseEntity,
 } from '../../database/entities/release.entity.js';
 
+interface CatalogEntry {
+  app: AppEntity;
+  release: ReleaseEntity;
+  artifacts: ArtifactEntity[];
+}
+
+interface CatalogSummary {
+  totalApps: number;
+  totalPlatforms: number;
+}
+
+/** 目录快照缓存时间：发布后最迟 10 秒在官网可见，避免每次首屏 2N 次查询。 */
+const CACHE_TTL_MS = 10_000;
+
 @Injectable()
 export class CatalogService {
+  private readonly catalogCache = new Map<
+    string,
+    { expiresAt: number; entries: CatalogEntry[] }
+  >();
+
+  private readonly summaryCache = new Map<
+    string,
+    { expiresAt: number; value: CatalogSummary }
+  >();
+
   constructor(
     @InjectRepository(AppEntity)
     private readonly apps: Repository<AppEntity>,
@@ -33,91 +58,164 @@ export class CatalogService {
     channel: string,
     req: Request,
   ): Promise<CatalogResponse> {
-    const apps = await this.apps.find({ order: { name: 'ASC' } });
-    const items: CatalogApp[] = [];
-
-    for (const app of apps) {
-      const release = await this.findLatestPublished(
-        app.id,
-        channel,
-        platform,
-        arch,
-      );
-      if (!release) continue;
-
-      const rows = await this.artifacts.find({
-        where: { releaseId: release.id, platform },
-      });
-      const usable =
-        arch === 'universal'
-          ? rows
-          : rows.filter(
-              (row) => row.arch === arch || row.arch === 'universal',
-            );
-      if (!usable.length) continue;
-
-      usable.sort(
-        (a, b) => artifactScore(a, platform, arch) - artifactScore(b, platform, arch),
-      );
-
-      items.push({
-        id: app.id,
-        appKey: app.appKey,
-        name: app.name,
-        description: app.description,
-        iconUrl: app.iconUrl,
-        category: app.category,
-        repoUrl: app.repoUrl,
-        homepage: app.homepage,
-        docsUrl: app.docsUrl,
-        releaseUrl: app.releaseUrl,
-        themeColor: app.themeColor,
-        latest: {
-          id: release.id,
-          versionName: release.versionName,
-          versionCode: release.versionCode,
-          channel: release.channel as 'stable' | 'beta',
-          status: release.status as 0 | 1 | 2 | 3,
-          forceUpdate: release.forceUpdate === 1,
-          minVersionCode: release.minVersionCode,
-          updateLog: release.updateLog,
-          publishedAt: release.publishedAt,
-          artifacts: usable.map((artifact) =>
-            this.toArtifactSummary(artifact, req),
-          ),
-        },
-      });
-    }
-
+    const entries = await this.loadEntries(platform, arch, channel);
     return {
       platform: platform as CatalogResponse['platform'],
       arch: arch as CatalogResponse['arch'],
-      apps: items,
+      apps: entries.map((entry) => this.toCatalogApp(entry, req)),
     };
   }
 
-  private findLatestPublished(
-    appId: number,
-    channel: string,
+  /** 官网首屏汇总：一次查询替代四个平台的目录请求。 */
+  async summary(channel = 'stable'): Promise<CatalogSummary> {
+    const key = `summary|${channel}`;
+    const cached = this.summaryCache.get(key);
+    if (cached && cached.expiresAt > Date.now()) return cached.value;
+
+    const apps = await this.apps.find();
+    if (!apps.length) return { totalApps: 0, totalPlatforms: 0 };
+
+    const releases = await this.releases.find({
+      where: {
+        appId: In(apps.map((app) => app.id)),
+        channel,
+        status: RELEASE_STATUS.PUBLISHED,
+      },
+    });
+    if (!releases.length) return { totalApps: 0, totalPlatforms: 0 };
+
+    const artifacts = await this.artifacts.find({
+      where: { releaseId: In(releases.map((release) => release.id)) },
+    });
+
+    const appIdByRelease = new Map(
+      releases.map((release) => [release.id, release.appId]),
+    );
+    const platformsByApp = new Map<number, Set<string>>();
+    for (const artifact of artifacts) {
+      const appId = appIdByRelease.get(artifact.releaseId);
+      if (appId === undefined) continue;
+      if (!(PLATFORMS as readonly string[]).includes(artifact.platform)) continue;
+      const set = platformsByApp.get(appId) ?? new Set<string>();
+      set.add(artifact.platform);
+      platformsByApp.set(appId, set);
+    }
+
+    const platforms = new Set<string>();
+    for (const set of platformsByApp.values()) {
+      for (const platform of set) platforms.add(platform);
+    }
+
+    const value = { totalApps: platformsByApp.size, totalPlatforms: platforms.size };
+    this.summaryCache.set(key, { expiresAt: Date.now() + CACHE_TTL_MS, value });
+    return value;
+  }
+
+  private async loadEntries(
     platform: string,
     arch: string,
-  ): Promise<ReleaseEntity | null> {
-    return this.releases
-      .createQueryBuilder('r')
-      .where('r.appId = :appId', { appId })
-      .andWhere('r.channel = :channel', { channel })
-      .andWhere('r.status = :status', { status: RELEASE_STATUS.PUBLISHED })
-      .andWhere(
-        arch === 'universal'
-          ? 'EXISTS (SELECT 1 FROM hub_artifacts a WHERE a.releaseId = r.id AND a.platform = :platform)'
-          : 'EXISTS (SELECT 1 FROM hub_artifacts a WHERE a.releaseId = r.id AND a.platform = :platform AND (a.arch = :arch OR a.arch = :universal))',
-        arch === 'universal'
-          ? { platform }
-          : { platform, arch, universal: 'universal' },
-      )
-      .orderBy('r.versionCode', 'DESC')
-      .limit(1)
-      .getOne();
+    channel: string,
+  ): Promise<CatalogEntry[]> {
+    const key = `${platform}|${arch}|${channel}`;
+    const cached = this.catalogCache.get(key);
+    if (cached && cached.expiresAt > Date.now()) return cached.entries;
+
+    const entries = await this.queryEntries(platform, arch, channel);
+    this.catalogCache.set(key, { expiresAt: Date.now() + CACHE_TTL_MS, entries });
+    return entries;
+  }
+
+  /** 一次取回应用、版本、产物后在内存里聚合，避免每个应用各查两次。 */
+  private async queryEntries(
+    platform: string,
+    arch: string,
+    channel: string,
+  ): Promise<CatalogEntry[]> {
+    const apps = await this.apps.find({ order: { name: 'ASC' } });
+    if (!apps.length) return [];
+
+    const releases = await this.releases.find({
+      where: {
+        appId: In(apps.map((app) => app.id)),
+        channel,
+        status: RELEASE_STATUS.PUBLISHED,
+      },
+      order: { versionCode: 'DESC' },
+    });
+    if (!releases.length) return [];
+
+    const artifacts = await this.artifacts.find({
+      where: {
+        releaseId: In(releases.map((release) => release.id)),
+        platform,
+      },
+    });
+
+    const usableByRelease = new Map<number, ArtifactEntity[]>();
+    for (const artifact of artifacts) {
+      if (arch !== 'universal' && artifact.arch !== arch && artifact.arch !== 'universal') {
+        continue;
+      }
+      const list = usableByRelease.get(artifact.releaseId) ?? [];
+      list.push(artifact);
+      usableByRelease.set(artifact.releaseId, list);
+    }
+    for (const list of usableByRelease.values()) {
+      list.sort(
+        (left, right) =>
+          artifactScore(left, platform, arch) - artifactScore(right, platform, arch),
+      );
+    }
+
+    // releases 已按 versionCode 倒序，每个应用取第一条在该平台架构有产物的版本。
+    const releaseByApp = new Map<number, ReleaseEntity>();
+    for (const release of releases) {
+      if (releaseByApp.has(release.appId)) continue;
+      if (usableByRelease.get(release.id)?.length) {
+        releaseByApp.set(release.appId, release);
+      }
+    }
+
+    const entries: CatalogEntry[] = [];
+    for (const app of apps) {
+      const release = releaseByApp.get(app.id);
+      if (!release) continue;
+      entries.push({
+        app,
+        release,
+        artifacts: usableByRelease.get(release.id) ?? [],
+      });
+    }
+    return entries;
+  }
+
+  private toCatalogApp(entry: CatalogEntry, req: Request): CatalogApp {
+    const { app, release, artifacts } = entry;
+    return {
+      id: app.id,
+      appKey: app.appKey,
+      name: app.name,
+      description: app.description,
+      iconUrl: app.iconUrl,
+      category: app.category,
+      repoUrl: app.repoUrl,
+      homepage: app.homepage,
+      docsUrl: app.docsUrl,
+      releaseUrl: app.releaseUrl,
+      themeColor: app.themeColor,
+      latest: {
+        id: release.id,
+        versionName: release.versionName,
+        versionCode: release.versionCode,
+        channel: release.channel as 'stable' | 'beta',
+        status: release.status as 0 | 1 | 2 | 3,
+        forceUpdate: release.forceUpdate === 1,
+        minVersionCode: release.minVersionCode,
+        updateLog: release.updateLog,
+        publishedAt: release.publishedAt,
+        artifacts: artifacts.map((artifact) => this.toArtifactSummary(artifact, req)),
+      },
+    };
   }
 
   private toArtifactSummary(

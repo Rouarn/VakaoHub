@@ -289,28 +289,13 @@
   }
 
   async function loadTotals() {
-    var platforms = ['darwin', 'win32', 'android', 'linux'];
     try {
-      var bodies = await Promise.all(
-        platforms.map(function (platform) {
-          return fetch(
-            apiBase + '/catalog?platform=' + platform + '&arch=universal',
-          ).then(function (response) {
-            return response.json();
-          });
-        }),
-      );
-      var keys = new Set();
-      var active = 0;
-      bodies.forEach(function (body) {
-        var apps = body && body.data && body.data.apps ? body.data.apps : [];
-        if (apps.length) active += 1;
-        apps.forEach(function (app) {
-          keys.add(app.appKey);
-        });
-      });
-      state.totalApps = keys.size;
-      state.totalPlatforms = active;
+      var response = await fetch(apiBase + '/catalog/summary');
+      var body = await response.json();
+      var data = body && body.data ? body.data : null;
+      if (!data) return;
+      state.totalApps = data.totalApps || 0;
+      state.totalPlatforms = data.totalPlatforms || 0;
       updateStats();
     } catch {
       /* keep current-platform count */

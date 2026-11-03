@@ -24,6 +24,13 @@ export class CatalogController {
   constructor(private readonly catalogService: CatalogService) {}
 
   @Public()
+  @Get('summary')
+  @ApiOperation({ summary: '目录汇总（应用总数与活跃平台数）' })
+  summary() {
+    return this.catalogService.summary();
+  }
+
+  @Public()
   @Get()
   @ApiOperation({ summary: '应用目录（启动器首屏）' })
   list(@Query() query: CatalogQueryDto, @Req() req: Request) {
