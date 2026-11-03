@@ -8,13 +8,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"vakaohub/launcher/internal/contract"
 )
 
 func installLocal(format, filePath, appKey, appName, targetPath string) (string, error) {
 	switch format {
-	case "dmg":
+	case contract.FormatDMG:
 		return installDMG(filePath, targetPath)
-	case "zip":
+	case contract.FormatZIP:
 		return installZip(filePath, targetPath)
 	default:
 		return "", fmt.Errorf("macOS 暂不支持 %s 格式，请上传 dmg 或 zip", format)

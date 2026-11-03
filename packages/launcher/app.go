@@ -16,6 +16,7 @@ import (
 
 	wruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 	"vakaohub/launcher/internal/api"
+	"vakaohub/launcher/internal/contract"
 	"vakaohub/launcher/internal/install"
 	"vakaohub/launcher/internal/store"
 	launcherversion "vakaohub/launcher/internal/version"
@@ -594,31 +595,26 @@ func fileSHA256(path string) (string, error) {
 }
 
 func platformInfo() (string, string) {
-	platform := "linux"
+	platform := contract.PlatformLinux
 	switch runtime.GOOS {
 	case "darwin":
-		platform = "darwin"
+		platform = contract.PlatformDarwin
 	case "windows":
-		platform = "win32"
+		platform = contract.PlatformWindows
 	}
 
-	arch := "universal"
+	arch := contract.ArchUniversal
 	switch runtime.GOARCH {
 	case "arm64":
-		arch = "arm64"
+		arch = contract.ArchARM64
 	case "amd64":
-		arch = "x64"
+		arch = contract.ArchX64
 	}
 	return platform, arch
 }
 
 func pickArtifact(artifacts []api.Artifact, platform, arch string) *api.Artifact {
-	preference := map[string][]string{
-		"android": {"apk", "zip"},
-		"darwin":  {"dmg", "zip"},
-		"win32":   {"msi", "exe", "zip"},
-		"linux":   {"appimage", "deb", "zip"},
-	}[platform]
+	preference := contract.PreferredFormats[platform]
 
 	var best *api.Artifact
 	bestScore := 1 << 30
@@ -627,7 +623,7 @@ func pickArtifact(artifacts []api.Artifact, platform, arch string) *api.Artifact
 		if artifact.Platform != platform {
 			continue
 		}
-		if artifact.Arch != arch && artifact.Arch != "universal" {
+		if artifact.Arch != arch && artifact.Arch != contract.ArchUniversal {
 			continue
 		}
 

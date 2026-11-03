@@ -10,13 +10,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"vakaohub/launcher/internal/contract"
 )
 
 func installLocal(format, filePath, appKey, appName, targetPath string) (string, error) {
 	switch format {
-	case "zip":
+	case contract.FormatZIP:
 		return installZip(filePath, appKey)
-	case "appimage":
+	case contract.FormatAppImage:
 		home, err := os.UserHomeDir()
 		if err != nil {
 			return "", err

@@ -10,13 +10,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"vakaohub/launcher/internal/contract"
 )
 
 func installLocal(format, filePath, appKey, appName, targetPath string) (string, error) {
 	switch format {
-	case "zip":
+	case contract.FormatZIP:
 		return installZip(filePath, appKey)
-	case "msi":
+	case contract.FormatMSI:
 		if output, err := exec.Command("msiexec", "/i", filePath, "/qn", "/norestart").CombinedOutput(); err != nil {
 			return "", fmt.Errorf("MSI 安装失败：%v %s", err, strings.TrimSpace(string(output)))
 		}
@@ -26,7 +28,7 @@ func installLocal(format, filePath, appKey, appName, targetPath string) (string,
 			return detected[0].Path, nil
 		}
 		return "", nil
-	case "exe":
+	case contract.FormatEXE:
 		cmd := exec.Command("cmd", "/c", "start", "", filePath)
 		if err := cmd.Start(); err != nil {
 			return "", fmt.Errorf("启动安装程序失败：%v", err)
