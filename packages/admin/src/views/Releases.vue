@@ -152,7 +152,7 @@
           />
 
           <n-divider>上传产物</n-divider>
-          <n-form label-placement="left" label-width="90">
+          <n-form class="upload-form" label-placement="top" :show-feedback="false">
             <n-form-item label="平台">
               <n-select v-model:value="uploadForm.platform" :options="platformOptions" />
             </n-form-item>
@@ -871,5 +871,15 @@ onMounted(async () => {
   .create-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upload-form :deep(.n-form-item) {
+  margin-bottom: 0;
 }
 </style>
