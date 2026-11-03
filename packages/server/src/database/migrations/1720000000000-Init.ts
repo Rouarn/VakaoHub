@@ -3,8 +3,10 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 /**
  * 初始结构。
  *
- * 使用 IF NOT EXISTS 是为了兼容已经由 synchronize 建过表的本地开发库：
- * 首次执行会把本迁移记为已运行，新库则完整建表。
+ * 迁移策略：本迁移与后续迁移都必须可重复执行。
+ * - 全新库：CREATE TABLE IF NOT EXISTS 建基础表，后续迁移按需补列。
+ * - synchronize 建过的开发库：建表语句为空操作，后续迁移检测列已存在后跳过，
+ *   从而把迁移表状态补齐，之后不再因 Duplicate column 失败。
  */
 export class Init1720000000000 implements MigrationInterface {
   name = 'Init1720000000000';

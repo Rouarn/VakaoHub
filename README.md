@@ -123,7 +123,7 @@ pnpm dev:admin
 ## 设计取舍与边界
 
 - 统一模型而非两套系统：Android 与桌面只差「产物格式」和「安装执行方」，服务端共用一套版本、灰度、统计。
-- MySQL 8：事件表会持续增长，且现有项目均使用 MySQL；生产 `DB_SYNCHRONIZE=false`，改表走迁移。
+- MySQL 8：事件表会持续增长，且现有项目均使用 MySQL；生产 `DB_SYNCHRONIZE=false`，改表走迁移。迁移文件幂等（按列检测补齐），开发库即使先由 synchronize 建表，之后再执行迁移也会正常记录，不会出现 Duplicate column。
 - 存储：产物落在 `STORAGE_DIR/{appKey}/v{versionCode}_{versionName}/`，按应用与版本分目录；删除版本/应用会清理磁盘文件。
 - 安全：产物 SHA-256 入库，下载支持 ETag/Range；管理端 JWT；上传有扩展名与格式/平台一致性校验。后续补代码签名与 manifest 签名。
 - 尚未实现（按计划推进）：产物魔数校验、代码签名/公证信息展示、灰度自动递增、回滚、Windows 安装链路。

@@ -48,6 +48,7 @@ pnpm migrate:run
 ```
 
 迁移脚本会先编译到 `dist/database/migrations`，再执行未应用的迁移；回滚用 `pnpm migrate:revert`。
+迁移文件按列/表检测是否已存在，因此对「synchronize 建过的开发库」和「全新生产库」两种路径都可安全执行：前者跳过已有列并补齐迁移记录，后者建表后按需补列。
 
 ## 6. systemd
 
