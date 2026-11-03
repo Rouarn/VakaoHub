@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const defaultBaseURL = "http://127.0.0.1:3000/api/v1"
+const defaultBaseURL = "https://dist.woyuxiaji.cn/api/v1"
 
 type Settings struct {
 	BaseURL string `json:"baseUrl"`

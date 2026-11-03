@@ -23,7 +23,7 @@ wails build
 build/bin/VaKaoHub.app
 ```
 
-构建前需要本地分发服务已启动（默认 `http://127.0.0.1:3000/api/v1`），服务地址可在应用「设置」中修改。
+默认连接生产服务 `https://dist.woyuxiaji.cn/api/v1`；本地开发在应用「设置」中改为 `http://127.0.0.1:3000/api/v1`。
 
 ## 功能
 

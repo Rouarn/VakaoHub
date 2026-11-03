@@ -128,7 +128,7 @@ wails dev     # 开发（Vite 热更新）
 wails build   # 产出 build/bin/VaKaoHub.app
 ```
 
-启动器读取 catalog，按平台/架构选择产物，支持断点续传、SHA-256 与代码签名校验、强更拦截；macOS 将 DMG/ZIP 安装到 `~/Applications` 并支持启动、卸载、自动刷新更新状态。服务地址在应用「设置」中修改。真实安装冒烟测试见 [packages/launcher/README.md](packages/launcher/README.md)。
+启动器读取 catalog，按平台/架构选择产物，支持断点续传、SHA-256 与代码签名校验、强更拦截；macOS 将 DMG/ZIP 安装到 `~/Applications` 并支持启动、卸载、自动刷新更新状态。默认连接生产服务 `https://dist.woyuxiaji.cn/api/v1`，本地开发可在应用「设置」中修改。真实安装冒烟测试见 [packages/launcher/README.md](packages/launcher/README.md)。
 
 Windows 构建由 [`.github/workflows/launcher-windows.yml`](.github/workflows/launcher-windows.yml) 在 GitHub Actions 上完成。
 
@@ -176,3 +176,4 @@ pnpm website   # http://localhost:5200
 - [ ] manifest 签名与启动器自更新
 - [ ] 灰度自动递增
 - [x] 官网下载页与静态入口
+- [x] 启动器上架生产目录（`vakaohub` 0.1.0）
