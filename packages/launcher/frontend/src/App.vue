@@ -115,7 +115,7 @@
           v-for="app in group.apps"
           :key="app.appKey"
           class="app-card"
-          :class="{ 'is-list': !gridMode }"
+          :class="{ 'is-list': !gridMode, 'is-installed': app.installed }"
           :style="{ '--app-color': appColor(app) }"
           @click="openDetail(app)"
         >
@@ -155,6 +155,7 @@
             <span v-if="app.running" class="state running">当前运行</span>
             <span v-else-if="app.hasUpdate" class="state update">有可用更新</span>
             <span v-else-if="app.installed" class="state installed">已安装</span>
+            <span v-else class="state available">可安装</span>
           </div>
 
           <p class="desc">{{ app.description || '暂无描述' }}</p>

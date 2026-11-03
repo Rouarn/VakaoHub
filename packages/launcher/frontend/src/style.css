@@ -657,6 +657,7 @@ button {
 .state.running { color: #2f7f99; background: rgba(70, 166, 198, 0.12); }
 .state.update { color: #9a5b2d; background: rgba(240, 153, 95, 0.14); }
 .state.installed { color: var(--faint); background: rgba(23, 21, 18, 0.06); }
+.state.available { color: #2f7f99; background: rgba(70, 166, 198, 0.1); }
 
 .desc {
   margin: 10px 0 0;
@@ -2252,4 +2253,20 @@ button {
 [data-theme='dark'] .provider-badge {
   border-color: rgba(111, 199, 227, 0.3);
   color: #8fd8ec;
+}
+
+
+.app-card:not(.is-installed) .version {
+  color: var(--faint);
+}
+
+.app-card:not(.is-installed) .action {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.app-card:not(.is-installed) .action:hover {
+  border-color: var(--strong);
+  background: var(--strong);
 }
