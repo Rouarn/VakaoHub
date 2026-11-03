@@ -253,6 +253,11 @@ const statusType: Record<number, 'default' | 'warning' | 'success' | 'error'> = 
   3: 'error',
 };
 
+const STATUS_DRAFT = 0;
+const STATUS_GRAY = 1;
+const STATUS_PUBLISHED = 2;
+const STATUS_OFFLINE = 3;
+
 const columns: DataTableColumns<ReleaseRow> = [
   { title: '版本', key: 'versionName', width: 100 },
   { title: 'versionCode', key: 'versionCode', width: 110 },
@@ -306,15 +311,23 @@ const columns: DataTableColumns<ReleaseRow> = [
       const actions = [
         h(NButton, { size: 'small', onClick: () => openDrawer(row) }, { default: () => '产物' }),
       ];
-      if (row.status !== 2) {
+      // 与后端约束保持一致：
+      // 草稿/灰度/已下架可发布；灰度/全量可下架；草稿/已下架可删除
+      if (row.status === STATUS_DRAFT || row.status === STATUS_GRAY || row.status === STATUS_OFFLINE) {
         actions.push(
           h(NButton, { size: 'small', type: 'primary', onClick: () => openPublish(row) }, { default: () => '发布' }),
         );
       }
-      actions.push(
-        h(NButton, { size: 'small', onClick: () => confirmOffline(row) }, { default: () => '下架' }),
-        h(NButton, { size: 'small', type: 'error', secondary: true, onClick: () => confirmRemove(row) }, { default: () => '删除' }),
-      );
+      if (row.status === STATUS_GRAY || row.status === STATUS_PUBLISHED) {
+        actions.push(
+          h(NButton, { size: 'small', onClick: () => confirmOffline(row) }, { default: () => '下架' }),
+        );
+      }
+      if (row.status === STATUS_DRAFT || row.status === STATUS_OFFLINE) {
+        actions.push(
+          h(NButton, { size: 'small', type: 'error', secondary: true, onClick: () => confirmRemove(row) }, { default: () => '删除' }),
+        );
+      }
       return h(NSpace, { size: 6 }, { default: () => actions });
     },
   },
