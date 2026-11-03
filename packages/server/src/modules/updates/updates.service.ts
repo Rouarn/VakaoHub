@@ -86,12 +86,17 @@ export class UpdatesService {
       minVersionCode: release.minVersionCode,
       updateLog: release.updateLog,
       publishedAt: release.publishedAt,
-      artifact: this.toArtifactSummary(artifact, req),
+      artifact: this.toArtifactSummary(
+        artifact,
+        req,
+        release.status === RELEASE_STATUS.GRAY ? query.deviceId : undefined,
+      ),
     };
   }
 
   async getDownloadable(
     artifactId: number,
+    deviceId?: string,
   ): Promise<{ artifact: ArtifactEntity; release: ReleaseEntity }> {
     const artifact = await this.artifacts.findOne({
       where: { id: artifactId },
@@ -107,6 +112,13 @@ export class UpdatesService {
         release.status !== RELEASE_STATUS.PUBLISHED)
     ) {
       throw new NotFoundException('该版本已下架');
+    }
+    // 灰度版本只对命中灰度桶的设备开放下载，避免按产物 ID 猜地址绕过灰度
+    if (
+      release.status === RELEASE_STATUS.GRAY &&
+      !grayHit(deviceId, release.grayPercent)
+    ) {
+      throw new NotFoundException('该版本未开放下载');
     }
     return { artifact, release };
   }
@@ -197,6 +209,7 @@ export class UpdatesService {
   private toArtifactSummary(
     artifact: ArtifactEntity,
     req: Request,
+    deviceId?: string,
   ): ArtifactSummary {
     return {
       id: artifact.id,
@@ -208,13 +221,20 @@ export class UpdatesService {
       sha256: artifact.sha256,
       minOs: artifact.minOs,
       notarized: artifact.notarized === 1,
-      downloadUrl: this.buildDownloadUrl(req, artifact.id),
+      downloadUrl: this.buildDownloadUrl(req, artifact.id, deviceId),
     };
   }
 
-  private buildDownloadUrl(req: Request, artifactId: number): string {
+  private buildDownloadUrl(
+    req: Request,
+    artifactId: number,
+    deviceId?: string,
+  ): string {
     const path = `api/v1/updates/download/${artifactId}`;
-    if (env.publicBaseUrl) return `${env.publicBaseUrl}/${path}`;
+    const query = deviceId
+      ? `?deviceId=${encodeURIComponent(deviceId)}`
+      : '';
+    if (env.publicBaseUrl) return `${env.publicBaseUrl}/${path}${query}`;
 
     const proto =
       ((req.headers['x-forwarded-proto'] as string) ?? '')
@@ -224,6 +244,6 @@ export class UpdatesService {
       ((req.headers['x-forwarded-host'] as string) ?? '')
         .split(',')[0]
         .trim() || req.headers.host;
-    return `${proto}://${host}/${path}`;
+    return `${proto}://${host}/${path}${query}`;
   }
 }

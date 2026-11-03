@@ -16,6 +16,7 @@ import { Public } from '../../common/public.decorator.js';
 import { resolveStoragePath } from '../../utils/paths.js';
 import { serveFile } from '../../utils/file-serve.js';
 import { CheckUpdateQueryDto } from './dto/check-update-query.dto.js';
+import { DownloadArtifactQueryDto } from './dto/download-artifact-query.dto.js';
 import { ReportEventDto } from './dto/report-event.dto.js';
 import { UpdatesService } from './updates.service.js';
 
@@ -37,10 +38,14 @@ export class UpdatesController {
   @ApiOperation({ summary: '下载产物（支持 Range 断点续传）' })
   async download(
     @Param('id', ParseIntPipe) id: number,
+    @Query() query: DownloadArtifactQueryDto,
     @Req() req: Request,
     @Res() res: Response,
   ): Promise<void> {
-    const { artifact } = await this.updatesService.getDownloadable(id);
+    const { artifact } = await this.updatesService.getDownloadable(
+      id,
+      query.deviceId,
+    );
     const fullPath = resolveStoragePath(artifact.relPath);
 
     let served = false;
