@@ -342,6 +342,7 @@ button {
   min-height: 286px;
   padding: 13px;
   border: 1px solid var(--line);
+  border-left: 2px solid var(--app-color, var(--line));
   border-radius: 6px;
   background: var(--raised);
   cursor: pointer;
@@ -378,6 +379,7 @@ button {
 
 .app-card:hover {
   border-color: transparent;
+  border-left-color: var(--app-color, var(--line));
   transform: translateY(-2px);
   box-shadow: 0 10px 28px rgba(23, 21, 18, 0.08);
 }
@@ -428,7 +430,7 @@ button {
 .version {
   font-family: var(--mono);
   font-size: 10px;
-  color: var(--accent);
+  color: var(--app-color, var(--accent));
   letter-spacing: 0.02em;
 }
 
@@ -1337,6 +1339,22 @@ button {
   font-size: 9px;
   color: var(--ink);
   word-break: break-all;
+}
+
+.confirm-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.confirm-option input {
+  margin-top: 2px;
+  accent-color: #9a453a;
 }
 
 .confirm-actions {

@@ -71,6 +71,7 @@ export class CatalogService {
         homepage: app.homepage,
         docsUrl: app.docsUrl,
         releaseUrl: app.releaseUrl,
+        themeColor: app.themeColor,
         latest: {
           id: release.id,
           versionName: release.versionName,

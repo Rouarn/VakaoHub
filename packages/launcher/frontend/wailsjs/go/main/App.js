@@ -30,6 +30,6 @@ export function SaveSettings(arg1) {
   return window['go']['main']['App']['SaveSettings'](arg1);
 }
 
-export function Uninstall(arg1) {
-  return window['go']['main']['App']['Uninstall'](arg1);
+export function Uninstall(arg1, arg2) {
+  return window['go']['main']['App']['Uninstall'](arg1, arg2);
 }

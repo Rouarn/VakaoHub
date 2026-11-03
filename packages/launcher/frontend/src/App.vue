@@ -83,6 +83,7 @@
           :key="app.appKey"
           class="app-card"
           :class="{ 'is-list': !gridMode }"
+          :style="{ '--app-color': appColor(app) }"
           @click="openDetail(app)"
         >
           <div class="card-top">
@@ -104,7 +105,7 @@
           </div>
 
           <div class="card-head">
-            <div class="app-icon" :style="{ background: colorFor(app.appKey) }">
+            <div class="app-icon" :style="{ background: appColor(app) }">
               <img v-if="app.iconUrl" :src="app.iconUrl" :alt="app.name" />
               <span v-else>{{ initial(app.name) }}</span>
             </div>
@@ -191,7 +192,7 @@
       </header>
 
       <div class="detail-hero">
-        <div class="detail-icon" :style="{ background: themeColorFor(selected.appKey) }">
+        <div class="detail-icon" :style="{ background: appColor(selected) }">
           <img v-if="selected.iconUrl" :src="selected.iconUrl" :alt="selected.name" />
           <span v-else>{{ initial(selected.name) }}</span>
         </div>
@@ -259,7 +260,7 @@
             </template>
           </div>
           <div v-else class="screen-fallback">
-            <div class="fallback-icon" :style="{ background: themeColorFor(selected.appKey) }">
+            <div class="fallback-icon" :style="{ background: appColor(selected) }">
               <img v-if="selected.iconUrl" :src="selected.iconUrl" :alt="selected.name" />
               <span v-else>{{ initial(selected.name) }}</span>
             </div>
@@ -362,8 +363,12 @@
         <p class="hud">UNINSTALL / {{ uninstallTarget.appKey }}</p>
         <h2>卸载 {{ uninstallTarget.name }}？</h2>
         <p class="confirm-desc">
-          将删除 <code>{{ uninstallTarget.installPath }}</code>。应用数据与设置不会被删除。
+          将删除 <code>{{ uninstallTarget.installPath }}</code>。
         </p>
+        <label class="confirm-option">
+          <input v-model="deleteUninstallData" type="checkbox" />
+          <span>同时删除应用数据与设置（不可恢复）</span>
+        </label>
         <div class="confirm-actions">
           <button class="ghost-btn" @click="uninstallTarget = null">取消</button>
           <button class="action confirm-danger" @click="confirmUninstall">卸载</button>
@@ -430,6 +435,7 @@ const busyKeys = ref<Record<string, boolean>>({});
 const progress = ref<Record<string, Progress>>({});
 const settingsVisible = ref(false);
 const uninstallTarget = ref<AppView | null>(null);
+const deleteUninstallData = ref(false);
 const draftBaseUrl = ref('');
 const search = ref('');
 const sortBy = ref<'recent' | 'name' | 'status'>('recent');
@@ -477,22 +483,6 @@ const visibleApps = computed(() => {
   });
 });
 
-const THEME_COLORS: Record<string, string> = {
-  vakaohub: '#D5B84A',
-  wiredeck: '#A27FC2',
-  dianmo: '#5FBEDC',
-};
-
-const THEME_DEEP: Record<string, string> = {
-  vakaohub: '#8A6D1F',
-  wiredeck: '#6A4F87',
-  dianmo: '#2F7F99',
-};
-
-function themeColorFor(key: string): string {
-  return THEME_COLORS[key] ?? colorFor(key);
-}
-
 function hexToRgba(hex: string, alpha: number): string {
   const value = hex.replace('#', '');
   const red = parseInt(value.slice(0, 2), 16);
@@ -503,8 +493,8 @@ function hexToRgba(hex: string, alpha: number): string {
 
 const themeVars = computed<Record<string, string>>(() => {
   const app = selected.value;
-  const theme = app ? themeColorFor(app.appKey) : '#46A6C6';
-  const deep = app ? (THEME_DEEP[app.appKey] ?? theme) : theme;
+  const theme = app ? appColor(app) : '#46A6C6';
+  const deep = app ? shadeColor(theme, 0.3) : theme;
   return {
     '--theme': theme,
     '--theme-deep': deep,
@@ -610,6 +600,7 @@ async function primaryAction(app: AppView): Promise<void> {
 function requestUninstall(app: AppView): void {
   if (app.running) return;
   menuKey.value = '';
+  deleteUninstallData.value = false;
   uninstallTarget.value = app;
 }
 
@@ -617,15 +608,15 @@ async function confirmUninstall(): Promise<void> {
   const app = uninstallTarget.value;
   uninstallTarget.value = null;
   if (!app) return;
-  await uninstall(app);
+  await uninstall(app, deleteUninstallData.value);
 }
 
-async function uninstall(app: AppView): Promise<void> {
+async function uninstall(app: AppView, deleteData: boolean): Promise<void> {
   if (app.running) return;
   menuKey.value = '';
   error.value = '';
   try {
-    await api().Uninstall(app.appKey);
+    await api().Uninstall(app.appKey, deleteData);
     const next = { ...progress.value };
     delete next[app.appKey];
     progress.value = next;
@@ -847,10 +838,22 @@ function releaseUrl(app: AppView): string {
 
 const palette = ['#5fbedc', '#f0995f', '#a27fc2', '#eddf55'];
 
-function colorFor(key: string): string {
+function hashedColor(key: string): string {
   let hash = 0;
   for (const char of key) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   return palette[hash % palette.length];
+}
+
+function appColor(app: AppView): string {
+  return app.themeColor || hashedColor(app.appKey);
+}
+
+function shadeColor(hex: string, amount: number): string {
+  const value = hex.replace('#', '');
+  const red = Math.max(0, Math.round(parseInt(value.slice(0, 2), 16) * (1 - amount)));
+  const green = Math.max(0, Math.round(parseInt(value.slice(2, 4), 16) * (1 - amount)));
+  const blue = Math.max(0, Math.round(parseInt(value.slice(4, 6), 16) * (1 - amount)));
+  return `#${[red, green, blue].map((part) => part.toString(16).padStart(2, '0')).join('')}`;
 }
 
 function onKeydown(event: KeyboardEvent): void {

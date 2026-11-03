@@ -17,6 +17,7 @@ type CatalogApp struct {
 	Homepage    string   `json:"homepage"`
 	DocsURL     string   `json:"docsUrl"`
 	ReleaseURL  string   `json:"releaseUrl"`
+	ThemeColor  string   `json:"themeColor"`
 	Latest      *Release `json:"latest"`
 }
 

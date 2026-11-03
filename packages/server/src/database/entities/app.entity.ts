@@ -43,6 +43,9 @@ export class AppEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   releaseUrl!: string | null;
 
+  @Column({ type: 'varchar', length: 7, nullable: true })
+  themeColor!: string | null;
+
   @Column({ type: 'bigint', transformer: bigintTransformer })
   createdAt!: number;
 

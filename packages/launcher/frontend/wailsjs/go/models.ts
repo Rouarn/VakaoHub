@@ -10,6 +10,7 @@ export namespace main {
 	    repoUrl: string;
 	    docsUrl: string;
 	    releaseUrl: string;
+	    themeColor: string;
 	    latestVersion: string;
 	    latestVersionCode: number;
 	    latestPublishedAt: number;
@@ -42,6 +43,7 @@ export namespace main {
 	        this.repoUrl = source["repoUrl"];
 	        this.docsUrl = source["docsUrl"];
 	        this.releaseUrl = source["releaseUrl"];
+	        this.themeColor = source["themeColor"];
 	        this.latestVersion = source["latestVersion"];
 	        this.latestVersionCode = source["latestVersionCode"];
 	        this.latestPublishedAt = source["latestPublishedAt"];

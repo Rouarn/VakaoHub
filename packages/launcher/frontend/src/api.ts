@@ -19,6 +19,7 @@ export interface AppView {
   repoUrl: string;
   docsUrl: string;
   releaseUrl: string;
+  themeColor: string;
   latestVersion: string;
   latestVersionCode: number;
   latestPublishedAt: number;
@@ -58,7 +59,7 @@ interface WailsApp {
   GetCatalog(): Promise<CatalogView>;
   Install(appKey: string, artifactID: number): Promise<Installed>;
   Launch(appKey: string): Promise<void>;
-  Uninstall(appKey: string): Promise<void>;
+  Uninstall(appKey: string, deleteData: boolean): Promise<void>;
   Reveal(appKey: string): Promise<void>;
   OpenURL(url: string): void;
 }

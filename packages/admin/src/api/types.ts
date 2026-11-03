@@ -9,6 +9,7 @@ export interface AppRow {
   homepage: string | null;
   docsUrl: string | null;
   releaseUrl: string | null;
+  themeColor: string | null;
   createdAt: number;
   updatedAt: number;
 }

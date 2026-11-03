@@ -52,4 +52,8 @@ export class CreateAppDto {
   @IsUrl({ require_protocol: true })
   @Length(0, 255)
   releaseUrl?: string;
+
+  @IsOptional()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, { message: 'themeColor 必须是 #RRGGBB' })
+  themeColor?: string | null;
 }

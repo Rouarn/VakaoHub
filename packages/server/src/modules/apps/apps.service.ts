@@ -51,6 +51,7 @@ export class AppsService {
         homepage: dto.homepage ?? null,
         docsUrl: dto.docsUrl ?? null,
         releaseUrl: dto.releaseUrl ?? null,
+        themeColor: dto.themeColor ?? null,
         createdAt: now,
         updatedAt: now,
       }),
@@ -68,6 +69,7 @@ export class AppsService {
       ...(dto.homepage !== undefined ? { homepage: dto.homepage } : {}),
       ...(dto.docsUrl !== undefined ? { docsUrl: dto.docsUrl } : {}),
       ...(dto.releaseUrl !== undefined ? { releaseUrl: dto.releaseUrl } : {}),
+      ...(dto.themeColor !== undefined ? { themeColor: dto.themeColor } : {}),
       updatedAt: Date.now(),
     });
     return this.apps.save(app);

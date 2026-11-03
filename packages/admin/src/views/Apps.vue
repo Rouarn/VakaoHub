@@ -51,6 +51,16 @@
         <n-form-item label="版本发布">
           <n-input v-model:value="form.releaseUrl" placeholder="https://github.com/.../releases" />
         </n-form-item>
+        <n-form-item label="主题色">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <n-color-picker
+              v-model:value="form.themeColor"
+              :show-alpha="false"
+              :swatches="themeSwatches"
+            />
+            <n-button size="tiny" @click="form.themeColor = ''">自动</n-button>
+          </div>
+        </n-form-item>
         <n-form-item label="描述">
           <n-input
             v-model:value="form.description"
@@ -72,6 +82,7 @@
 <script setup lang="ts">
 import {
   NButton,
+  NColorPicker,
   NDataTable,
   NForm,
   NFormItem,
@@ -93,6 +104,15 @@ const apps = ref<AppRow[]>([]);
 const loading = ref(false);
 const saving = ref(false);
 const modalVisible = ref(false);
+const themeSwatches = [
+  '#5FBEDC',
+  '#F0995F',
+  '#A27FC2',
+  '#EDDF55',
+  '#D5B84A',
+  '#171512',
+];
+
 const editingId = ref<number | null>(null);
 
 const form = reactive({
@@ -104,6 +124,7 @@ const form = reactive({
   homepage: '',
   docsUrl: '',
   releaseUrl: '',
+  themeColor: '',
   description: '',
 });
 
@@ -163,6 +184,7 @@ function resetForm(): void {
   form.homepage = '';
   form.docsUrl = '';
   form.releaseUrl = '';
+  form.themeColor = '';
   form.description = '';
 }
 
@@ -182,6 +204,7 @@ function openEdit(row: AppRow): void {
   form.homepage = row.homepage ?? '';
   form.docsUrl = row.docsUrl ?? '';
   form.releaseUrl = row.releaseUrl ?? '';
+  form.themeColor = row.themeColor ?? '';
   form.description = row.description ?? '';
   modalVisible.value = true;
 }
@@ -202,6 +225,7 @@ async function save(): Promise<void> {
       homepage: form.homepage || undefined,
       docsUrl: form.docsUrl || undefined,
       releaseUrl: form.releaseUrl || undefined,
+      themeColor: form.themeColor || null,
       description: form.description || undefined,
     };
     if (editingId.value) {

@@ -67,6 +67,7 @@ export interface AppSummary {
   homepage: string | null;
   docsUrl: string | null;
   releaseUrl: string | null;
+  themeColor: string | null;
 }
 
 /** 产物摘要 */

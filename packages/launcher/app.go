@@ -68,6 +68,7 @@ type AppView struct {
 	RepoURL              string   `json:"repoUrl"`
 	DocsURL              string   `json:"docsUrl"`
 	ReleaseURL           string   `json:"releaseUrl"`
+	ThemeColor           string   `json:"themeColor"`
 	LatestVersion        string   `json:"latestVersion"`
 	LatestVersionCode    int      `json:"latestVersionCode"`
 	LatestPublishedAt    int64    `json:"latestPublishedAt"`
@@ -145,6 +146,7 @@ func (a *App) catalogLocked() (CatalogView, error) {
 			RepoURL:           app.RepoURL,
 			DocsURL:           app.DocsURL,
 			ReleaseURL:        app.ReleaseURL,
+			ThemeColor:        app.ThemeColor,
 			LatestVersion:     app.Latest.VersionName,
 			LatestVersionCode: app.Latest.VersionCode,
 			LatestPublishedAt: app.Latest.PublishedAt,
@@ -316,7 +318,7 @@ func (a *App) Install(appKey string, artifactID int) (store.Installed, error) {
 	return item, nil
 }
 
-func (a *App) Uninstall(appKey string) error {
+func (a *App) Uninstall(appKey string, deleteData bool) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -328,10 +330,25 @@ func (a *App) Uninstall(appKey string) error {
 	if !ok {
 		return fmt.Errorf("尚未安装该应用")
 	}
+
+	bundleID := ""
+	if deleteData {
+		value, err := install.BundleID(item.InstallPath)
+		if err != nil {
+			return err
+		}
+		bundleID = value
+	}
+
 	if err := install.Remove(item.InstallPath); err != nil {
 		return err
 	}
-	return a.store.Remove(appKey)
+	_ = a.store.Remove(appKey)
+
+	if deleteData {
+		return install.RemoveData(bundleID)
+	}
+	return nil
 }
 
 func (a *App) Launch(appKey string) error {

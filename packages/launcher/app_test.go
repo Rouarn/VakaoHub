@@ -57,7 +57,7 @@ func TestSMOKEUninstall(t *testing.T) {
 		t.Skip("wiredeck not installed; run TestSMOKECatalogAndInstall first")
 	}
 
-	if err := app.Uninstall("wiredeck"); err != nil {
+	if err := app.Uninstall("wiredeck", false); err != nil {
 		t.Fatalf("Uninstall: %v", err)
 	}
 	if _, err := os.Stat(item.InstallPath); !os.IsNotExist(err) {
