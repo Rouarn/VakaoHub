@@ -4,6 +4,10 @@ VaKao 软件中心的桌面客户端：读取分发服务的应用目录，下�
 
 ![macOS 启动器](docs/screenshot-macos.png)
 
+![深色模式](docs/screenshot-dark.png)
+
+![启动开屏](docs/screenshot-splash.png)
+
 点击应用卡片进入详情页：截图、功能特性、版本信息与更新日志。
 
 ![应用详情](docs/screenshot-detail.png)
