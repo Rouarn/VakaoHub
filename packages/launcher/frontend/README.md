@@ -1,23 +1,32 @@
-# Vue 3 + TypeScript + Vite
+# VaKao Hub Launcher Frontend
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue
-3 `<script setup>` SFCs, check out
-the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+技术栈：Vue 3 + TypeScript + Vite。界面采用自定义设计系统，未引入通用组件库，以保持品牌视觉一致。
 
-## Recommended IDE Setup
+## 结构
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+```text
+src/
+├── App.vue                 # 页面编排、目录状态与业务动作
+├── components/
+│   ├── AppCard.vue         # 应用卡片与卡片菜单
+│   ├── AppDetailPanel.vue  # 应用详情、截图、更新日志、自定义滚动条
+│   ├── LauncherHeader.vue  # 品牌头、刷新、搜索、排序、视图切换
+│   ├── SettingsModal.vue   # 外观、更新频率、分发服务、关于
+│   ├── StatusBar.vue       # 上次检查、来源、服务状态、外链
+│   └── UninstallDialog.vue # 卸载确认与数据删除选项
+├── composables/
+│   └── useTheme.ts         # 明暗/跟随系统、原生标题栏、持久化
+├── lib/
+│   ├── detail-meta.ts      # 应用详情静态文案
+│   ├── format.ts           # 日期、大小、首字母、进度格式化
+│   ├── meta.ts             # 详情类型
+│   ├── theme.ts            # 主题色、哈希色、色值工具
+│   └── version.ts          # 版本比较
+└── api.ts                  # Wails 绑定与 API 类型
+```
 
-## Type Support For `.vue` Imports in TS
+## 约束
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type
-by default. In most cases this is fine if you don't really care about component prop types outside of templates.
-However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using
-manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
-
-1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look
-   for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default,
-   Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
-
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+- `App.vue` 不直接写大段页面结构，只负责组合组件和业务状态。
+- 新 UI 片段优先放入 `components/`，公共逻辑放入 `composables/` 或 `lib/`。
+- 修改后执行 `npm run build`；发布前执行 `wails build`。
