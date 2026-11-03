@@ -225,6 +225,25 @@
     });
   }
 
+  var PLATFORM_LABELS = {
+    android: 'Android',
+    darwin: 'macOS',
+    win32: 'Windows',
+    linux: 'Linux',
+  };
+
+  function platformLabel(platform) {
+    return PLATFORM_LABELS[platform] || platform || '桌面';
+  }
+
+  function archLabel(platform, arch) {
+    if (!arch) return 'Universal';
+    if (arch === 'universal') return 'Universal';
+    if (arch === 'arm64') return platform === 'darwin' ? 'Apple Silicon' : 'arm64';
+    if (arch === 'x64') return platform === 'darwin' ? 'Intel' : 'x64';
+    return arch;
+  }
+
   function updateHero() {
     var isAndroid = state.platform === 'android';
     var target = state.apps.filter(function (app) {
@@ -238,13 +257,22 @@
     if (link && artifact) link.href = artifact.downloadUrl;
 
     var label = document.getElementById('hero-download-label');
-    if (label) label.textContent = isAndroid ? '下载 Android 版' : '下载 macOS 版';
+    if (label && artifact) {
+      label.textContent = '下载 ' + platformLabel(artifact.platform) + ' 版';
+    }
 
     var version = document.getElementById('hero-version');
     if (version) version.textContent = 'v' + target.latest.versionName;
 
     var platform = document.getElementById('hero-platform');
-    if (platform) platform.textContent = isAndroid ? 'Android APK' : 'Apple Silicon';
+    if (platform && artifact) {
+      platform.textContent =
+        platformLabel(artifact.platform) +
+        ' · ' +
+        archLabel(artifact.platform, artifact.arch) +
+        ' · ' +
+        artifact.format.toUpperCase();
+    }
   }
 
   function updateStats() {
@@ -286,7 +314,14 @@
     }
   }
 
+  var activeRequest = null;
+
   function load() {
+    // 切换平台/架构时取消上一次请求，避免慢响应覆盖新数据
+    if (activeRequest) activeRequest.abort();
+    var controller = new AbortController();
+    activeRequest = controller;
+
     state.loading = true;
     state.error = '';
     renderStatus();
@@ -299,7 +334,7 @@
       '&arch=' +
       encodeURIComponent(state.arch);
 
-    fetch(url)
+    fetch(url, { signal: controller.signal })
       .then(function (response) {
         return response.json().then(function (body) {
           if (!response.ok || body.code !== 200) {
@@ -309,15 +344,20 @@
         });
       })
       .then(function (data) {
+        if (activeRequest !== controller) return;
         state.apps = data.apps || [];
         updateHero();
         updateStats();
       })
       .catch(function (error) {
+        if (error && error.name === 'AbortError') return;
+        if (activeRequest !== controller) return;
         state.apps = [];
         state.error = '加载失败：' + error.message;
       })
       .finally(function () {
+        if (activeRequest !== controller) return;
+        activeRequest = null;
         state.loading = false;
         renderStatus();
         renderApps();
