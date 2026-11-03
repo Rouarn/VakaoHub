@@ -50,6 +50,11 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   background: var(--paper);
@@ -241,6 +246,7 @@ select {
 }
 
 .hero-copy {
+  min-width: 0;
   max-width: 640px;
 }
 
@@ -273,7 +279,8 @@ select {
 }
 
 .lede {
-  max-width: 520px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   margin: 0;
   font-size: 16px;
   line-height: 1.8;
@@ -930,8 +937,20 @@ select {
     display: none;
   }
 
+  .nav-actions .link {
+    display: none;
+  }
+
+  .hero {
+    padding-top: 48px;
+  }
+
   .hero h1 {
     font-size: clamp(46px, 13vw, 64px);
+  }
+
+  .hero-visual {
+    display: none;
   }
 
   .catalog-bar {

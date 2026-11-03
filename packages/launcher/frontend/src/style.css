@@ -776,8 +776,41 @@ button {
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--theme-scroll) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.detail-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.scroll-rail {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 9px;
+  background: transparent;
+  user-select: none;
+}
+
+.scroll-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 9px;
+  min-height: 28px;
+  border: 0;
+  border-radius: 0;
+  background: var(--theme);
+  cursor: pointer;
+}
+
+.scroll-thumb:hover {
+  background: var(--theme-deep);
 }
 
 .detail-header {
@@ -1203,8 +1236,7 @@ button {
 }
 
 .content::-webkit-scrollbar,
-.drawer::-webkit-scrollbar,
-.detail-scroll::-webkit-scrollbar {
+.drawer::-webkit-scrollbar {
   width: 9px;
   height: 9px;
 }
@@ -1226,29 +1258,6 @@ button {
 .drawer::-webkit-scrollbar-thumb:hover {
   background: rgba(23, 21, 18, 0.36);
   background-clip: content-box;
-}
-
-.detail-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.detail-scroll::-webkit-scrollbar-thumb {
-  border: 0;
-  border-radius: 0;
-  background: var(--theme-scroll);
-}
-
-.detail-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--theme);
-}
-
-.detail-scroll::-webkit-scrollbar-button {
-  display: none;
-  height: 0;
-}
-
-.detail-scroll::-webkit-scrollbar-corner {
-  background: transparent;
 }
 
 @keyframes overlay-in {

@@ -179,7 +179,7 @@
 
     <div v-if="selected" class="detail-overlay" @click.self="closeDetail">
       <section class="detail-panel" :style="themeVars">
-        <div ref="detailScroll" class="detail-scroll">
+        <div ref="detailScroll" class="detail-scroll" @scroll="onDetailScroll">
           <div class="detail-header">
       <header class="detail-bar">
         <div class="detail-nav">
@@ -251,7 +251,7 @@
       <div class="detail-grid">
         <div class="gallery">
           <div v-if="selectedMeta.screenshots.length" class="screen-main">
-            <img :src="selectedMeta.screenshots[screenIndex]" :alt="selected.name" />
+            <img :src="selectedMeta.screenshots[screenIndex]" :alt="selected.name" @load="updateScrollbar" />
             <template v-if="selectedMeta.screenshots.length > 1">
               <button class="screen-arrow left" @click="prevScreen">‹</button>
               <button class="screen-arrow right" @click="nextScreen">›</button>
@@ -321,6 +321,13 @@
         </button>
       </div>
           </div>
+        </div>
+        <div v-if="scrollable" class="scroll-rail" @mousedown="onRailMouseDown">
+          <div
+            class="scroll-thumb"
+            :style="{ height: scrollThumbHeight + 'px', transform: `translateY(${scrollThumbTop}px)` }"
+            @mousedown.stop="startScrollDrag"
+          ></div>
         </div>
       </section>
     </div>
@@ -415,6 +422,9 @@ const gridMode = ref(true);
 const menuKey = ref('');
 const selectedKey = ref('');
 const detailScroll = ref<HTMLElement | null>(null);
+const scrollable = ref(false);
+const scrollThumbHeight = ref(0);
+const scrollThumbTop = ref(0);
 const screenIndex = ref(0);
 const showAllChanges = ref(false);
 const serviceOnline = ref(true);
@@ -608,10 +618,79 @@ async function launch(app: AppView): Promise<void> {
   }
 }
 
+function updateScrollbar(): void {
+  const element = detailScroll.value;
+  if (!element) {
+    scrollable.value = false;
+    return;
+  }
+  const maxScroll = element.scrollHeight - element.clientHeight;
+  scrollable.value = maxScroll > 2;
+  if (!scrollable.value) {
+    scrollThumbHeight.value = 0;
+    scrollThumbTop.value = 0;
+    return;
+  }
+
+  const trackHeight = element.clientHeight;
+  const thumbHeight = Math.max(28, Math.round((trackHeight * trackHeight) / element.scrollHeight));
+  scrollThumbHeight.value = Math.min(trackHeight, thumbHeight);
+  const maxTop = trackHeight - scrollThumbHeight.value;
+  scrollThumbTop.value = maxScroll > 0
+    ? Math.round((element.scrollTop / maxScroll) * maxTop)
+    : 0;
+}
+
+function onDetailScroll(): void {
+  updateScrollbar();
+}
+
 function resetDetailScroll(): void {
   void nextTick(() => {
     detailScroll.value?.scrollTo({ top: 0 });
+    updateScrollbar();
+    window.setTimeout(updateScrollbar, 240);
   });
+}
+
+function onRailMouseDown(event: MouseEvent): void {
+  const element = detailScroll.value;
+  if (!element || event.target !== event.currentTarget) return;
+  const rail = event.currentTarget as HTMLElement;
+  const rect = rail.getBoundingClientRect();
+  const ratio = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+  const maxScroll = element.scrollHeight - element.clientHeight;
+  element.scrollTop = ratio * maxScroll;
+  updateScrollbar();
+}
+
+function startScrollDrag(event: MouseEvent): void {
+  const element = detailScroll.value;
+  if (!element) return;
+  event.preventDefault();
+  const startY = event.clientY;
+  const startScroll = element.scrollTop;
+  const maxScroll = element.scrollHeight - element.clientHeight;
+  const maxTop = element.clientHeight - scrollThumbHeight.value;
+  if (maxScroll <= 0 || maxTop <= 0) return;
+
+  const onMove = (moveEvent: MouseEvent): void => {
+    const delta = moveEvent.clientY - startY;
+    element.scrollTop = Math.min(
+      maxScroll,
+      Math.max(0, startScroll + (delta / maxTop) * maxScroll),
+    );
+    updateScrollbar();
+  };
+  const onUp = (): void => {
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onUp);
+    document.body.style.userSelect = '';
+  };
+
+  document.body.style.userSelect = 'none';
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
 }
 
 function openDetail(app: AppView): void {
@@ -766,6 +845,7 @@ onMounted(() => {
   void load();
   window.addEventListener('click', closeMenu);
   window.addEventListener('keydown', onKeydown);
+  window.addEventListener('resize', updateScrollbar);
   const runtime = (window as unknown as {
     runtime?: {
       EventsOn(name: string, callback: (payload: Progress) => void): void;
@@ -785,6 +865,7 @@ onUnmounted(() => {
   if (refreshTimer) window.clearInterval(refreshTimer);
   window.removeEventListener('click', closeMenu);
   window.removeEventListener('keydown', onKeydown);
+  window.removeEventListener('resize', updateScrollbar);
   const runtime = (window as unknown as {
     runtime?: { EventsOff(name: string): void };
   }).runtime;

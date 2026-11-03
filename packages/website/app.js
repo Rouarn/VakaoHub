@@ -226,16 +226,25 @@
   }
 
   function updateHero() {
-    var launcher = state.apps.filter(function (app) {
-      return app.appKey === 'vakaohub' && app.latest && app.latest.artifacts.length;
+    var isAndroid = state.platform === 'android';
+    var target = state.apps.filter(function (app) {
+      return app.latest && app.latest.artifacts.length &&
+        (isAndroid || app.appKey === 'vakaohub');
     })[0];
-    if (!launcher) return;
+    if (!target) return;
 
-    var artifact = launcher.latest.artifacts[0];
+    var artifact = target.latest.artifacts[0];
     var link = document.getElementById('hero-download');
     if (link && artifact) link.href = artifact.downloadUrl;
+
+    var label = document.getElementById('hero-download-label');
+    if (label) label.textContent = isAndroid ? '下载 Android 版' : '下载 macOS 版';
+
     var version = document.getElementById('hero-version');
-    if (version) version.textContent = 'v' + launcher.latest.versionName;
+    if (version) version.textContent = 'v' + target.latest.versionName;
+
+    var platform = document.getElementById('hero-platform');
+    if (platform) platform.textContent = isAndroid ? 'Android APK' : 'Apple Silicon';
   }
 
   function updateStats() {
