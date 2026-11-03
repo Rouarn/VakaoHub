@@ -1294,6 +1294,73 @@ button {
   line-height: 1.6;
 }
 
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(14, 13, 11, 0.38);
+  backdrop-filter: blur(3px);
+  animation: overlay-in 0.16s ease;
+}
+
+.confirm-card {
+  width: 380px;
+  max-width: 92vw;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: 0 24px 70px rgba(14, 13, 11, 0.24);
+  animation: panel-in 0.2s var(--ease);
+}
+
+.confirm-card h2 {
+  margin: 10px 0 8px;
+  font-family: var(--display);
+  font-size: 23px;
+  letter-spacing: -0.03em;
+}
+
+.confirm-desc {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.confirm-desc code {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.confirm-actions .action {
+  flex: none;
+  width: 88px;
+}
+
+.confirm-danger {
+  border-color: #9a453a;
+  background: #9a453a;
+  color: var(--paper);
+}
+
+.confirm-danger:hover {
+  background: #7f382f;
+}
+
 .overlay {
   position: fixed;
   inset: 0;

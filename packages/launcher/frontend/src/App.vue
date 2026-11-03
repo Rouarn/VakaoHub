@@ -167,7 +167,7 @@
             <button
               v-if="app.installed && !app.running"
               class="danger"
-              @click="uninstall(app)"
+              @click="requestUninstall(app)"
             >
               卸载…
             </button>
@@ -227,7 +227,7 @@
             <button
               v-if="selected.installed && !selected.running"
               class="danger"
-              @click="uninstall(selected)"
+              @click="requestUninstall(selected)"
             >
               卸载…
             </button>
@@ -356,6 +356,20 @@
         </div>
       </aside>
     </div>
+
+    <div v-if="uninstallTarget" class="confirm-overlay" @click.self="uninstallTarget = null">
+      <div class="confirm-card" role="dialog" aria-modal="true">
+        <p class="hud">UNINSTALL / {{ uninstallTarget.appKey }}</p>
+        <h2>卸载 {{ uninstallTarget.name }}？</h2>
+        <p class="confirm-desc">
+          将删除 <code>{{ uninstallTarget.installPath }}</code>。应用数据与设置不会被删除。
+        </p>
+        <div class="confirm-actions">
+          <button class="ghost-btn" @click="uninstallTarget = null">取消</button>
+          <button class="action confirm-danger" @click="confirmUninstall">卸载</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -415,6 +429,7 @@ const error = ref('');
 const busyKeys = ref<Record<string, boolean>>({});
 const progress = ref<Record<string, Progress>>({});
 const settingsVisible = ref(false);
+const uninstallTarget = ref<AppView | null>(null);
 const draftBaseUrl = ref('');
 const search = ref('');
 const sortBy = ref<'recent' | 'name' | 'status'>('recent');
@@ -592,10 +607,22 @@ async function primaryAction(app: AppView): Promise<void> {
   }
 }
 
+function requestUninstall(app: AppView): void {
+  if (app.running) return;
+  menuKey.value = '';
+  uninstallTarget.value = app;
+}
+
+async function confirmUninstall(): Promise<void> {
+  const app = uninstallTarget.value;
+  uninstallTarget.value = null;
+  if (!app) return;
+  await uninstall(app);
+}
+
 async function uninstall(app: AppView): Promise<void> {
   if (app.running) return;
   menuKey.value = '';
-  if (!window.confirm(`确定卸载 ${app.name}？安装目录会被删除。`)) return;
   error.value = '';
   try {
     await api().Uninstall(app.appKey);
@@ -828,7 +855,9 @@ function colorFor(key: string): string {
 
 function onKeydown(event: KeyboardEvent): void {
   if (event.key !== 'Escape') return;
-  if (settingsVisible.value) {
+  if (uninstallTarget.value) {
+    uninstallTarget.value = null;
+  } else if (settingsVisible.value) {
     settingsVisible.value = false;
   } else if (selectedKey.value) {
     closeDetail();
