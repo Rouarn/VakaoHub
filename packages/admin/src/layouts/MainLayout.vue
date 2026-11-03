@@ -478,14 +478,15 @@ function logout(): void {
 .content {
   flex: 1;
   overflow-y: auto;
-  scrollbar-gutter: stable;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   background: #f6f7f9;
 }
 
-@supports not (scrollbar-gutter: stable) {
-  .content {
-    overflow-y: scroll;
-  }
+.content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 @media (max-width: 900px) {
