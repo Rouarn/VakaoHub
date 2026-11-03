@@ -1,0 +1,18 @@
+<template>
+  <header class="topbar">
+    <div class="topbar-title">
+      <p class="hud">VAKAO / ADMIN</p>
+      <strong>{{ title }}</strong>
+    </div>
+    <div class="topbar-actions">
+      <span class="live"><i></i>LIVE</span>
+      <button class="text-btn" @click="$emit('open-password')">修改密码</button>
+      <button class="text-btn" @click="$emit('logout')">退出</button>
+    </div>
+  </header>
+</template>
+
+<script setup lang="ts">
+defineProps<{ title: string }>();
+defineEmits<{ 'open-password': []; logout: [] }>();
+</script>
