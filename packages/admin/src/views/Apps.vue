@@ -54,13 +54,24 @@
         <n-form-item label="主题色">
           <div style="display: flex; align-items: center; gap: 8px">
             <n-color-picker
-              v-model:value="form.themeColor"
+              :value="form.themeColor"
               :show-alpha="false"
               :modes="['hex']"
               :swatches="themeSwatches"
               style="width: 180px; flex: none"
+              @update:value="onThemeColorChange"
             />
-            <n-button size="tiny" @click="form.themeColor = null">自动</n-button>
+            <n-button
+              size="tiny"
+              :type="themeAuto ? 'primary' : 'default'"
+              :disabled="themeAuto"
+              @click="useAutoTheme"
+            >
+              {{ themeAuto ? '自动中' : '自动' }}
+            </n-button>
+            <span class="theme-hint">
+              {{ themeAuto ? `按 appKey 自动生成 ${form.themeColor}` : '自定义颜色' }}
+            </span>
           </div>
         </n-form-item>
         <n-form-item label="描述">
@@ -95,7 +106,7 @@ import {
   useMessage,
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
-import { h, onMounted, reactive, ref } from 'vue';
+import { h, onMounted, reactive, ref, watch } from 'vue';
 import { api } from '@/api';
 import type { AppRow } from '@/api/types';
 
@@ -115,6 +126,29 @@ const themeSwatches = [
   '#171512',
 ];
 
+const themeAuto = ref(true);
+const autoPalette = ['#5FBEDC', '#F0995F', '#A27FC2', '#EDDF55'];
+
+function autoColorForKey(key: string): string {
+  let hash = 0;
+  for (const char of key) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return autoPalette[hash % autoPalette.length];
+}
+
+function onThemeColorChange(value: string | null): void {
+  if (!value) {
+    useAutoTheme();
+    return;
+  }
+  themeAuto.value = false;
+  form.themeColor = value;
+}
+
+function useAutoTheme(): void {
+  themeAuto.value = true;
+  form.themeColor = autoColorForKey(form.appKey);
+}
+
 const editingId = ref<number | null>(null);
 
 const form = reactive({
@@ -126,9 +160,16 @@ const form = reactive({
   homepage: '',
   docsUrl: '',
   releaseUrl: '',
-  themeColor: null as string | null,
+  themeColor: '',
   description: '',
 });
+
+watch(
+  () => form.appKey,
+  (key: string) => {
+    if (themeAuto.value) form.themeColor = autoColorForKey(key);
+  },
+);
 
 const columns: DataTableColumns<AppRow> = [
   { title: 'appKey', key: 'appKey', width: 130 },
@@ -186,7 +227,8 @@ function resetForm(): void {
   form.homepage = '';
   form.docsUrl = '';
   form.releaseUrl = '';
-  form.themeColor = null;
+  form.themeColor = autoColorForKey('');
+  themeAuto.value = true;
   form.description = '';
 }
 
@@ -206,7 +248,8 @@ function openEdit(row: AppRow): void {
   form.homepage = row.homepage ?? '';
   form.docsUrl = row.docsUrl ?? '';
   form.releaseUrl = row.releaseUrl ?? '';
-  form.themeColor = row.themeColor ?? null;
+  themeAuto.value = !row.themeColor;
+  form.themeColor = row.themeColor ?? autoColorForKey(row.appKey);
   form.description = row.description ?? '';
   modalVisible.value = true;
 }
@@ -227,7 +270,7 @@ async function save(): Promise<void> {
       homepage: form.homepage || undefined,
       docsUrl: form.docsUrl || undefined,
       releaseUrl: form.releaseUrl || undefined,
-      themeColor: form.themeColor || null,
+      themeColor: themeAuto.value ? null : form.themeColor || null,
       description: form.description || undefined,
     };
     if (editingId.value) {
@@ -266,3 +309,10 @@ function confirmRemove(row: AppRow): void {
 
 onMounted(load);
 </script>
+.theme-hint {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.02em;
+}
+
