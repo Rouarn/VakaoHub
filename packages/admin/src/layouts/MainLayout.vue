@@ -19,7 +19,9 @@
             :class="{ active: activeKey === item.key }"
             @click="router.push(item.key)"
           >
-            <span class="nav-index">{{ item.index }}</span>
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path :d="item.icon" />
+            </svg>
             <span class="nav-label">{{ item.label }}</span>
             <span class="nav-mark" aria-hidden="true"></span>
           </button>
@@ -124,21 +126,43 @@ const initial = username.slice(0, 1).toUpperCase();
 
 const groups = [
   {
-    title: 'OVERVIEW',
-    items: [{ key: '/dashboard', label: '总览', index: '01' }],
-  },
-  {
-    title: 'CATALOG',
+    title: '概览',
     items: [
-      { key: '/apps', label: '应用管理', index: '02' },
-      { key: '/releases', label: '版本与产物', index: '03' },
+      {
+        key: '/dashboard',
+        label: '总览',
+        icon: 'M4 4h6.5v6.5H4zM13.5 4H20v6.5h-6.5zM4 13.5h6.5V20H4zM13.5 13.5H20V20h-6.5z',
+      },
     ],
   },
   {
-    title: 'OBSERVABILITY',
+    title: '内容',
     items: [
-      { key: '/events', label: '事件日志', index: '04' },
-      { key: '/audit', label: '操作审计', index: '05' },
+      {
+        key: '/apps',
+        label: '应用管理',
+        icon: 'M4 7.5h16v12H4zM8 7.5V5h8v2.5M4 12h16',
+      },
+      {
+        key: '/releases',
+        label: '版本与产物',
+        icon: 'M12 3l8.5 4.5L12 12 3.5 7.5 12 3zM3.5 12L12 16.5 20.5 12M3.5 16.5L12 21l8.5-4.5',
+      },
+    ],
+  },
+  {
+    title: '监控',
+    items: [
+      {
+        key: '/events',
+        label: '事件日志',
+        icon: 'M3 12h4l2-6 4 12 2-6h6',
+      },
+      {
+        key: '/audit',
+        label: '操作审计',
+        icon: 'M12 3l7.5 3v5.5c0 4.8-3.2 7.8-7.5 9-4.3-1.2-7.5-4.2-7.5-9V6L12 3zM9 12l2 2 4-4',
+      },
     ],
   },
 ];
@@ -208,7 +232,7 @@ function logout(): void {
 <style scoped>
 .admin-shell {
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
+  grid-template-columns: 240px minmax(0, 1fr);
   height: 100vh;
   background: var(--paper);
 }
@@ -217,8 +241,8 @@ function logout(): void {
   display: flex;
   flex-direction: column;
   padding: 22px 14px 18px;
-  background: var(--ink);
-  color: #f2efe7;
+  background: #0f1115;
+  color: #f4f5f7;
 }
 
 .side-brand {
@@ -246,10 +270,10 @@ function logout(): void {
 .side-brand span {
   display: block;
   margin-top: 3px;
-  font-family: var(--mono);
-  font-size: 8px;
-  letter-spacing: 0.16em;
-  color: rgba(242, 239, 231, 0.36);
+  font-family: var(--body);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: rgba(244, 245, 247, 0.38);
 }
 
 .side-nav {
@@ -263,39 +287,52 @@ function logout(): void {
 .nav-group .hud {
   padding: 0 10px;
   margin-bottom: 6px;
-  color: rgba(242, 239, 231, 0.3);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: rgba(244, 245, 247, 0.32);
 }
 
 .nav-item {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 9px 10px;
   border: 0;
-  border-radius: 5px;
+  border-radius: 8px;
   background: transparent;
-  color: rgba(242, 239, 231, 0.6);
+  color: rgba(244, 245, 247, 0.6);
   font-size: 12px;
   text-align: left;
   transition: background 0.16s ease, color 0.16s ease;
 }
 
 .nav-item:hover {
-  color: #f2efe7;
-  background: rgba(242, 239, 231, 0.06);
+  color: #f4f5f7;
+  background: rgba(255, 255, 255, 0.055);
 }
 
 .nav-item.active {
-  background: rgba(242, 239, 231, 0.1);
-  color: #f2efe7;
+  background: rgba(79, 124, 247, 0.16);
+  color: #ffffff;
 }
 
-.nav-index {
-  font-family: var(--mono);
-  font-size: 8px;
-  color: rgba(242, 239, 231, 0.3);
+.nav-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.72;
+}
+
+.nav-item.active .nav-icon {
+  opacity: 1;
+  color: #8ea8ff;
 }
 
 .nav-label {
@@ -310,7 +347,7 @@ function logout(): void {
 }
 
 .nav-item.active .nav-mark {
-  background: var(--blue);
+  background: #8ea8ff;
 }
 
 .side-foot {
@@ -330,7 +367,7 @@ function logout(): void {
   font-size: 8px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(242, 239, 231, 0.38);
+  color: rgba(244, 245, 247, 0.38);
 }
 
 .side-status i,
@@ -355,8 +392,8 @@ function logout(): void {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(242, 239, 231, 0.12);
-  color: #f2efe7;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f4f5f7;
   font-family: var(--display);
   font-size: 12px;
   font-weight: 700;
@@ -371,7 +408,7 @@ function logout(): void {
   display: block;
   font-family: var(--mono);
   font-size: 8px;
-  color: rgba(242, 239, 231, 0.35);
+  color: rgba(244, 245, 247, 0.35);
 }
 
 .content-wrap {
@@ -389,7 +426,7 @@ function logout(): void {
   height: 64px;
   padding: 0 28px;
   border-bottom: 1px solid var(--line);
-  background: rgba(243, 241, 236, 0.86);
+  background: rgba(255, 255, 255, 0.86);
   backdrop-filter: blur(12px);
   flex: none;
 }
@@ -405,9 +442,10 @@ function logout(): void {
 }
 
 .topbar-title strong {
-  font-family: var(--display);
-  font-size: 16px;
-  letter-spacing: -0.02em;
+  font-family: var(--body);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
 .topbar-actions {
@@ -440,15 +478,12 @@ function logout(): void {
 .content {
   flex: 1;
   overflow-y: auto;
-  background-image:
-    linear-gradient(rgba(23, 21, 18, 0.026) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 21, 18, 0.026) 1px, transparent 1px);
-  background-size: 56px 56px;
+  background: #f6f7f9;
 }
 
 @media (max-width: 900px) {
   .admin-shell {
-    grid-template-columns: 190px minmax(0, 1fr);
+    grid-template-columns: 210px minmax(0, 1fr);
   }
 
   .topbar {

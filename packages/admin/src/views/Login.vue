@@ -1,28 +1,40 @@
 <template>
   <div class="login-shell">
     <section class="login-visual">
+      <div class="visual-glow one"></div>
+      <div class="visual-glow two"></div>
+
       <div class="visual-inner">
         <div class="visual-brand">
           <img :src="starUrl" alt="" />
           <span>VaKao Hub</span>
+          <b>ADMIN</b>
         </div>
 
-        <p class="hud">ADMIN / CONSOLE</p>
-        <h1>软件分发<br /><em>工作台。</em></h1>
-        <p class="visual-lede">
-          版本、灰度、事件与审计，<br />
-          在一个安静的控制台里。
-        </p>
+        <div class="visual-copy">
+          <p class="hud">VAKAO / DISTRIBUTION</p>
+          <h1>把发布，<br /><span>变得简单。</span></h1>
+          <p class="visual-lede">
+            版本、产物、灰度与审计，<br />
+            在一个安静的控制台里完成。
+          </p>
+        </div>
 
-        <div class="visual-bars" aria-hidden="true">
-          <span style="--c: var(--orange); --w: 82%"></span>
-          <span style="--c: var(--blue); --w: 64%"></span>
-          <span style="--c: var(--purple); --w: 46%"></span>
-          <span style="--c: var(--yellow); --w: 28%"></span>
+        <div class="visual-cards">
+          <div>
+            <span>01</span>
+            <strong>一个目录</strong>
+            <small>版本、产物与发布状态</small>
+          </div>
+          <div>
+            <span>02</span>
+            <strong>可追溯</strong>
+            <small>灰度、强更、回滚与审计</small>
+          </div>
         </div>
 
         <div class="visual-foot">
-          <span class="hud">VERSION / 0.1</span>
+          <span class="hud">VERSION / 1.0</span>
           <span class="hud">EDGEONE · NODE 24</span>
         </div>
       </div>
@@ -105,29 +117,40 @@ async function submit(): Promise<void> {
 .login-shell {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
-  height: 100vh;
-  background: var(--paper);
+  min-height: 100vh;
+  background: #f6f7f9;
 }
 
 .login-visual {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 56px;
-  background: var(--ink);
-  color: #f2efe7;
   overflow: hidden;
+  padding: 56px;
+  background: #0f1115;
+  color: #f4f5f7;
 }
 
-.login-visual::before {
-  content: '';
+.visual-glow {
   position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(242, 239, 231, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(242, 239, 231, 0.05) 1px, transparent 1px);
-  background-size: 56px 56px;
+  width: 460px;
+  height: 460px;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.28;
   pointer-events: none;
+}
+
+.visual-glow.one {
+  top: -140px;
+  left: -120px;
+  background: #4f7cf7;
+}
+
+.visual-glow.two {
+  right: -160px;
+  bottom: -160px;
+  background: #a27fc2;
 }
 
 .visual-inner {
@@ -138,76 +161,114 @@ async function submit(): Promise<void> {
   width: 100%;
   max-width: 520px;
   height: 100%;
-  padding-bottom: 8px;
+  min-height: 620px;
 }
 
 .visual-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: auto;
-  font-family: var(--display);
-  font-size: 15px;
-  font-weight: 700;
+  gap: 9px;
+  font-family: var(--body);
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
 }
 
 .visual-brand img {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
 }
 
+.visual-brand b {
+  margin-left: 4px;
+  padding: 2px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.visual-copy {
+  margin: auto 0;
+}
+
 .login-visual .hud {
-  color: rgba(242, 239, 231, 0.34);
+  color: rgba(244, 245, 247, 0.4);
 }
 
-.login-visual h1 {
+.visual-copy h1 {
   margin: 18px 0 18px;
-  font-family: var(--display);
-  font-size: clamp(46px, 5vw, 72px);
-  line-height: 0.96;
-  letter-spacing: -0.045em;
-  font-weight: 780;
+  font-family: var(--body);
+  font-size: clamp(42px, 4.6vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-weight: 700;
 }
 
-.login-visual h1 em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
-  color: var(--blue);
-  letter-spacing: -0.02em;
+.visual-copy h1 span {
+  background: linear-gradient(100deg, #8ea8ff, #6fd3e8 60%, #bca4e8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .visual-lede {
   margin: 0;
   font-size: 14px;
   line-height: 1.8;
-  color: rgba(242, 239, 231, 0.58);
+  color: rgba(244, 245, 247, 0.6);
 }
 
-.visual-bars {
+.visual-cards {
   display: grid;
-  gap: 7px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
   margin-top: 34px;
-  max-width: 300px;
 }
 
-.visual-bars span {
-  display: block;
-  width: var(--w);
-  height: 3px;
-  border-radius: 2px;
-  background: var(--c);
-  opacity: 0.85;
+.visual-cards > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.045);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.visual-cards span {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #8ea8ff;
+}
+
+.visual-cards strong {
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.visual-cards small {
+  color: rgba(244, 245, 247, 0.45);
+  font-size: 10px;
 }
 
 .visual-foot {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  margin-top: auto;
-  padding-top: 28px;
-  border-top: 1px solid rgba(242, 239, 231, 0.12);
+  margin-top: 34px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.visual-foot .hud {
+  color: rgba(244, 245, 247, 0.3);
 }
 
 .login-panel {
@@ -215,15 +276,17 @@ async function submit(): Promise<void> {
   align-items: center;
   justify-content: center;
   padding: 48px;
-  background-image:
-    linear-gradient(rgba(23, 21, 18, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 21, 18, 0.03) 1px, transparent 1px);
-  background-size: 56px 56px;
+  background: #f6f7f9;
 }
 
 .login-box {
   width: 100%;
-  max-width: 360px;
+  max-width: 388px;
+  padding: 30px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(16, 24, 40, 0.07);
 }
 
 .login-box .hud {
@@ -231,23 +294,24 @@ async function submit(): Promise<void> {
 }
 
 .login-box h2 {
-  margin: 12px 0 6px;
-  font-family: var(--display);
-  font-size: 30px;
-  letter-spacing: -0.035em;
+  margin: 10px 0 6px;
+  font-family: var(--body);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 .login-hint {
-  margin: 0 0 26px;
+  margin: 0 0 24px;
   color: var(--muted);
   font-size: 12px;
 }
 
 .login-box :deep(.n-form-item-label) {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
   color: var(--faint);
 }
 
@@ -260,7 +324,7 @@ async function submit(): Promise<void> {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 34px;
+  margin-top: 26px;
   padding-top: 16px;
   border-top: 1px solid var(--line);
 }
@@ -289,7 +353,7 @@ async function submit(): Promise<void> {
   }
 
   .login-panel {
-    padding: 28px;
+    padding: 24px;
   }
 }
 </style>

@@ -21,15 +21,15 @@
 }
 
 :root {
-  --paper: #f3f1ec;
-  --raised: #faf9f5;
-  --ink: #171512;
-  --strong: #0e0d0b;
-  --muted: #5e5a52;
-  --faint: #8c877d;
-  --line: rgba(23, 21, 18, 0.12);
-  --line-soft: rgba(23, 21, 18, 0.07);
-  --accent: #46a6c6;
+  --paper: #f6f7f9;
+  --raised: #ffffff;
+  --ink: #14161b;
+  --strong: #0b0c0f;
+  --muted: #5f6572;
+  --faint: #8b90a0;
+  --line: #e5e7ec;
+  --line-soft: #eef0f4;
+  --accent: #4f7cf7;
   --orange: #f0995f;
   --blue: #5fbedc;
   --purple: #a27fc2;
@@ -62,9 +62,10 @@ body {
 
 .hud,
 .muted {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
+  font-family: var(--body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--faint);
 }
@@ -82,7 +83,7 @@ body {
 }
 
 .page {
-  padding: 28px 32px 36px;
+  padding: 26px 30px 36px;
   max-width: 1440px;
   margin: 0 auto;
 }
@@ -96,12 +97,13 @@ body {
 }
 
 .page-title {
-  margin: 6px 0 0;
-  font-family: var(--display);
-  font-size: 32px;
-  line-height: 1;
-  font-weight: 750;
-  letter-spacing: -0.04em;
+  margin: 7px 0 0;
+  font-family: var(--body);
+  font-size: 30px;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--ink);
 }
 
 .page-head > div > .hud:first-child {
@@ -124,14 +126,14 @@ body {
 /* ---------- Naive UI surface ---------- */
 
 .n-card {
-  box-shadow: none !important;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03) !important;
 }
 
 .n-card > .n-card-header .n-card-header__main {
-  font-family: var(--display);
+  font-family: var(--body);
   font-size: 14px;
   font-weight: 650;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .n-card > .n-card__content {
@@ -140,15 +142,20 @@ body {
 
 .n-data-table {
   font-size: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
 }
 
 .n-data-table .n-data-table-th {
-  font-family: var(--mono);
-  font-size: 8px;
-  letter-spacing: 0.1em;
+  font-family: var(--body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--faint);
-  background: rgba(243, 241, 236, 0.72);
+  color: #6b7280;
+  background: #f8f9fb;
 }
 
 .n-data-table .n-data-table-td {
@@ -165,7 +172,8 @@ body {
 }
 
 .n-button {
-  font-family: var(--display);
+  font-family: var(--body);
+  font-weight: 550;
 }
 
 .n-input,
@@ -174,7 +182,7 @@ body {
 }
 
 .n-modal .n-card-header__main {
-  font-family: var(--display);
+  font-family: var(--body);
 }
 
 .n-empty .n-empty__description {

@@ -238,7 +238,7 @@ onMounted(async () => {
 }
 
 .page-sub {
-  margin: 6px 0 0;
+  margin: 7px 0 0;
   color: var(--muted);
   font-size: 12px;
 }
@@ -246,26 +246,19 @@ onMounted(async () => {
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 18px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .stat-card {
   display: flex;
   flex-direction: column;
-  padding: 14px 16px;
-  border-left: 1px solid var(--line);
   min-width: 0;
-}
-
-.stat-card:first-child {
-  border-left: 0;
-  padding-left: 0;
-}
-
-.stat-card.featured strong {
-  color: var(--ink);
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
 }
 
 .stat-top {
@@ -275,21 +268,21 @@ onMounted(async () => {
 }
 
 .stat-index {
-  font-family: var(--mono);
-  font-size: 8px;
-  color: var(--faint);
+  display: none;
 }
 
 .stat-card strong {
-  margin-top: 8px;
-  font-family: var(--display);
-  font-size: 27px;
+  margin-top: 10px;
+  font-family: var(--body);
+  font-size: 26px;
+  font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.035em;
+  color: var(--ink);
 }
 
 .stat-card > span:last-child {
-  margin-top: 4px;
+  margin-top: 5px;
   font-size: 10px;
   color: var(--faint);
 }
@@ -304,8 +297,9 @@ onMounted(async () => {
 .panel {
   padding: 18px 20px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--raised);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
 }
 
 .panel-head {
@@ -318,9 +312,10 @@ onMounted(async () => {
 
 .panel-head h2 {
   margin: 5px 0 0;
-  font-family: var(--display);
-  font-size: 17px;
-  letter-spacing: -0.025em;
+  font-family: var(--body);
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
 }
 
 .panel-note {
@@ -450,14 +445,7 @@ onMounted(async () => {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .stat-card:nth-child(4) {
-    border-left: 0;
-    padding-left: 0;
-  }
 
-  .stat-card:nth-child(n + 4) {
-    border-top: 1px solid var(--line);
-  }
 
   .dashboard-grid {
     grid-template-columns: 1fr;
