@@ -9,7 +9,7 @@
 
       <div class="head-actions">
         <label class="app-picker">
-          <span class="hud">APPLICATION</span>
+          <span class="hud">应用</span>
           <n-select
             v-model:value="appId"
             :options="appOptions"
@@ -355,7 +355,7 @@ const STATUS_OFFLINE = 3;
 
 const columns: DataTableColumns<ReleaseRow> = [
   { title: '版本', key: 'versionName', width: 100 },
-  { title: 'versionCode', key: 'versionCode', width: 110 },
+  { title: '构建号', key: 'versionCode', width: 100 },
   { title: '渠道', key: 'channel', width: 90 },
   {
     title: '状态',
