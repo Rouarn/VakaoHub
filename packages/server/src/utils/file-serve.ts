@@ -91,10 +91,38 @@ export async function serveFile(
       `bytes ${parsed.start}-${parsed.end}/${size}`,
     );
     res.setHeader('Content-Length', String(parsed.end - parsed.start + 1));
-    createReadStream(fullPath, { start: parsed.start, end: parsed.end }).pipe(res);
+    streamToResponse(
+      createReadStream(fullPath, { start: parsed.start, end: parsed.end }),
+      req,
+      res,
+    );
     return;
   }
 
   res.setHeader('Content-Length', String(size));
-  createReadStream(fullPath).pipe(res);
+  streamToResponse(createReadStream(fullPath), req, res);
+}
+
+/** 将文件流写入响应，并保证读错误不会变成未捕获异常导致进程退出 */
+function streamToResponse(
+  stream: ReturnType<typeof createReadStream>,
+  req: Request,
+  res: Response,
+): void {
+  const destroy = (): void => {
+    if (!stream.destroyed) stream.destroy();
+  };
+
+  // 客户端提前断开时释放文件句柄
+  res.on('close', destroy);
+  req.on('aborted', destroy);
+  stream.on('error', (error) => {
+    if (!res.headersSent) {
+      res.status(500).end();
+      return;
+    }
+    // 已开始传输，只能中断连接，避免错误处理器继续写响应
+    res.destroy(error);
+  });
+  stream.pipe(res);
 }
