@@ -129,7 +129,37 @@
               <n-input v-model:value="uploadForm.minOs" placeholder="可选，如 12.0" />
             </n-form-item>
             <n-form-item label="文件">
-              <input ref="fileInput" type="file" @change="onFileChange" />
+              <div
+                class="file-drop"
+                :class="{ dragging, 'has-file': uploadForm.file }"
+                role="button"
+                tabindex="0"
+                @click="pickFile"
+                @keydown.enter="pickFile"
+                @dragenter.prevent="dragging = true"
+                @dragover.prevent="dragging = true"
+                @dragleave.prevent="dragging = false"
+                @drop.prevent="onDrop"
+              >
+                <input
+                  ref="fileInput"
+                  class="file-input"
+                  type="file"
+                  @change="onFileChange"
+                />
+                <span class="file-mark" aria-hidden="true">↑</span>
+                <span class="file-copy">
+                  <strong>{{ uploadForm.file ? uploadForm.file.name : '选择或拖入安装产物' }}</strong>
+                  <span>
+                    {{
+                      uploadForm.file
+                        ? formatBytes(uploadForm.file.size)
+                        : '支持 APK、DMG、ZIP、MSI、EXE、AppImage、DEB'
+                    }}
+                  </span>
+                </span>
+                <span class="file-browse">{{ uploadForm.file ? '更换' : '浏览' }}</span>
+              </div>
             </n-form-item>
           </n-form>
           <div style="display: flex; justify-content: flex-end">
@@ -199,6 +229,7 @@ const drawerVisible = ref(false);
 const drawerRelease = ref<ReleaseRow | null>(null);
 const uploading = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
+const dragging = ref(false);
 const uploadForm = reactive({
   platform: 'android',
   arch: 'universal',
@@ -514,9 +545,28 @@ async function openDrawer(row: ReleaseRow): Promise<void> {
   drawerRelease.value = await api.releases.detail(row.id);
 }
 
+function pickFile(): void {
+  fileInput.value?.click();
+}
+
 function onFileChange(event: Event): void {
   const input = event.target as HTMLInputElement;
   uploadForm.file = input.files?.[0] ?? null;
+}
+
+function onDrop(event: DragEvent): void {
+  dragging.value = false;
+  uploadForm.file = event.dataTransfer?.files?.[0] ?? null;
+}
+
+function formatBytes(bytes: number): string {
+  if (!bytes) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const index = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1,
+  );
+  return `${(bytes / 1024 ** index).toFixed(1)} ${units[index]}`;
 }
 
 async function upload(): Promise<void> {
@@ -581,3 +631,84 @@ onMounted(async () => {
   }
 });
 </script>
+
+<style scoped>
+.file-drop {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 7px;
+  background: rgba(250, 249, 245, 0.5);
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.file-drop:hover,
+.file-drop.dragging {
+  border-color: var(--accent);
+  background: rgba(70, 166, 198, 0.05);
+}
+
+.file-drop.has-file {
+  border-style: solid;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 14px;
+}
+
+.file-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.file-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.file-copy span {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.02em;
+}
+
+.file-browse {
+  flex: none;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+</style>
