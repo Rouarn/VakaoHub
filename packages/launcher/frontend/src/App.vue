@@ -85,7 +85,7 @@
       </div>
     </section>
 
-    <main class="content">
+    <main ref="contentRef" class="content">
       <div class="catalog-meta">
         <span class="hud">ALL APPS / {{ apps.length }}</span>
         <span class="hud">{{ installedCount }} INSTALLED</span>
@@ -104,9 +104,17 @@
         <p class="hint">试试清空搜索，或到管理后台发布版本。</p>
       </div>
 
-      <section v-else class="app-grid" :class="{ 'list-mode': !gridMode }">
+      <div v-else class="app-sections">
+        <section v-for="group in appGroups" :key="group.key" class="app-section">
+          <div class="app-section-head">
+            <span class="hud">{{ group.label }}</span>
+            <span class="app-section-count">{{ group.apps.length }}</span>
+            <span class="app-section-rule"></span>
+          </div>
+
+          <div class="app-grid" :class="{ 'list-mode': !gridMode }">
         <article
-          v-for="app in visibleApps"
+          v-for="app in group.apps"
           :key="app.appKey"
           class="app-card"
           :class="{ 'is-list': !gridMode }"
@@ -205,7 +213,9 @@
             </button>
           </div>
         </article>
-      </section>
+          </div>
+        </section>
+      </div>
     </main>
 
     <div v-if="selected" class="detail-overlay" @click.self="closeDetail">
@@ -591,6 +601,8 @@ function initialRefreshMinutes(): number {
 }
 
 const hostOsVersion = ref('');
+const contentRef = ref<HTMLElement | null>(null);
+let initialScrollDone = false;
 const theme = ref<'light' | 'dark'>(
   document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
 );
@@ -651,6 +663,15 @@ const visibleApps = computed(() => {
     return right.latestVersionCode - left.latestVersionCode ||
       left.name.localeCompare(right.name, 'zh-CN');
   });
+});
+
+const appGroups = computed(() => {
+  const installed = visibleApps.value.filter((app) => app.installed);
+  const uninstalled = visibleApps.value.filter((app) => !app.installed);
+  return [
+    { key: 'installed', label: '已安装', apps: installed },
+    { key: 'uninstalled', label: '未安装', apps: uninstalled },
+  ].filter((group) => group.apps.length > 0);
 });
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -730,6 +751,13 @@ async function load(): Promise<void> {
   } finally {
     loading.value = false;
     (window as Window & { __vakaoHideSplash?: () => void }).__vakaoHideSplash?.();
+    if (!initialScrollDone) {
+      initialScrollDone = true;
+      void nextTick(() => {
+        contentRef.value?.scrollTo({ top: 0 });
+        window.setTimeout(() => contentRef.value?.scrollTo({ top: 0 }), 80);
+      });
+    }
   }
 }
 

@@ -2161,3 +2161,39 @@ button {
     max-height: 92vh;
   }
 }
+
+/* ---------- app sections ---------- */
+
+.app-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.app-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 1px 0 9px;
+}
+
+.app-section-head .hud {
+  color: var(--muted);
+  font-family: var(--body);
+  font-size: 11px;
+  font-weight: 550;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.app-section-count {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.app-section-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+}
