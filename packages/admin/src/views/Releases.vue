@@ -301,16 +301,22 @@ const columns: DataTableColumns<ReleaseRow> = [
   {
     title: '操作',
     key: 'actions',
-    width: 260,
-    render: (row) =>
-      h(NSpace, { size: 6 }, {
-        default: () => [
-          h(NButton, { size: 'small', onClick: () => openDrawer(row) }, { default: () => '产物' }),
+    width: 220,
+    render: (row) => {
+      const actions = [
+        h(NButton, { size: 'small', onClick: () => openDrawer(row) }, { default: () => '产物' }),
+      ];
+      if (row.status !== 2) {
+        actions.push(
           h(NButton, { size: 'small', type: 'primary', onClick: () => openPublish(row) }, { default: () => '发布' }),
-          h(NButton, { size: 'small', onClick: () => confirmOffline(row) }, { default: () => '下架' }),
-          h(NButton, { size: 'small', type: 'error', secondary: true, onClick: () => confirmRemove(row) }, { default: () => '删除' }),
-        ],
-      }),
+        );
+      }
+      actions.push(
+        h(NButton, { size: 'small', onClick: () => confirmOffline(row) }, { default: () => '下架' }),
+        h(NButton, { size: 'small', type: 'error', secondary: true, onClick: () => confirmRemove(row) }, { default: () => '删除' }),
+      );
+      return h(NSpace, { size: 6 }, { default: () => actions });
+    },
   },
 ];
 
