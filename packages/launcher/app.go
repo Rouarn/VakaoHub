@@ -68,6 +68,7 @@ type AppView struct {
 	RepoURL              string `json:"repoUrl"`
 	LatestVersion        string `json:"latestVersion"`
 	LatestVersionCode    int    `json:"latestVersionCode"`
+	LatestPublishedAt    int64  `json:"latestPublishedAt"`
 	ForceUpdate          bool   `json:"forceUpdate"`
 	UpdateLog            string `json:"updateLog"`
 	ArtifactID           int    `json:"artifactID"`
@@ -142,6 +143,7 @@ func (a *App) catalogLocked() (CatalogView, error) {
 			RepoURL:           app.RepoURL,
 			LatestVersion:     app.Latest.VersionName,
 			LatestVersionCode: app.Latest.VersionCode,
+			LatestPublishedAt: app.Latest.PublishedAt,
 			ForceUpdate:       app.Latest.ForceUpdate,
 			UpdateLog:         app.Latest.UpdateLog,
 			ArtifactID:        artifact.ID,
@@ -200,7 +202,7 @@ func (a *App) catalogLocked() (CatalogView, error) {
 			if installedCode > 0 {
 				item.HasUpdate = installedCode < app.Latest.VersionCode
 			} else {
-				item.HasUpdate = installedVersion != "" && installedVersion != app.Latest.VersionName
+				item.HasUpdate = isNewerVersion(app.Latest.VersionName, installedVersion)
 			}
 		}
 

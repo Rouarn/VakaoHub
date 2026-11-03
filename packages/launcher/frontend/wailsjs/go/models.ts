@@ -10,6 +10,7 @@ export namespace main {
 	    repoUrl: string;
 	    latestVersion: string;
 	    latestVersionCode: number;
+	    latestPublishedAt: number;
 	    forceUpdate: boolean;
 	    updateLog: string;
 	    artifactID: number;
@@ -39,6 +40,7 @@ export namespace main {
 	        this.repoUrl = source["repoUrl"];
 	        this.latestVersion = source["latestVersion"];
 	        this.latestVersionCode = source["latestVersionCode"];
+	        this.latestPublishedAt = source["latestPublishedAt"];
 	        this.forceUpdate = source["forceUpdate"];
 	        this.updateLog = source["updateLog"];
 	        this.artifactID = source["artifactID"];

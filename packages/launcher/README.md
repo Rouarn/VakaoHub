@@ -4,6 +4,10 @@ VaKao 软件中心的桌面客户端：读取分发服务的应用目录，下�
 
 ![macOS 启动器](docs/screenshot-macos.png)
 
+点击应用卡片进入详情页：截图、功能特性、版本信息与更新日志。
+
+![应用详情](docs/screenshot-detail.png)
+
 ## 技术栈
 
 - Wails v2.17 + Go 1.27

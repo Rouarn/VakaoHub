@@ -19,6 +19,7 @@ export interface AppView {
   repoUrl: string;
   latestVersion: string;
   latestVersionCode: number;
+  latestPublishedAt: number;
   forceUpdate: boolean;
   updateLog: string;
   artifactID: number;
