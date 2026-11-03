@@ -96,9 +96,8 @@
               v-if="app.repoUrl"
               class="repo"
               :href="app.repoUrl"
-              target="_blank"
               rel="noreferrer"
-              @click.stop
+              @click.stop.prevent="openUrl(app.repoUrl)"
             >
               GITHUB ↗
             </a>
@@ -237,10 +236,10 @@
       </div>
 
       <div class="detail-links">
-        <a v-if="selected.homepage" :href="selected.homepage" target="_blank" rel="noreferrer">网站 ↗</a>
-        <a v-if="selected.repoUrl" :href="selected.repoUrl" target="_blank" rel="noreferrer">GITHUB ↗</a>
-        <a v-if="selected.docsUrl" :href="selected.docsUrl" target="_blank" rel="noreferrer">帮助文档 ↗</a>
-        <a v-if="selected.releaseUrl || selected.repoUrl" :href="releaseUrl(selected)" target="_blank" rel="noreferrer">版本发布 ↗</a>
+        <a v-if="selected.homepage" :href="selected.homepage" @click.prevent="openUrl(selected.homepage)">网站 ↗</a>
+        <a v-if="selected.repoUrl" :href="selected.repoUrl" @click.prevent="openUrl(selected.repoUrl)">GITHUB ↗</a>
+        <a v-if="selected.docsUrl" :href="selected.docsUrl" @click.prevent="openUrl(selected.docsUrl)">帮助文档 ↗</a>
+        <a v-if="selected.releaseUrl || selected.repoUrl" :href="releaseUrl(selected)" @click.prevent="openUrl(releaseUrl(selected))">版本发布 ↗</a>
         <span v-if="selected.running" class="link-state">当前运行中</span>
         <span v-if="selected.duplicates?.length" class="link-state warn">
           检测到多份安装
