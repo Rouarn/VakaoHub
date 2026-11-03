@@ -47,13 +47,15 @@ export function parseRange(header: string, size: number): RangeParts | null {
 
 /**
  * 下载产物：支持 HTTP Range、强 ETag 与断点续传。
+ * 返回值表示本次是否真正发送了文件内容（304/416 返回 false），
+ * 供调用方只在真实下载时计数。
  */
 export async function serveFile(
   fullPath: string,
   req: Request,
   res: Response,
   options: { fileName: string; etag: string; cacheControl?: string },
-): Promise<void> {
+): Promise<boolean> {
   const info = await stat(fullPath);
   const size = info.size;
   const etag = `"${options.etag}"`;
@@ -72,7 +74,7 @@ export async function serveFile(
 
   if (req.headers['if-none-match'] === etag) {
     res.status(304).end();
-    return;
+    return false;
   }
 
   const rangeHeader = req.headers.range;
@@ -83,7 +85,7 @@ export async function serveFile(
     const parsed = parseRange(rangeHeader, size);
     if (!parsed) {
       res.status(416).setHeader('Content-Range', `bytes */${size}`).end();
-      return;
+      return false;
     }
     res.status(206);
     res.setHeader(
@@ -96,11 +98,12 @@ export async function serveFile(
       req,
       res,
     );
-    return;
+    return true;
   }
 
   res.setHeader('Content-Length', String(size));
   streamToResponse(createReadStream(fullPath), req, res);
+  return true;
 }
 
 /** 将文件流写入响应，并保证读错误不会变成未捕获异常导致进程退出 */

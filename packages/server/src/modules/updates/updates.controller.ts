@@ -43,9 +43,9 @@ export class UpdatesController {
     const { artifact } = await this.updatesService.getDownloadable(id);
     const fullPath = resolveStoragePath(artifact.relPath);
 
-    await this.updatesService.countDownload(id).catch(() => undefined);
+    let served = false;
     try {
-      await serveFile(fullPath, req, res, {
+      served = await serveFile(fullPath, req, res, {
         fileName: artifact.fileName,
         etag: `hub-${artifact.id}-${artifact.sha256.slice(0, 16)}`,
       });
@@ -53,6 +53,11 @@ export class UpdatesController {
       if (!res.headersSent) {
         throw new NotFoundException('安装包文件缺失');
       }
+    }
+
+    // 只在真正开始传输完整文件时计数：304/416 不算下载，断点续传的分段请求也不重复计数
+    if (served && req.method === 'GET' && !req.headers.range) {
+      await this.updatesService.countDownload(id).catch(() => undefined);
     }
   }
 
