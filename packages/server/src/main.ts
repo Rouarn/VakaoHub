@@ -44,7 +44,7 @@ async function bootstrap(): Promise<void> {
 
   app.enableShutdownHooks();
 
-  await app.listen(env.port);
+  await app.listen(env.port, env.host);
   Logger.log(
     `VaKao Hub 已启动：http://127.0.0.1:${env.port}/api/v1（文档 /api/docs）`,
     'Bootstrap',

@@ -2,6 +2,8 @@
 
 统一软件分发服务：Android 与桌面应用共用一套「应用 → 版本 → 产物」模型，提供目录、更新检查、产物下载、灰度/强更与事件统计。
 
+线上：<https://dist.woyuxiaji.cn>（下载页）；管理端 <https://dist.woyuxiaji.cn/admin/>。
+
 ## 与其它项目的关系
 
 - `vakao-static-hub`：保持「资源库 + 分享链接」定位，不承载软件分发，本次不做任何改动。
@@ -145,6 +147,8 @@ pnpm website   # http://localhost:5200
 - 迁移：`cd packages/server && pnpm migrate`；回滚 `pnpm migrate:revert`
 - 生产配置：复制 `packages/server/.env.production.example`，`DB_SYNCHRONIZE=false`，JWT/管理员密码必须替换
 - 部署模板：`deploy/` 提供 systemd、Nginx、MySQL 初始化与备份脚本
+- 管理端部署在 `/admin/` 时构建：`ADMIN_BASE=/admin/ pnpm --filter @vakao/hub-admin build`
+- 生产路径：站点 `/www/wwwroot/Vakao-hub`、服务端 `/www/wwwroot/Vakao-hub/app`、后台 `/www/wwwroot/Vakao-hub/admin`
 - 完整步骤与上线检查清单见 [deploy/README.md](deploy/README.md)
 
 ## 旧数据与 static-hub 的处理
@@ -161,12 +165,14 @@ pnpm website   # http://localhost:5200
 - [x] 管理员改密与事件漏斗看板
 - [x] 数据库迁移、生产环境硬校验与部署模板（systemd/Nginx/备份）
 - [ ] Windows 安装链路验证（CI 工作流已提供，尚未在 Windows 上实跑）
-- [ ] 实际服务器上线、HTTPS 证书与备份还原演练
+- [x] 实际服务器上线：https://dist.woyuxiaji.cn、管理端 /admin/、每日 3:30 备份
+- [ ] 备份异地存放与恢复演练
+- [ ] 生产管理员首次改密
 - [ ] macOS 签名与公证（需要 Apple Developer Program，暂缺）
 - [x] 安全加固：令牌吊销、登录锁定、操作审计、产物魔数校验、版本回滚
 - [x] 事件日志/审计页面、漏斗应用筛选
 - [x] 启动器断点续传、强更拦截、签名完整性校验
 - [x] 服务端单元测试与 CI 测试步骤
 - [ ] manifest 签名与启动器自更新
-- [ ] 灰度自动递增、回滚、事件漏斗看板
+- [ ] 灰度自动递增
 - [x] 官网下载页与静态入口

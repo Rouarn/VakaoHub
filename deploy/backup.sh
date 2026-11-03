@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 077
 
 # 备份 MySQL 与产物存储，默认保留 7 天。
 ROOT="${VAKAO_HUB_ROOT:-/www/wwwroot/vakao-hub}"

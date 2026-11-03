@@ -61,6 +61,25 @@ systemctl status vakaohub
 
 ## 7. Nginx
 
+管理端与下载页同域部署时，后台放在 `/admin/`：
+
+```bash
+ADMIN_BASE=/admin/ pnpm --filter @vakao/hub-admin build
+# 把 packages/admin/dist 放到站点根下的 admin/ 目录
+```
+
+Nginx 增加：
+
+```nginx
+location = /admin { return 301 /admin/; }
+location /admin/ { try_files $uri $uri/ /admin/index.html; }
+location ^~ /api/ { proxy_pass http://127.0.0.1:3000; }
+location ^~ /app/ { return 404; }
+```
+
+`/app/` 用于服务端代码与 storage，必须禁止直接访问。
+
+
 ```bash
 cp deploy/nginx.conf.example /etc/nginx/conf.d/vakaohub.conf
 # 修改 server_name、root、代理端口
