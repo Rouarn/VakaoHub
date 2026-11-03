@@ -308,10 +308,10 @@ const maxVersionCode = computed(() =>
 );
 
 const platformOptions: SelectOption[] = [
-  { label: 'android', value: 'android' },
-  { label: 'darwin', value: 'darwin' },
-  { label: 'win32', value: 'win32' },
-  { label: 'linux', value: 'linux' },
+  { label: 'macOS（darwin）', value: 'darwin' },
+  { label: 'Windows（win32）', value: 'win32' },
+  { label: 'Android', value: 'android' },
+  { label: 'Linux', value: 'linux' },
 ];
 
 const archOptions: SelectOption[] = [
@@ -320,15 +320,37 @@ const archOptions: SelectOption[] = [
   { label: 'x64', value: 'x64' },
 ];
 
-const formatOptions: SelectOption[] = [
-  { label: 'apk', value: 'apk' },
-  { label: 'dmg', value: 'dmg' },
-  { label: 'msi', value: 'msi' },
-  { label: 'exe', value: 'exe' },
-  { label: 'zip', value: 'zip' },
-  { label: 'appimage', value: 'appimage' },
-  { label: 'deb', value: 'deb' },
-];
+const formatOptionsByPlatform: Record<string, SelectOption[]> = {
+  darwin: [
+    { label: 'dmg', value: 'dmg' },
+    { label: 'zip', value: 'zip' },
+  ],
+  win32: [
+    { label: 'msi', value: 'msi' },
+    { label: 'exe', value: 'exe' },
+    { label: 'zip', value: 'zip' },
+  ],
+  android: [{ label: 'apk', value: 'apk' }],
+  linux: [
+    { label: 'appimage', value: 'appimage' },
+    { label: 'deb', value: 'deb' },
+    { label: 'zip', value: 'zip' },
+  ],
+};
+
+const formatOptions = computed<SelectOption[]>(
+  () => formatOptionsByPlatform[uploadForm.platform] ?? [],
+);
+
+watch(
+  () => uploadForm.platform,
+  (platform) => {
+    const allowed = formatOptionsByPlatform[platform] ?? [];
+    if (!allowed.some((option) => option.value === uploadForm.format)) {
+      uploadForm.format = String(allowed[0]?.value ?? '');
+    }
+  },
+);
 
 const appOptions = computed<SelectOption[]>(() =>
   apps.value.map((app) => ({ label: `${app.name}（${app.appKey}）`, value: app.id })),
