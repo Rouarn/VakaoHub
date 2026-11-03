@@ -331,6 +331,17 @@ func (a *App) Install(appKey string, artifactID int) (store.Installed, error) {
 		return store.Installed{}, err
 	}
 
+	if installPath == "" {
+		// msi / exe 交给系统安装程序，拿不到可启动路径；不写空路径记录，
+		// 否则下次刷新时 os.Stat("") 必然失败并删掉记录，表现为“装完仍显示未安装”。
+		if artifact.Format == "exe" {
+			a.emit(appKey, "done", 100, "已启动安装程序，请按向导完成安装")
+		} else {
+			a.emit(appKey, "done", 100, "安装完成；未记录启动路径，请从系统应用列表启动")
+		}
+		return store.Installed{}, nil
+	}
+
 	item := store.Installed{
 		AppKey:      app.AppKey,
 		Name:        app.Name,

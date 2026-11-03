@@ -20,6 +20,11 @@ func installLocal(format, filePath, appKey, appName, targetPath string) (string,
 		if output, err := exec.Command("msiexec", "/i", filePath, "/qn", "/norestart").CombinedOutput(); err != nil {
 			return "", fmt.Errorf("MSI 安装失败：%v %s", err, strings.TrimSpace(string(output)))
 		}
+		// MSI 的安装位置由安装包决定，只能从卸载注册表反查；
+		// 查不到时返回空路径，由调用方决定不落库（注册表可能尚未刷新）。
+		if detected := FindApps(appName); len(detected) > 0 {
+			return detected[0].Path, nil
+		}
 		return "", nil
 	case "exe":
 		cmd := exec.Command("cmd", "/c", "start", "", filePath)
@@ -91,7 +96,10 @@ func installZip(filePath, appKey string) (string, error) {
 		return nil
 	})
 	if exePath == "" {
-		return target, nil
+		// 没有 exe 就无法记录启动路径，记录安装目录会让“已安装”变成只能打开文件夹；
+		// 视为安装失败并清理残留，避免留下无法识别的目录。
+		_ = os.RemoveAll(target)
+		return "", fmt.Errorf("压缩包内未找到可执行文件（.exe），无法完成安装")
 	}
 	return exePath, nil
 }
